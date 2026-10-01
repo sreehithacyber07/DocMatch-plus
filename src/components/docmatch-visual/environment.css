@@ -1,0 +1,47 @@
+/*
+  The DocMatch+ environment (MANUS_VISUAL_AUDIT.md 31–32).
+
+  The canvas is fixed behind everything and never takes input. Page content
+  sits in its own layer above it. Screens inside the environment keep their
+  own layout; they only need a transparent background to let the atmosphere
+  through, which each screen's stylesheet provides.
+*/
+
+.docmatch-environment {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  background: var(--color-surface-canvas);
+}
+
+.docmatch-signal-field {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.docmatch-environment__content {
+  position: relative;
+  z-index: 1;
+}
+
+/* Manus: the field is a little quieter on small screens and under reduced
+   motion, where it is a still frame. */
+@media (max-width: 43.75rem) {
+  .docmatch-signal-field {
+    opacity: 0.82;
+  }
+
+  .docmatch-environment[data-intensity='landing'] .docmatch-signal-field {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .docmatch-signal-field {
+    opacity: 0.62;
+  }
+}

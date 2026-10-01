@@ -1,0 +1,148 @@
+/* Manus type roles: Sora for headings and questions, Manrope for everything
+   the patient operates or reads in running text (MANUS_VISUAL_AUDIT.md 5–6). */
+.type-product,
+.type-display,
+.type-heading-1,
+.type-heading-2,
+.type-question {
+  font-family: var(--font-display);
+}
+
+.type-control,
+.type-label,
+.type-caption,
+.type-data,
+.type-stage-number {
+  font-family: var(--font-ui);
+}
+
+.type-body,
+.type-body-small {
+  font-family: var(--font-body);
+}
+
+.type-product {
+  font-size: var(--text-product);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-product);
+  line-height: var(--text-product--line-height);
+}
+
+.type-display {
+  font-size: var(--text-display);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: var(--tracking-display);
+  line-height: var(--text-display--line-height);
+}
+
+.type-heading-1 {
+  font-size: var(--text-heading-1);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: var(--tracking-heading-1);
+  line-height: var(--text-heading-1--line-height);
+}
+
+.type-heading-2 {
+  font-size: var(--text-heading-2);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: var(--tracking-heading-2);
+  line-height: var(--text-heading-2--line-height);
+}
+
+.type-question {
+  max-width: var(--measure-reading);
+  font-size: var(--text-question);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: var(--tracking-question);
+  line-height: var(--text-question--line-height);
+}
+
+.type-body {
+  max-width: var(--measure-reading);
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: var(--tracking-body);
+  line-height: var(--text-body--line-height);
+}
+
+.type-body-small {
+  max-width: var(--measure-reading);
+  font-size: var(--text-body-small);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: var(--tracking-body);
+  line-height: var(--text-body-small--line-height);
+}
+
+.type-control {
+  font-size: var(--text-control);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-control);
+  line-height: var(--text-control--line-height);
+}
+
+.type-label {
+  font-size: var(--text-label);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-label);
+  line-height: var(--text-label--line-height);
+}
+
+.type-caption {
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-caption);
+  line-height: var(--text-caption--line-height);
+}
+
+.type-data {
+  font-size: var(--text-data);
+  font-variant-numeric: tabular-nums slashed-zero;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-data);
+  line-height: var(--text-data--line-height);
+}
+
+.type-stage-number {
+  font-size: var(--text-stage-number);
+  font-variant-numeric: tabular-nums slashed-zero;
+  font-weight: var(--font-weight-regular);
+  letter-spacing: var(--tracking-display);
+  line-height: var(--text-stage-number--line-height);
+}
+
+@media (min-width: 68.75rem) {
+  .type-display {
+    font-size: var(--text-display-desktop);
+    line-height: var(--text-display-desktop--line-height);
+  }
+
+  .type-heading-1 {
+    font-size: var(--text-heading-1-desktop);
+    line-height: var(--text-heading-1-desktop--line-height);
+  }
+
+  .type-heading-2 {
+    font-size: var(--text-heading-2-desktop);
+    line-height: var(--text-heading-2-desktop--line-height);
+  }
+
+  .type-question {
+    font-size: var(--text-question-desktop);
+    line-height: var(--text-question-desktop--line-height);
+  }
+
+  .type-body {
+    font-size: var(--text-body-desktop);
+    line-height: var(--text-body-desktop--line-height);
+  }
+
+  .type-body-small {
+    font-size: var(--text-body-small-desktop);
+    line-height: var(--text-body-small-desktop--line-height);
+  }
+
+  .type-stage-number {
+    font-size: var(--text-stage-number-desktop);
+    line-height: var(--text-stage-number-desktop--line-height);
+  }
+}

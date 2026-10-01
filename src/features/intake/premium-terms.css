@@ -1,0 +1,271 @@
+/* One editorial page inside the existing intake shell. The environment's
+   waves and medical line work remain visible through the open surfaces. */
+.premium-terms-page {
+  box-sizing: border-box;
+  width: min(100%, 86rem);
+  height: 100%;
+  min-height: 0;
+  margin-inline: auto;
+  padding: clamp(0.85rem, 2vh, 1.5rem) clamp(1.5rem, 4vw, 3.5rem);
+  color: #f4f8fa;
+}
+
+.premium-terms-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.93fr) minmax(0, 1.07fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: clamp(1.5rem, 3.4vw, 3.75rem);
+  height: 100%;
+  min-height: 0;
+}
+
+.premium-terms-intro-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: safe center;
+  min-width: 0;
+  min-height: 0;
+  padding-block: 0.5rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #3b6277 transparent;
+}
+
+.premium-terms-intro-panel::-webkit-scrollbar { width: 8px; }
+.premium-terms-intro-panel::-webkit-scrollbar-thumb {
+  border: 2px solid #030a14;
+  border-radius: 999px;
+  background: #456c80;
+}
+.premium-terms-intro-panel:focus-visible {
+  outline: 2px solid #66d6ec;
+  outline-offset: -2px;
+}
+
+.premium-terms-eyebrow,
+.premium-terms-content-kicker {
+  margin: 0 0 0.85rem;
+  color: #66d6ec;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.premium-terms-title {
+  max-width: 11.5ch;
+  margin: 0 0 0.9rem;
+  color: #f6fafc;
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 3.15vw, 3.2rem);
+  font-weight: 500;
+  line-height: 1.07;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+
+.premium-terms-title:focus { outline: none; }
+
+.premium-terms-intro {
+  max-width: 29rem;
+  margin: 0;
+  font-size: clamp(0.9rem, 1.03vw, 0.98rem);
+  line-height: 1.57;
+}
+
+.premium-terms-intro { color: #c0d2dc; }
+
+.premium-terms-overview { margin-top: clamp(0.95rem, 2.2vh, 1.45rem); }
+.premium-terms-overview__label {
+  margin: 0 0 0.55rem;
+  color: #65d6eb;
+  font-size: 0.67rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+.premium-terms-overview ol { display: grid; gap: 0.3rem; margin: 0; padding: 0; list-style: none; }
+.premium-terms-overview li { display: flex; gap: 0.8rem; align-items: baseline; }
+.premium-terms-overview li > span { color: #67d7ec; font-size: 0.7rem; font-weight: 700; }
+.premium-terms-overview li p { margin: 0; color: #a9c0ce; font-size: 0.81rem; line-height: 1.4; }
+.premium-terms-overview li strong { color: #e9f4f8; font-weight: 650; }
+.premium-terms-urgent {
+  margin: clamp(0.8rem, 1.8vh, 1.25rem) 0 0;
+  padding: 0.65rem 0.8rem;
+  border-left: 2px solid #6cd9ed;
+  background: linear-gradient(90deg, #04101d, rgba(2, 7, 19, 0.55));
+  color: #e8f6f9;
+  font-size: 0.81rem;
+  line-height: 1.45;
+}
+
+.premium-terms-content-panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  min-width: 0;
+  min-height: 0;
+}
+
+.premium-terms-content-head {
+  padding-top: 0.25rem;
+}
+
+.premium-terms-content-head h2 {
+  margin: 0 0 0.3rem;
+  color: #f5f9fb;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 1.9vw, 1.85rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+
+.premium-terms-content-head > p:last-child {
+  margin: 0;
+  color: #9cb2c1;
+  font-size: 0.9rem;
+}
+
+.premium-terms-reading {
+  min-height: 0;
+  padding: 0.4rem clamp(1.1rem, 2.5vw, 1.8rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  border: 1px solid #294356;
+  border-radius: 0.55rem;
+  background: linear-gradient(155deg, #04101d, #020713 52%);
+  box-shadow: inset 0 1px 0 rgba(220, 245, 250, 0.025);
+  scrollbar-color: #3b6277 transparent;
+  scrollbar-width: thin;
+}
+
+.premium-terms-reading::-webkit-scrollbar { width: 8px; }
+.premium-terms-reading::-webkit-scrollbar-thumb {
+  border: 2px solid #020912;
+  border-radius: 999px;
+  background: #456c80;
+}
+
+.premium-terms-reading:focus-visible {
+  outline: 2px solid #66d6ec;
+  outline-offset: 2px;
+}
+
+.premium-terms-section {
+  padding: 0.9rem 0 1rem;
+  border-bottom: 1px solid #203648;
+}
+
+.premium-terms-section:last-child { border-bottom: 0; }
+
+.premium-terms-section h3 {
+  display: flex;
+  align-items: baseline;
+  gap: 0.85rem;
+  margin: 0 0 0.55rem;
+  color: #edf5f9;
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.premium-terms-section h3 span {
+  color: #66d6ec;
+  font-size: 0.71rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.premium-terms-section p {
+  margin: 0 0 0.65rem 2rem;
+  color: #a9bdca;
+  font-size: clamp(0.875rem, 1vw, 0.925rem);
+  line-height: 1.55;
+}
+
+.premium-terms-section p:last-child { margin-bottom: 0; }
+
+.premium-terms-session {
+  margin: 1rem 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid #305368;
+  border-radius: 0.4rem;
+  background: linear-gradient(150deg, #04101d, #020713 70%);
+  box-shadow: inset 0 1px 0 rgba(220, 245, 250, 0.025);
+}
+.premium-terms-session h3 { margin: 0 0 0.35rem; color: #d9f3f7; font-size: 0.83rem; }
+.premium-terms-session p { margin: 0; color: #aec7d4; font-size: 0.81rem; line-height: 1.5; }
+
+.premium-terms-commit {
+  display: grid;
+  gap: 0.55rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid #284052;
+}
+
+.premium-terms-disclosure {
+  max-width: 46rem;
+  margin: 0;
+  color: #b9ced9;
+  font-size: 0.81rem;
+  line-height: 1.5;
+}
+.premium-terms-disclosure strong { color: #eff9fb; }
+
+.premium-terms-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.premium-terms-actions .premium-terms-agree {
+  min-width: 12.5rem;
+}
+
+@media (max-width: 68.749rem) {
+  main.route-surface.route-surface--intake:has(.intake[data-phase='terms']) {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+  .intake[data-phase='terms'] {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+  .premium-terms-page { height: auto; }
+  .premium-terms-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    gap: 2rem;
+    height: auto;
+  }
+  .premium-terms-intro-panel { justify-content: flex-start; padding-block: 0; overflow: visible; overscroll-behavior: auto; }
+  .premium-terms-title { max-width: 18ch; margin-bottom: 1rem; }
+  .premium-terms-intro { max-width: 43rem; }
+  .premium-terms-overview { margin-top: 1.2rem; }
+  .premium-terms-content-panel { grid-template-rows: auto auto auto; }
+  .premium-terms-reading { overflow: visible; overscroll-behavior: auto; touch-action: auto; }
+}
+
+@media (max-width: 43.749rem) {
+  .premium-terms-page { padding: 1.35rem 1rem 2rem; }
+  .premium-terms-layout { gap: 1.7rem; }
+  .premium-terms-title { font-size: clamp(2.15rem, 8vw, 2.8rem); }
+  .premium-terms-intro { font-size: 0.9rem; }
+  .premium-terms-reading { padding-inline: 1rem; }
+  .premium-terms-section p { margin-left: 0; }
+  .premium-terms-actions .premium-terms-agree { flex: 1; min-width: 0; }
+}
+
+@media (max-height: 46rem) and (min-width: 56.001rem) {
+  .premium-terms-page { padding-block: 0.8rem; }
+  .premium-terms-title { font-size: clamp(2.15rem, 2.8vw, 2.85rem); }
+  .premium-terms-overview { margin-top: 0.85rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .premium-terms-page,
+  .premium-terms-page * { scroll-behavior: auto; }
+}

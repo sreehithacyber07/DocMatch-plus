@@ -1,0 +1,56 @@
+/* Route failures: the same panel and tokens as the not-found screen, kept in
+   their own classes so that screen's cascade is untouched. */
+
+.route-error {
+  display: grid;
+  min-height: 100dvh;
+  padding: var(--space-page-block) var(--space-page-inline);
+  place-items: center;
+  background: var(--color-surface-canvas);
+  color: var(--color-on-surface-canvas);
+}
+
+.route-error__panel {
+  display: grid;
+  width: min(100%, 30rem);
+  gap: var(--spacing-3);
+  padding: var(--spacing-6);
+  border: 1px solid var(--color-border-structural);
+  background: var(--color-surface-plane);
+}
+
+.route-error__eyebrow {
+  margin: 0;
+  color: var(--color-on-surface-plane-secondary);
+  text-transform: uppercase;
+}
+
+.route-error__title,
+.route-error__lead {
+  margin: 0;
+}
+
+.route-error__lead {
+  color: var(--color-on-surface-plane-secondary);
+}
+
+.route-error__action {
+  display: flex;
+  min-height: var(--control-target-minimum);
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-3) var(--spacing-4);
+  border: 1px solid var(--color-border-interactive);
+  background: var(--color-surface-selected);
+  color: var(--color-on-surface-selected);
+  text-decoration: none;
+}
+
+.route-error__action:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+button.route-error__action {
+  cursor: pointer;
+}

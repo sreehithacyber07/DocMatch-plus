@@ -1,0 +1,388 @@
+@theme static {
+  --color-*: initial;
+  --font-*: initial;
+  --text-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --blur-*: initial;
+
+  --color-surface-canvas: #030a14;
+  --color-on-surface-canvas: #f1f6fa;
+  --color-on-surface-canvas-secondary: #91a6b8;
+  /*
+    This whole family (rail / plane / selected / focus) is a second, parallel
+    generation of surface token to --control-surface and friends above, used
+    across Body Explorer's left rail (region rows, layer rows), the spine
+    rail, the questionnaire answer tiles' selected state, and staff. It was
+    never fixed alongside --control-surface, so it carried the identical
+    defect forward: #071426/#091421/#0a1e32 are dark, but their blue channel
+    (38/33/50) sits in the same band as the values explicitly rejected as
+    "medium-blue", and read distinctly bluer once the animated hero
+    background was compositing behind translucent siblings elsewhere on the
+    same screens. Brought down into the same near-black band as
+    --control-surface. Selected and focus stay AT OR BELOW resting, never
+    above it, because a chosen or hovered tile is carried by its border and
+    cyan mark, not by a brighter fill.
+  */
+  --color-surface-rail: #07111c;
+  --color-on-surface-rail: #f1f6fa;
+  --color-on-surface-rail-secondary: #91a6b8;
+  --color-surface-plane: #060d16;
+  --color-on-surface-plane: #eef5f8;
+  --color-on-surface-plane-secondary: #a2b4c4;
+  --color-surface-action: #d7f8ff;
+  --color-on-surface-action: #03111f;
+  --color-surface-selected: #050b13;
+  --color-on-surface-selected: #f2f7fa;
+  --color-surface-focus: #060f19;
+  --color-on-surface-focus: #f2f7fa;
+  --color-surface-unavailable: #070f18;
+  --color-on-surface-unavailable: #6f879a;
+  --color-surface-critical: #531719;
+  --color-on-surface-critical: #fff4f1;
+  --color-surface-critical-strong: #ff7548;
+  --color-on-surface-critical-strong: #2b0805;
+  --color-border-structural: #365b78;
+  --color-border-interactive: #49cff4;
+  --color-border-critical: #ff6848;
+  --color-focus-ring: #55d9ff;
+  --color-status-info: #53d5f5;
+  --color-status-success: #28e0c1;
+  --color-status-warning: #f2c75c;
+  --color-status-error: #ff6d64;
+
+  --font-ui: "Manrope", system-ui, sans-serif;
+  --font-display: "Sora", system-ui, sans-serif;
+  --font-accent: "Cormorant Garamond", Georgia, serif;
+  --font-body: "Manrope", system-ui, sans-serif;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --tracking-product: -0.04em;
+  --tracking-display: -0.075em;
+  --tracking-heading-1: -0.07em;
+  --tracking-heading-2: -0.04em;
+  --tracking-question: -0.02em;
+  --tracking-body: 0em;
+  --tracking-control: 0.01em;
+  --tracking-label: 0.07em;
+  --tracking-caption: 0.08em;
+  --tracking-data: 0.01em;
+
+  --text-product: 1.25rem;
+  --text-product--line-height: 1.5625rem;
+  --text-display: 2.5rem;
+  --text-display--line-height: 2.8125rem;
+  --text-display-desktop: 4rem;
+  --text-display-desktop--line-height: 4.375rem;
+  --text-heading-1: 1.75rem;
+  --text-heading-1--line-height: 2.1875rem;
+  --text-heading-1-desktop: 2rem;
+  --text-heading-1-desktop--line-height: 2.5rem;
+  --text-heading-2: 1.375rem;
+  --text-heading-2--line-height: 1.875rem;
+  --text-heading-2-desktop: 1.5rem;
+  --text-heading-2-desktop--line-height: 1.875rem;
+  --text-question: 1.5rem;
+  --text-question--line-height: 2.1875rem;
+  --text-question-desktop: 1.75rem;
+  --text-question-desktop--line-height: 2.5rem;
+  --text-body: 1rem;
+  --text-body--line-height: 1.5625rem;
+  --text-body-desktop: 1.125rem;
+  --text-body-desktop--line-height: 1.875rem;
+  --text-body-small: 0.9375rem;
+  --text-body-small--line-height: 1.5625rem;
+  --text-body-small-desktop: 1rem;
+  --text-body-small-desktop--line-height: 1.5625rem;
+  --text-control: 1rem;
+  --text-control--line-height: 1.25rem;
+  --text-label: 0.875rem;
+  --text-label--line-height: 1.25rem;
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.25rem;
+  --text-data: 1rem;
+  --text-data--line-height: 1.25rem;
+  --text-stage-number: 3rem;
+  --text-stage-number--line-height: 3.125rem;
+  --text-stage-number-desktop: 5rem;
+  --text-stage-number-desktop--line-height: 5rem;
+
+  /* Shared semantic type roles used across onboarding, explorer, interview,
+     safety, and handoff surfaces. */
+  --text-eyebrow: var(--text-caption);
+  --text-section: var(--text-label);
+  --text-title: var(--text-heading-1);
+  --text-copy: var(--text-body);
+  --text-support: var(--text-caption);
+
+  --spacing: 5px;
+  --spacing-0: 0px;
+  --spacing-1: 5px;
+  --spacing-2: 10px;
+  --spacing-3: 15px;
+  --spacing-4: 20px;
+  --spacing-5: 25px;
+  --spacing-6: 30px;
+  --spacing-8: 40px;
+  --spacing-10: 50px;
+  --spacing-12: 60px;
+  --spacing-16: 80px;
+  --breakpoint-tablet: 43.75rem;
+  --breakpoint-desktop: 68.75rem;
+}
+
+:root {
+  --contrast-text-normal-minimum: 4.5;
+  --contrast-text-large-minimum: 3;
+  --contrast-non-text-minimum: 3;
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 5px;
+  --control-target-minimum: 48px;
+  --size-rail-mobile: 50px;
+  --size-rail-tablet: 60px;
+  --size-rail-desktop: 80px;
+  --size-rail: var(--size-rail-mobile);
+  --space-page-inline-mobile: var(--spacing-4);
+  --space-page-inline-tablet: var(--spacing-6);
+  --space-page-inline-desktop: var(--spacing-8);
+  --space-page-inline: var(--space-page-inline-mobile);
+  --space-page-block: var(--spacing-8);
+  --space-rail-inline: var(--spacing-2);
+  --measure-content: 75rem;
+  --measure-reading: 65ch;
+  --motion-duration-immediate: 80ms;
+  --motion-duration-control: 160ms;
+  --motion-duration-content: 220ms;
+  --motion-duration-spatial: 320ms;
+  --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --motion-ease-enter: cubic-bezier(0, 0, 0, 1);
+  --motion-ease-exit: cubic-bezier(0.3, 0, 1, 1);
+  --emission-surface: var(--color-surface-canvas);
+  --emission-text: var(--color-on-surface-canvas);
+  --emission-text-secondary: var(--color-on-surface-canvas-secondary);
+  --emission-border: transparent;
+  --emission-pictogram: var(--color-on-surface-canvas-secondary);
+  --emission-accent: var(--color-on-surface-canvas);
+  --emission-pictogram-quiet: var(--color-border-structural);
+
+  /* Depth and light.
+     Raw literals are permitted only in this file, so every luminance value used
+     by the stage, the rail and the interactive surfaces is declared here and
+     consumed as a token elsewhere. Alpha carries LIGHT only. It never carries
+     de-emphasis of text or a pictogram; dim states are their own tokens. */
+  /*
+    Was #041526 (b=38) - the questionnaire answer tile's resting fill, and
+    over the near-black line for the same reason as the token families above.
+    Brought down to sit between the canvas and --surface-well-floor rather
+    than above them.
+  */
+  --surface-well: #051019;
+  --surface-well-floor: #020d19;
+  --surface-tray: rgba(5, 20, 36, 0.88);
+  --light-stage: rgba(83, 213, 245, 0.08);
+  --light-stage-critical: rgba(255, 104, 72, 0.10);
+  --light-occupant: rgba(83, 213, 245, 0.16);
+  --light-occupant-critical: rgba(255, 104, 72, 0.24);
+  --glow-hover: rgba(83, 213, 245, 0.22);
+  --glow-selected: rgba(83, 213, 245, 0.3);
+  --edge-quiet: rgba(70, 110, 145, 0.45);
+  --edge-luminous: rgba(83, 213, 245, 0.7);
+  --scrim-bar: rgba(3, 10, 20, 0.48);
+  /* Hero entrance. The scrim is weighted to the centre where the identity sits
+     and falls off to nothing at the edges, so playback itself stays clean. */
+  /* Corner radius. Square geometry was relaxed for the reference-faithful
+     pass; these are the only permitted steps, so radius stays systematic
+     rather than ad hoc. */
+  /* Continued visual pass. Raw literals belong only to this file. */
+  --surface-abyss: #020812;
+  --surface-abyss-deep: #020916;
+  --ink-bright: #d8edf7;
+  --ink-brightest: #dffaff;
+  --ink-pure: #ffffff;
+  --accent-marker: #ff704d;
+  --pain-level-1: #28e0c1;
+  --pain-level-2: #84d889;
+  --pain-level-3: #f2c75c;
+  --pain-level-4: #ff9b45;
+  --pain-level-5: #ff6d64;
+
+  --radius-sm: 0.38rem;
+  --radius-md: 0.42rem;
+  --radius-lg: 0.5rem;
+  --radius-pill: 999px;
+
+  --hero-scrim-core: rgba(7, 22, 29, 0.62);
+  --hero-scrim-edge: rgba(7, 22, 29, 0.10);
+  --hero-control-edge: rgba(237, 245, 244, 0.34);
+  --hero-control-surface: rgba(7, 22, 29, 0.28);
+  --hero-control-surface-hover: rgba(7, 22, 29, 0.46);
+
+  --intro-field-core: rgba(28, 96, 110, 0.85);
+  --intro-field-far: rgba(20, 68, 82, 0.70);
+  --intro-panel-surface: rgba(9, 27, 34, 0.72);
+  --intro-panel-edge: rgba(135, 204, 209, 0.28);
+  --intro-panel-highlight: rgba(135, 204, 209, 0.55);
+  --intro-panel-shadow: rgba(3, 10, 14, 0.55);
+
+  --size-occupant: 110px;
+  --size-well-min: 380px;
+
+  /* Experience polish pass. Raw literals belong only to this file.
+     Each of these carries LIGHT or DEPTH, never de-emphasis of text. */
+  --light-motif: rgba(83, 213, 245, 0.06);
+  --light-motif-critical: rgba(255, 104, 72, 0.09);
+  --vignette-edge: rgba(3, 10, 20, 0.78);
+  --field-core: rgba(17, 62, 76, 0.22);
+  --field-mid: rgba(17, 62, 76, 0.1);
+  --floor-ring: rgba(83, 213, 245, 0.2);
+  --trail-line: rgba(49, 94, 120, 0.42);
+
+  /*
+    Forensic pass. Every control surface below used to be TRANSLUCENT
+    (78%, 45%, 90% alpha) over rgb(10,30,50) - a genuinely blue-leaning navy
+    even at full strength. That was invisible as a bug while the page behind
+    it was a flat opaque near-black fill, because the alpha had nothing
+    colourful to blend with. Once that page-level fill was correctly removed
+    so the approved hero background (DNA strand, wave lines, particle field,
+    all cyan-toned) could show through again, every one of these controls
+    started compositing live with that moving, cyan-tinted layer through its
+    own 22-55% transparent gap - which is what actually produced the "still
+    blue" screenshots. A control surface is not a window onto the
+    background: it is drawn OPAQUE now, so the hero atmosphere is visible in
+    the gaps AROUND controls and never blended into them. The base colour
+    itself is also darkened, from rgb(10,30,50) into the near-black band the
+    founder specified directly (#040A12-#06101A), because the old value was
+    one RGB step from a colour on the founder's own rejected list.
+  */
+  --control-surface: #050b13;
+  --control-surface-quiet: #040a12;
+  /* A steel-blue VEIL, not a blue fill, composited over the now-opaque
+     resting surface above rather than over the page. Hover is a lift, so it
+     lightens the edge and barely the plane. */
+  --control-surface-hover: rgba(70, 110, 145, 0.16);
+  --control-surface-pressed: #030912;
+  /* Selected is the SAME opaque near-black as resting; only the border and
+     mark change colour (see --control-edge-selected below). */
+  --control-surface-selected: #050b13;
+  --control-edge: #49cff4;
+  --control-edge-hover: #8de6ff;
+  --control-edge-structural: #29465e;
+  --control-edge-structural-hover: #557b98;
+  --control-edge-glow: rgba(83, 213, 245, 0.22);
+  /* Selection is carried by a slightly brighter STEEL edge plus a cyan mark,
+     never by filling the control. Cyan is reserved for the thin active border,
+     the mark itself, the focus ring, a tiny indicator and links. */
+  --control-edge-selected: #6f9ab8;
+  /* Popovers that sit over the page are near-black navy and opaque, so nothing
+     behind them shows through the rows a patient is reading. */
+  --control-surface-popover: #020713;
+  --control-overlay-hover: rgba(70, 110, 145, 0.14);
+  --control-overlay-selected: rgba(70, 110, 145, 0.1);
+  /* Overlays that carry reading content are opaque, so nothing behind them
+     shows through their text. Also darkened for the same reason as
+     --control-surface above: #071426 read as blue once the atmosphere behind
+     it started moving, even fully opaque, because the value itself was too
+     close to navy. */
+  --surface-elevated: #07111c;
+  --surface-reading: #091421;
+  --scrim-modal: rgba(3, 10, 20, 0.8);
+
+  /* Manus visual system (MANUS_VISUAL_AUDIT.md). Exact values from the Manus
+     export: ink, accent teal, meta text, panel surface, panel edges. */
+  --manus-heading: #eef5f8;
+  --manus-ghost-ink: #a9bbc9;
+  --manus-accent: #8de6dc;
+  --manus-cyan: #53d5f5;
+  --manus-description: #a2b4c4;
+  --manus-meta: #748b9d;
+  --manus-deep-meta: #557589;
+  --manus-steel: #315e78;
+  --manus-card: #091421;
+  --manus-panel: linear-gradient(145deg, rgba(9, 20, 33, 0.72), rgba(3, 10, 20, 0.45));
+  --manus-panel-edge: rgba(70, 110, 145, 0.45);
+  --manus-panel-inner: rgba(83, 213, 245, 0.1);
+  --manus-panel-shadow: 0 30px 80px rgba(0, 0, 0, 0.18);
+  --manus-section-rule: rgba(70, 110, 145, 0.22);
+  --manus-nav-edge: rgba(70, 110, 145, 0.24);
+  --manus-hero-veil: linear-gradient(180deg, rgba(3, 10, 20, 0.43), rgba(3, 10, 20, 0.25));
+  --manus-grid-line: rgba(50, 86, 115, 0.1);
+  --manus-scroll-track: #010812;
+  --manus-scroll-thumb: #29465e;
+  --manus-scroll-thumb-hover: #3b617b;
+}
+
+[data-emission="foundation"] {
+  --emission-surface: var(--color-surface-canvas);
+  --emission-text: var(--color-on-surface-canvas);
+  --emission-text-secondary: var(--color-on-surface-canvas-secondary);
+  --emission-border: transparent;
+  --emission-pictogram: var(--color-on-surface-canvas-secondary);
+  --emission-accent: var(--color-on-surface-canvas);
+  --emission-pictogram-quiet: var(--color-border-structural);
+}
+
+[data-emission="structural"] {
+  --emission-surface: var(--color-surface-rail);
+  --emission-text: var(--color-on-surface-rail);
+  --emission-text-secondary: var(--color-on-surface-rail-secondary);
+  --emission-border: var(--color-border-structural);
+  --emission-pictogram: var(--color-on-surface-rail-secondary);
+  --emission-accent: var(--color-border-structural);
+  --emission-pictogram-quiet: var(--color-border-structural);
+}
+
+[data-emission="interactive"] {
+  --emission-surface: var(--color-surface-selected);
+  --emission-text: var(--color-on-surface-selected);
+  --emission-text-secondary: var(--color-on-surface-selected);
+  --emission-border: var(--color-border-interactive);
+  --emission-pictogram: var(--color-on-surface-selected);
+  --emission-accent: var(--color-border-interactive);
+  --emission-pictogram-quiet: var(--color-border-interactive);
+}
+
+[data-emission="critical"] {
+  --emission-surface: var(--color-surface-critical);
+  --emission-text: var(--color-on-surface-critical);
+  --emission-text-secondary: var(--color-on-surface-critical);
+  --emission-border: var(--color-border-critical);
+  --emission-pictogram: var(--color-on-surface-critical);
+  --emission-accent: var(--color-border-critical);
+  --emission-pictogram-quiet: var(--color-border-critical);
+}
+
+@media (min-width: 43.75rem) {
+  :root {
+    --size-rail: var(--size-rail-tablet);
+    --space-page-inline: var(--space-page-inline-tablet);
+    --space-rail-inline: var(--spacing-3);
+  }
+}
+
+@media (min-width: 68.75rem) {
+  :root {
+    --size-rail: var(--size-rail-desktop);
+    --space-page-inline: var(--space-page-inline-desktop);
+    --space-rail-inline: var(--spacing-4);
+  }
+}
+
+/* Questionnaire rebuild. Raw literals belong only to this file. */
+:root {
+  /* Muted medical red for the safety-check label and the urgent-review note:
+     legible on the ocean-night surfaces, deliberately quieter than the
+     escalation register. */
+  --safety-label-ink: #D94B55;
+  --safety-label-edge: #C94B54;
+  --safety-label-surface: rgba(170, 35, 50, 0.12);
+
+  /* The under-18 acknowledgement: a true near-black sheet with a thin cyan
+     perimeter. The glow is edge light only, never a fill. */
+  --surface-acknowledgement: #020509;
+  --edge-acknowledgement: rgba(83, 213, 245, 0.42);
+  --glow-acknowledgement: rgba(83, 213, 245, 0.14);
+  --scrim-acknowledgement: rgba(1, 4, 8, 0.72);
+}

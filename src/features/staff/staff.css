@@ -1,0 +1,428 @@
+/*
+  The clinical workspace.
+
+  An operational screen, not a marketing page and not a metrics dashboard. The
+  worklist is dense by intent: status, direction, concern, prepared time and the
+  warning-sign flag are readable in one pass, and the reading column beside it
+  holds the evidence at body measure. Geometry stays square, surfaces stay flat,
+  and colour is never the only carrier of state: every status and priority flag
+  is also a word.
+*/
+
+.staff-entry {
+  display: grid;
+  min-height: 100dvh;
+  padding: var(--space-page-block) var(--space-page-inline);
+  place-items: center;
+  background: var(--color-surface-canvas);
+  color: var(--color-on-surface-canvas);
+}
+
+.staff-entry__panel {
+  display: grid;
+  width: min(100%, 26rem);
+  gap: var(--spacing-3);
+  padding: var(--spacing-6);
+  border: 1px solid var(--color-border-structural);
+  background: var(--color-surface-plane);
+}
+
+.staff-entry__eyebrow {
+  color: var(--color-on-surface-plane-secondary);
+  text-transform: uppercase;
+}
+
+.staff-entry__title {
+  margin: 0;
+}
+
+.staff-entry__lead,
+.staff-entry__note,
+.staff-entry__boundary {
+  margin: 0;
+  color: var(--color-on-surface-plane-secondary);
+}
+
+.staff-entry__boundary {
+  padding-top: var(--spacing-3);
+  border-top: 1px solid var(--color-border-structural);
+}
+
+.staff-entry__error:empty {
+  display: none;
+}
+
+.staff-entry__error {
+  margin: 0;
+  color: var(--color-status-error);
+}
+
+.staff-field {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.staff-field label {
+  color: var(--color-on-surface-plane-secondary);
+}
+
+.staff-input {
+  min-height: var(--control-target-minimum);
+  padding: var(--spacing-2) var(--spacing-3);
+  border: 1px solid var(--color-border-structural);
+  border-radius: 0;
+  background: var(--color-surface-canvas);
+  color: var(--color-on-surface-canvas);
+  font-family: var(--font-body);
+}
+
+.staff-input:focus-visible,
+.staff-cta:focus-visible,
+.staff-ghost:focus-visible,
+.staff-row:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.staff-cta {
+  display: inline-flex;
+  min-height: var(--control-target-minimum);
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-4);
+  border: 1px solid var(--color-border-interactive);
+  background: var(--color-surface-selected);
+  color: var(--color-on-surface-selected);
+  cursor: pointer;
+}
+
+.staff-cta[disabled] {
+  border-color: var(--color-border-structural);
+  background: var(--color-surface-unavailable);
+  color: var(--color-on-surface-unavailable);
+  cursor: default;
+}
+
+.staff-ghost {
+  display: inline-flex;
+  min-height: var(--control-target-minimum);
+  align-items: center;
+  padding: var(--spacing-2) var(--spacing-3);
+  border: 1px solid var(--color-border-structural);
+  background: transparent;
+  color: var(--color-on-surface-canvas-secondary);
+  cursor: pointer;
+}
+
+.staff-ghost:hover {
+  color: var(--color-on-surface-canvas);
+}
+
+/* --- Workspace ------------------------------------------------------------- */
+
+.staff-workspace {
+  display: grid;
+  min-height: 100dvh;
+  /* minmax(0, 1fr): a long facility name ellipsizes instead of widening the page. */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  background: var(--color-surface-canvas);
+  color: var(--color-on-surface-canvas);
+}
+
+.staff-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--space-page-inline);
+  border-bottom: 1px solid var(--color-border-structural);
+  background: var(--color-surface-rail);
+}
+
+.staff-bar__identity {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  min-width: 0;
+}
+
+.staff-bar__facility {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.staff-bar__role {
+  color: var(--color-on-surface-rail-secondary);
+}
+
+.staff-bar__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+a.staff-ghost {
+  text-decoration: none;
+}
+
+.staff-grid {
+  display: grid;
+  min-height: 0;
+  grid-template-columns: minmax(18rem, 22rem) 1fr;
+}
+
+.staff-queue {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-2);
+  padding: var(--spacing-3) var(--spacing-3) var(--spacing-8);
+  border-right: 1px solid var(--color-border-structural);
+}
+
+.staff-queue__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+}
+
+.staff-queue__title {
+  margin: 0;
+  color: var(--color-on-surface-canvas-secondary);
+  text-transform: uppercase;
+}
+
+.staff-queue__count {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.staff-queue__list {
+  display: grid;
+  gap: var(--spacing-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.staff-row {
+  display: grid;
+  width: 100%;
+  gap: var(--spacing-1);
+  padding: var(--spacing-2);
+  border: 1px solid var(--color-border-structural);
+  background: var(--color-surface-plane);
+  color: var(--color-on-surface-plane);
+  cursor: pointer;
+  text-align: start;
+}
+
+.staff-row:hover {
+  border-color: var(--color-border-interactive);
+}
+
+.staff-row[aria-current='true'] {
+  border-inline-start: 3px solid var(--color-border-interactive);
+  background: var(--color-surface-selected);
+}
+
+.staff-row__line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+}
+
+.staff-row__direction {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.staff-row__meta {
+  color: var(--color-on-surface-plane-secondary);
+}
+
+.staff-row__priority {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  /* Critical text on the dark row surfaces; the "on-critical-strong" colour is
+     for text placed on the orange surface and was unreadable here. */
+  color: var(--color-status-error);
+}
+
+.staff-status {
+  display: inline-flex;
+  padding: 2px var(--spacing-1);
+  border: 1px solid var(--color-border-structural);
+  color: var(--color-on-surface-plane-secondary);
+  white-space: nowrap;
+}
+
+.staff-status[data-status='prepared'],
+.staff-status[data-status='available_for_review'] {
+  border-color: var(--color-status-info);
+  color: var(--color-status-info);
+}
+
+.staff-status[data-status='opened'] {
+  border-color: var(--color-status-warning);
+  color: var(--color-status-warning);
+}
+
+.staff-status[data-status='acknowledged'] {
+  border-color: var(--color-status-success);
+  color: var(--color-status-success);
+}
+
+.staff-panel {
+  min-width: 0;
+  padding: var(--spacing-4) var(--space-page-inline) var(--spacing-12);
+}
+
+.staff-empty {
+  max-width: var(--measure-reading);
+  margin: 0;
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+/* --- Detail ----------------------------------------------------------------- */
+
+.staff-detail {
+  display: grid;
+  max-width: var(--measure-reading);
+  gap: var(--spacing-4);
+}
+
+.staff-detail__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+}
+
+.staff-detail__eyebrow {
+  margin: 0 0 var(--spacing-1);
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.staff-detail__title {
+  margin: 0;
+}
+
+.staff-detail__priority {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin: 0;
+  padding: var(--spacing-2);
+  border: 1px solid var(--color-border-critical);
+  background: var(--color-surface-critical);
+  color: var(--color-on-surface-critical);
+}
+
+.staff-detail__block {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.staff-detail__block-title {
+  margin: 0;
+  color: var(--color-on-surface-canvas-secondary);
+  text-transform: uppercase;
+}
+
+.staff-detail__copy {
+  margin: 0;
+}
+
+.staff-detail__inline-label {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.staff-answers {
+  display: grid;
+  gap: var(--spacing-2);
+  margin: 0;
+}
+
+.staff-answers__row {
+  display: grid;
+  gap: 2px;
+  padding-inline-start: var(--spacing-2);
+  border-inline-start: 1px solid var(--color-border-structural);
+}
+
+.staff-answers__row dt {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.staff-answers__row dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.staff-soap {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+.staff-soap__title {
+  margin: 0 0 var(--spacing-1);
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.staff-history {
+  display: grid;
+  gap: var(--spacing-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.staff-detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  padding-top: var(--spacing-3);
+  border-top: 1px solid var(--color-border-structural);
+}
+
+.staff-detail__action-copy {
+  display: grid;
+  gap: var(--spacing-1);
+  max-width: 34rem;
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.staff-detail__notice {
+  color: var(--color-status-info);
+}
+
+.staff-detail__boundary {
+  margin: 0;
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+@media (max-width: 60rem) {
+  .staff-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .staff-queue {
+    border-right: none;
+    border-bottom: 1px solid var(--color-border-structural);
+    padding-bottom: var(--spacing-3);
+  }
+
+  .staff-panel {
+    padding-top: var(--spacing-3);
+  }
+}

@@ -1,0 +1,41 @@
+/*
+  The DocMatch identity artwork. It is transparent and already contains the
+  wordmark, the line and the medical symbol, so it composites directly with
+  nothing beside it. Only width is set, so the aspect ratio is never forced.
+  These rules live with the Brandmark so every screen that shows the mark gets
+  them, whether or not the video hero is on the page.
+*/
+
+.brandmark-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  user-select: none;
+}
+
+.brandmark-image[data-size='compact'] {
+  width: calc(var(--spacing-16) * 1.75);
+  height: auto;
+}
+
+.brandmark-image[data-size='full'] {
+  max-width: 420px;
+}
+
+.brandmark-image[data-size='hero'] {
+  max-width: 520px;
+}
+
+@media (max-width: 43.75rem) {
+  .brandmark-image[data-size='hero'] {
+    max-width: 300px;
+  }
+}
+
+@media (min-width: 68.75rem) {
+  .brandmark-image[data-size='hero'] {
+    max-width: 660px;
+  }
+}

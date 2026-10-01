@@ -1,0 +1,272 @@
+/* ---------------------------------------------------------------------------
+   Hero entrance
+
+   One cinematic scene assembled from two copies of the same 1600x900 footage.
+
+   AMBIENT      covers the viewport, softly defocused and darkened. Its only job
+                is to fill whatever the 16:9 foreground cannot reach, so the
+                scene reads as a single image at 16:10, 4:3 and everything else
+                instead of a video sitting on black bars.
+
+   FOREGROUND   the authored frame, contained and centred, never cropped, never
+                filtered, and never scaled past a useful multiple of its native
+                1600px width.
+
+   Interface sits above both with as little chrome as the controls can survive
+   on, and a single centre-weighted scrim holds the identity's contrast over an
+   unknown frame.
+   --------------------------------------------------------------------------- */
+
+.hero {
+  position: fixed;
+  z-index: 40;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: grid;
+  overflow: hidden;
+  background: var(--color-surface-canvas);
+}
+
+.hero__scene,
+.hero__content {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+
+.hero__scene {
+  position: relative;
+  display: grid;
+  place-items: center;
+  background: var(--color-surface-canvas);
+  will-change: transform;
+}
+
+/* --- Ambient fill --------------------------------------------------------- */
+
+.hero__ambient {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: center center;
+  /* Scaled slightly past the frame so the blur has material at every edge and
+     never reveals a soft border of its own. */
+  transform: scale(1.08);
+  filter: blur(18px) brightness(0.68) saturate(0.9);
+}
+
+.hero__ambient--video {
+  background: var(--color-surface-canvas);
+}
+
+/* The still is the ambient bed until the video has frames to contribute. */
+.hero__ambient--still {
+  z-index: 0;
+}
+
+/* --- Foreground frame ----------------------------------------------------- */
+
+/*
+  Bounded on three axes at once: never wider than the viewport, never taller
+  than it, and never wider than a 1.4x enlargement of the 1600px source, so an
+  ultrawide desktop gets a sharp frame with ambient light around it rather than
+  a soft upscale stretched to the glass.
+*/
+.hero__still,
+.hero__video {
+  position: relative;
+  z-index: 1;
+  grid-area: 1 / 1;
+  width: min(100%, 2240px);
+  height: auto;
+  max-height: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  object-position: center center;
+}
+
+.hero__video {
+  /* No filter, blur or opacity: the foreground stays sharp. */
+  background: transparent;
+}
+
+/*
+  A single radial scrim, weighted to the centre where the identity sits and
+  falling off to nothing at the edges.
+*/
+.hero__scrim {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background:
+    radial-gradient(78% 62% at 50% 50%, var(--hero-scrim-core) 0%, var(--hero-scrim-edge) 72%);
+  pointer-events: none;
+}
+
+/* --- Content -------------------------------------------------------------- */
+
+.hero__content {
+  position: relative;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  padding: max(var(--spacing-5), env(safe-area-inset-top)) var(--spacing-5)
+    max(var(--spacing-5), env(safe-area-inset-bottom));
+}
+
+.hero__identity {
+  display: grid;
+  justify-items: center;
+  gap: var(--spacing-5);
+  text-align: center;
+}
+
+.hero__heading {
+  display: grid;
+  justify-items: center;
+  margin: 0;
+  outline: none;
+}
+
+/* --- Controls -------------------------------------------------------------- */
+
+/*
+  Controls float on the film: translucent base, one hairline edge, and a hover
+  response carried by light rather than a filled block.
+*/
+.hero__action {
+  display: inline-flex;
+  min-height: var(--control-target-minimum);
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-4);
+  border: 1px solid var(--hero-control-edge);
+  border-radius: var(--radius-sm);
+  background: var(--hero-control-surface);
+  color: var(--color-on-surface-canvas);
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition:
+    border-color var(--motion-duration-control) var(--motion-ease-standard),
+    background-color var(--motion-duration-control) var(--motion-ease-standard),
+    color var(--motion-duration-control) var(--motion-ease-standard);
+}
+
+.hero__action:hover {
+  border-color: var(--color-border-interactive);
+  background: var(--hero-control-surface-hover);
+  color: var(--color-border-interactive);
+}
+
+.hero__arrow {
+  width: var(--spacing-4);
+  height: var(--spacing-4);
+  flex: 0 0 auto;
+  fill: currentColor;
+}
+
+.hero__action--enter {
+  margin-block-start: var(--spacing-1);
+  padding: var(--spacing-3) var(--spacing-6);
+  border-color: var(--color-border-interactive);
+  color: var(--color-border-interactive);
+}
+
+.hero__action--enter:hover {
+  background: var(--hero-control-surface-hover);
+  color: var(--color-on-surface-canvas);
+}
+
+/* ---------------------------------------------------------------------------
+   Approved brand mark
+
+   The artwork is transparent and already contains the wordmark, the line and
+   the medical symbol, so it composites directly with nothing beside it and no
+   plate behind it. Only width is set, so the aspect ratio is never forced.
+   --------------------------------------------------------------------------- */
+
+.brandmark-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  user-select: none;
+}
+
+/*
+  The compact mark carries the product identity in application headers. It is
+  sized to stay legible rather than shrunk to fit a rail, because an
+  unreadable logo is worse than no logo.
+*/
+.brandmark-image[data-size='compact'] {
+  width: calc(var(--spacing-16) * 1.75);
+  height: auto;
+}
+
+.brandmark-image[data-size='full'] {
+  max-width: 420px;
+}
+
+.brandmark-image[data-size='hero'] {
+  max-width: 520px;
+}
+
+/* ---------------------------------------------------------------------------
+   Small screens: the still carries the composition, so the identity gets the
+   room the film would have taken.
+   --------------------------------------------------------------------------- */
+
+@media (max-width: 43.75rem) {
+  .hero__ambient {
+    filter: blur(18px) brightness(0.54) saturate(0.9);
+  }
+
+  .hero__still,
+  .hero__video {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 4%, #000 96%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 4%, #000 96%, transparent 100%);
+  }
+
+  .brandmark-image[data-size='hero'] {
+    max-width: 300px;
+  }
+}
+
+@media (min-width: 68.75rem) {
+  .brandmark-image[data-size='hero'] {
+    max-width: 660px;
+  }
+
+  .brandmark-image[data-size='compact'] {
+    width: calc(var(--spacing-16) * 1.75);
+    height: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__action {
+    transition: none;
+  }
+
+  .hero__ambient {
+    transform: none;
+  }
+}

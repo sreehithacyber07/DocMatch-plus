@@ -1,0 +1,110 @@
+:root {
+  color-scheme: dark;
+  font-family: var(--font-body);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-radius: 0;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: var(--color-surface-canvas);
+  color: var(--color-on-surface-canvas);
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background: var(--color-surface-canvas);
+  color: var(--color-on-surface-canvas);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.5625rem;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+button,
+input,
+select,
+textarea {
+  color: inherit;
+  font: inherit;
+}
+
+button,
+[role="button"],
+a,
+input,
+select,
+textarea,
+[tabindex]:not([tabindex="-1"]) {
+  outline-color: transparent;
+  outline-style: solid;
+  outline-width: var(--focus-ring-width);
+}
+
+/*
+  The reset above matches [tabindex]:not([tabindex="-1"]) at specificity (0,2,0),
+  which outranks a bare :focus-visible at (0,1,0). Any control carrying an
+  explicit tabindex, such as a roving-tabindex tab, would therefore keep the
+  transparent outline and show no focus ring. The second selector ties that
+  specificity and wins on order.
+*/
+:focus-visible,
+[tabindex]:focus-visible {
+  outline-color: var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+::selection {
+  background: var(--color-surface-selected);
+  color: var(--color-on-surface-selected);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+img,
+picture,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+@media (min-width: 68.75rem) {
+  body {
+    font-size: var(--text-body-desktop);
+    line-height: 1.875rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}

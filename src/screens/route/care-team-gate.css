@@ -1,0 +1,49 @@
+/* R9G-B staffed tablet: the care-team sign-in gate before a patient begins. */
+
+.care-team-gate {
+  display: grid;
+  min-height: 100dvh;
+  padding: var(--space-page-block) var(--space-page-inline);
+  place-items: center;
+  background: var(--color-surface-canvas);
+  color: var(--color-on-surface-canvas);
+}
+
+.care-team-gate__panel {
+  display: grid;
+  width: min(100%, 30rem);
+  gap: var(--spacing-3);
+  padding: var(--spacing-6);
+  border: 1px solid var(--color-border-structural);
+  background: var(--color-surface-plane);
+}
+
+.care-team-gate__eyebrow {
+  margin: 0;
+  color: var(--color-on-surface-plane-secondary);
+  text-transform: uppercase;
+}
+
+.care-team-gate__title {
+  margin: 0;
+}
+
+.care-team-gate__lead {
+  margin: 0;
+  color: var(--color-on-surface-plane-secondary);
+}
+
+.care-team-gate__actions {
+  display: grid;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-2);
+}
+
+.care-team-gate__actions .cta {
+  text-decoration: none;
+}
+
+.care-team-gate :focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: 2px;
+}

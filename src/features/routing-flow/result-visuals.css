@@ -1,0 +1,582 @@
+/*
+  Result visuals: route convergence and the SOAP document.
+  ---------------------------------------------------------------------------
+
+  EFFECTS, with the reason each one is spent:
+
+    convergence lines   one stroke from each answer to the direction. The lines
+                        are the claim the figure makes (these answers led here),
+                        so they use the interactive token, not decoration.
+    alternative stubs   a dashed line that stops at an open node. It shows a
+                        direction that was considered and did not converge. The
+                        label beside it stays at full text contrast; the stub,
+                        not opacity, carries "secondary".
+    document spine      one rule joining S, O, A and P, replacing the hairline
+                        each key column drew on its own, so the four sections
+                        read as one note.
+*/
+
+/* --- Route convergence -------------------------------------------------------- */
+
+.convergence {
+  display: grid;
+  gap: var(--spacing-3);
+  margin: 0;
+  padding-block: var(--spacing-4);
+  border-block: 1px solid var(--color-border-structural);
+}
+
+.convergence__caption {
+  margin: 0;
+  color: var(--color-on-surface-canvas-secondary);
+  letter-spacing: var(--tracking-caption);
+}
+
+.convergence__grid {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+.convergence__evidence {
+  display: grid;
+  gap: var(--spacing-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.convergence__answer {
+  position: relative;
+  display: grid;
+  gap: 0;
+  padding: var(--spacing-2) var(--spacing-3) var(--spacing-2) var(--spacing-5);
+  border-left: 1px solid var(--edge-luminous);
+}
+
+.convergence__answer::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -5px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--color-border-interactive);
+  transform: translateY(-50%);
+}
+
+.convergence__question {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.convergence__value {
+  color: var(--color-on-surface-canvas);
+}
+
+.convergence__lines {
+  display: none;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.convergence__line {
+  fill: none;
+  stroke: var(--color-border-interactive);
+  stroke-width: 1.5;
+}
+
+.convergence__destination {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--spacing-2) var(--spacing-3);
+  align-items: center;
+  padding: var(--spacing-3) var(--spacing-4);
+  border: 1px solid var(--control-edge);
+  border-radius: var(--radius-sm);
+  background: var(--control-surface-selected);
+  box-shadow: 0 0 18px -6px var(--control-edge-glow);
+}
+
+.convergence__glyph {
+  display: inline-flex;
+  grid-row: span 2;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-target-minimum);
+  height: var(--control-target-minimum);
+  border: 1px solid var(--color-border-interactive);
+  border-radius: 50%;
+  color: var(--color-on-surface-selected);
+}
+
+.convergence__direction,
+.convergence__strength {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+}
+
+.convergence__direction small,
+.convergence__strength small {
+  color: var(--color-on-surface-selected);
+}
+
+.convergence__direction strong,
+.convergence__strength strong {
+  color: var(--color-on-surface-selected);
+}
+
+/* The direction is the one thing the figure concludes, so it carries the
+   heading weight; the strength beside it stays at control size. */
+.convergence__direction strong {
+  font-family: var(--font-ui);
+  font-size: var(--text-heading-2);
+  line-height: var(--text-heading-2--line-height);
+}
+
+.convergence__alternatives {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.convergence__alternatives-title {
+  margin: 0;
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.convergence__alternatives ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2) var(--spacing-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.convergence__alternative {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spacing-1) var(--spacing-2);
+  color: var(--color-on-surface-canvas);
+}
+
+.convergence__alternative small {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.convergence__stub {
+  position: relative;
+  display: inline-block;
+  width: 26px;
+  height: 1px;
+  margin-inline-end: 6px;
+  border-top: 1px dashed var(--trail-line);
+  transform: translateY(-4px);
+}
+
+.convergence__stub::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  right: -7px;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--color-on-surface-canvas-secondary);
+  border-radius: 50%;
+}
+
+/* Desktop: answers, lines and destination side by side. */
+@media (min-width: 43.75rem) {
+  .convergence__grid {
+    grid-template-columns: minmax(0, 1.25fr) minmax(50px, 0.35fr) minmax(0, 1fr);
+    gap: 0;
+    align-items: stretch;
+  }
+
+  .convergence__lines {
+    display: block;
+  }
+
+  .convergence__destination {
+    align-self: center;
+  }
+}
+
+/* --- SOAP document -------------------------------------------------------------- */
+
+.soap-document {
+  gap: 0;
+  border: 1px solid var(--color-border-structural);
+  border-radius: var(--radius-sm);
+  background: var(--surface-well);
+}
+
+.soap-document__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+  padding: var(--spacing-3) var(--spacing-4);
+  border-bottom: 1px solid var(--color-border-structural);
+}
+
+.soap-document__kind {
+  color: var(--color-on-surface-canvas);
+  font-weight: var(--font-weight-semibold);
+}
+
+.soap-document__status {
+  color: #63d8ff;
+}
+
+.soap-document__body {
+  position: relative;
+  display: grid;
+  gap: var(--spacing-4);
+  padding: var(--spacing-4);
+}
+
+/* The spine runs down the centre of the key column. */
+.soap-document__spine {
+  position: absolute;
+  top: var(--spacing-5);
+  bottom: var(--spacing-5);
+  left: calc(var(--spacing-4) + 15px);
+  width: 1px;
+  background: var(--edge-luminous);
+  transform-origin: top center;
+}
+
+.soap-document__section {
+  position: relative;
+}
+
+.soap-document__key.soap__key {
+  position: relative;
+  z-index: 1;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--color-border-interactive);
+  border-radius: 50%;
+  background: var(--surface-well);
+  font-size: var(--text-label);
+  line-height: 1;
+}
+
+.soap-document__role {
+  color: var(--color-on-surface-canvas-secondary);
+  font-weight: var(--font-weight-regular);
+}
+
+/* --- Local patient context summary -------------------------------------------- */
+
+.context-summary {
+  display: grid;
+  gap: var(--spacing-2);
+  margin: 0;
+}
+
+.context-summary__line {
+  display: grid;
+}
+
+.context-summary__line dt {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.context-summary__line dd {
+  margin: 0;
+  color: var(--ink-pure);
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 68.75rem) {
+  .context-summary__line {
+    grid-template-columns: 170px minmax(0, 1fr);
+    gap: var(--spacing-3);
+  }
+}
+
+/*
+  Urgent clinical review beside the direction: restrained medical red, one
+  border and a faint tint. The border carries the state so it is not signalled
+  by colour alone; no gradient, glow or motion.
+*/
+.handoff__urgent-review {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+  border: 1px solid rgba(201, 75, 84, 0.54);
+  border-left-width: 3px;
+  background: linear-gradient(145deg, #160b15, #07101d 58%, #020713);
+  color: var(--color-on-surface-canvas);
+}
+
+.handoff__urgent-review .pictogram {
+  color: var(--safety-label-ink);
+}
+
+.handoff__urgent-review-label {
+  display: block;
+  margin-block-end: var(--spacing-1);
+  color: var(--safety-label-ink);
+}
+
+.handoff__urgent-review p {
+  margin: var(--spacing-1) 0 0;
+}
+
+.handoff__urgent-review-main {
+  color: var(--ink-pure);
+}
+
+.handoff__urgent-review-secondary {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.handoff__urgent-review-guidance {
+  color: var(--color-on-surface-canvas);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Result and clinician handoff: one direction, then its evidence and record. */
+.handoff__main {
+  gap: clamp(14px, 2vw, 24px);
+}
+
+.handoff__eyebrow {
+  color: #9ec0cc;
+}
+
+.handoff__direction {
+  gap: 8px;
+  padding: 0 0 0 clamp(14px, 1.8vw, 22px);
+  border-left: 2px solid rgba(116, 220, 242, 0.48);
+}
+
+.handoff[data-result-kind='fallback'] .handoff__direction {
+  border-left-color: rgba(143, 174, 191, 0.48);
+}
+
+.handoff__specialty {
+  font-size: clamp(2rem, 3.2vw, 3.25rem);
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.handoff__next-line {
+  max-width: 68ch;
+  margin: 2px 0 0;
+  font-size: clamp(0.95rem, 1.12vw, 1.075rem);
+  line-height: 1.5;
+}
+
+.handoff__next-line-primary {
+  color: var(--ink-pure);
+  font-weight: var(--font-weight-medium);
+}
+
+.handoff__qualification {
+  margin: 0;
+  color: #9bb0bd;
+  letter-spacing: 0.015em;
+}
+
+.handoff__sections {
+  gap: clamp(12px, 1.5vw, 20px);
+}
+
+.handoff__sections .disclose {
+  border-top-color: rgba(117, 156, 177, 0.27);
+  padding-block-start: 12px;
+}
+
+.handoff__sections .disclose[data-emphasis='section'] .disclose__title {
+  font-size: clamp(1.1rem, 1.6vw, 1.4rem);
+  line-height: 1.25;
+}
+
+.handoff__sections .disclose__preview {
+  max-width: 70ch;
+  line-height: 1.45;
+}
+
+.handoff__sections .disclose__inner {
+  gap: 10px;
+}
+
+.handoff__sections .disclose__inner > p,
+.handoff__sections .disclose__inner > div > p {
+  max-width: 72ch;
+}
+
+.handoff .reasons {
+  gap: 0;
+  margin-top: 6px;
+}
+
+.handoff .reasons li {
+  gap: 2px;
+  padding: 9px 0 10px 19px;
+  border-top: 1px solid rgba(117, 156, 177, 0.18);
+}
+
+.handoff .reasons__node {
+  top: 16px;
+  width: 5px;
+  height: 5px;
+  background: #80c9dc;
+  box-shadow: none;
+}
+
+.handoff .reasons li strong {
+  line-height: 1.4;
+}
+
+.handoff .convergence {
+  gap: 10px;
+  padding-block: 12px;
+  border-block-color: rgba(117, 156, 177, 0.25);
+}
+
+.handoff .convergence__answer {
+  padding-block: 6px;
+  background: linear-gradient(90deg, rgba(7, 22, 40, 0.52), transparent);
+}
+
+.handoff .convergence__destination {
+  border-color: rgba(116, 220, 242, 0.42);
+  background: linear-gradient(145deg, #071628, #04101d 56%, #020713);
+  box-shadow: inset 0 1px 0 rgba(116, 220, 242, 0.08);
+}
+
+.handoff .convergence__destination small {
+  color: #a8bac6;
+}
+
+.handoff .convergence__destination strong {
+  color: var(--ink-pure);
+}
+
+.handoff .soap-document {
+  overflow: hidden;
+  border-color: rgba(117, 156, 177, 0.3);
+  border-radius: 9px;
+  background: linear-gradient(145deg, #071628, #04101d 42%, #020713);
+  box-shadow: inset 0 1px 0 rgba(141, 194, 215, 0.09);
+}
+
+.handoff .soap-document__head {
+  padding: 10px 16px;
+  border-bottom-color: rgba(117, 156, 177, 0.25);
+  background: rgba(2, 7, 19, 0.33);
+}
+
+.handoff .soap-document__status {
+  color: #a4c8d3;
+}
+
+.handoff .soap-document__body {
+  gap: 0;
+  padding: 4px 16px;
+}
+
+.handoff .soap-document__spine {
+  top: 18px;
+  bottom: 18px;
+  left: 30px;
+  background: rgba(116, 220, 242, 0.27);
+}
+
+.handoff .soap-document__section {
+  gap: 12px;
+  padding-block: 13px;
+}
+
+.handoff .soap-document__section + .soap-document__section {
+  border-top: 1px solid rgba(117, 156, 177, 0.16);
+}
+
+.handoff .soap-document__key.soap__key {
+  background: #04101d;
+  border-color: rgba(116, 220, 242, 0.46);
+  color: #b8d6df;
+}
+
+.handoff .soap__body,
+.handoff .soap__lines {
+  gap: 6px;
+}
+
+.handoff .soap__line {
+  padding-block: 2px;
+}
+
+.handoff .soap__line dt {
+  color: #a1b1bf;
+}
+
+.handoff .soap__line dd {
+  color: #e1edf2;
+  line-height: 1.45;
+}
+
+.handoff__aside .trail {
+  gap: 10px;
+}
+
+.handoff__aside .trail__entry {
+  padding-block-end: 9px;
+}
+
+.handoff__aside .trail__node {
+  background: #89b7c5;
+  box-shadow: none;
+}
+
+.handoff__aside .trail__value {
+  color: #c5d3dc;
+}
+
+.handoff__aside .trail__status-value {
+  color: #a8cbd6;
+}
+
+.handoff__actions {
+  gap: 8px;
+}
+
+@media (min-width: 43.75rem) and (max-width: 56.249rem) {
+  .handoff .convergence__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .handoff .convergence__lines {
+    display: none;
+  }
+
+  .handoff .convergence__destination {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 43.749rem) {
+  .handoff__direction {
+    padding-left: 14px;
+  }
+
+  .handoff .soap-document__body {
+    padding-inline: 12px;
+  }
+
+  .handoff .soap-document__spine {
+    left: 26px;
+  }
+}

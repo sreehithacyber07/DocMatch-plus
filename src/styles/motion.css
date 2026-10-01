@@ -1,0 +1,77 @@
+.motion-control {
+  display: inline-flex;
+  min-height: var(--control-target-minimum);
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-4);
+  border: 1px solid var(--color-border-structural);
+  background: var(--color-surface-plane);
+  color: var(--color-on-surface-plane);
+  cursor: pointer;
+  transition:
+    color var(--motion-duration-control) var(--motion-ease-standard),
+    background-color var(--motion-duration-control) var(--motion-ease-standard),
+    border-color var(--motion-duration-control) var(--motion-ease-standard),
+    transform var(--motion-duration-immediate) var(--motion-ease-standard);
+}
+
+.motion-control:hover,
+.motion-control:focus-visible {
+  border-color: var(--color-border-interactive);
+  background: var(--color-surface-focus);
+  color: var(--color-on-surface-focus);
+}
+
+.motion-control:active {
+  transform: translateY(1px);
+}
+
+.motion-control[aria-pressed="true"],
+.motion-control[data-status="selected"] {
+  border-color: var(--color-border-interactive);
+  background: var(--color-surface-selected);
+  color: var(--color-on-surface-selected);
+}
+
+.motion-control[data-status="completed"] {
+  border-color: var(--color-status-success);
+  color: var(--color-status-success);
+}
+
+.motion-control[data-status="error"] {
+  border-color: var(--color-border-critical);
+  background: var(--color-surface-critical);
+  color: var(--color-on-surface-critical);
+}
+
+.motion-control:disabled,
+.motion-control[aria-disabled="true"] {
+  border-color: var(--color-border-structural);
+  background: var(--color-surface-unavailable);
+  color: var(--color-on-surface-unavailable);
+  cursor: not-allowed;
+}
+
+.motion-content-replace {
+  transition:
+    opacity var(--motion-duration-content) var(--motion-ease-exit),
+    transform var(--motion-duration-content) var(--motion-ease-standard);
+}
+
+.motion-content-replace[data-phase="entering"] {
+  opacity: 0;
+  transform: translateY(var(--spacing-2));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-control,
+  .motion-content-replace {
+    transition: none;
+  }
+
+  .motion-control:active,
+  .motion-content-replace[data-phase="entering"] {
+    transform: none;
+  }
+}

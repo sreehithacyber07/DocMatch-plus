@@ -1,0 +1,243 @@
+/*
+  DocMatch+ in the Manus visual language.
+  ---------------------------------------------------------------------------
+
+  Exact values come from the Manus export and are recorded in
+  MANUS_VISUAL_AUDIT.md. Colours, fonts and radii are mapped in tokens.css, so
+  every screen follows them; this layer adds the Manus treatments the token
+  names cannot express: button letterforms, the panel, the eyebrow, the accent
+  italic and the scrollbar. Every rule is scoped to a class. Nothing here
+  restyles bare elements, so no product screen is restyled by accident.
+
+  Two deliberate differences from the Manus page, both for the product flow:
+  buttons keep the 48px touch target (Manus: 43px), and their label is 12px
+  (Manus: 10px) so a patient can read it at arm's length on a kiosk.
+*/
+
+/* --- Legacy button hooks (audit 9) --------------------------------------- */
+
+/*
+  The primitives carry their own Manus button rules. These give the older
+  .cta and .ghost-button hooks the same letterform and ghost treatment.
+*/
+button.cta,
+a.cta,
+button.ghost-button,
+a.ghost-button {
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* The label spans inside legacy buttons inherit the button's letterform. */
+.cta .type-control,
+.ghost-button .type-control {
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+
+button.ghost-button,
+a.ghost-button {
+  border-color: var(--control-edge-structural);
+  background: var(--control-surface-quiet);
+  color: var(--manus-ghost-ink);
+}
+
+button.ghost-button:hover:not(:disabled),
+a.ghost-button:hover {
+  border-color: var(--control-edge-structural-hover);
+  background: var(--control-surface-quiet);
+  color: var(--color-on-surface-canvas);
+}
+
+/* --- Headings on product screens (audit 5) -------------------------------- */
+
+/* Scoped under html so the rule outranks each screen's own stylesheet, which
+   loads later, without resorting to !important. */
+html .threshold__title,
+html .context__title,
+html .dm-dialog__title,
+html .onboarding__headline,
+html .handoff__specialty,
+html .convergence__direction strong {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-regular);
+}
+
+html .threshold__title,
+html .context__title {
+  letter-spacing: -0.05em;
+}
+
+/* --- Eyebrow and stage label (audit 5) ------------------------------------ */
+
+.dm-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--manus-description);
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.dm-stage-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 13px;
+  color: var(--manus-cyan);
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.dm-stage-label::after {
+  content: '';
+  width: 38px;
+  height: 1px;
+  background: var(--color-border-structural);
+}
+
+/* The Manus accent italic: Cormorant Garamond in the accent teal. */
+.dm-accent {
+  color: var(--manus-accent);
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+
+/* --- Panel (audit 10) ------------------------------------------------------- */
+
+/*
+  The Manus asset shell: a thin structural edge, a dark diagonal wash, one
+  inner cyan hairline and a long soft shadow, with a 5px blur so what sits
+  behind reads as depth. Used only where grouping helps.
+*/
+.dm-panel {
+  position: relative;
+  border: 1px solid var(--manus-panel-edge);
+  background: var(--manus-panel);
+  box-shadow: var(--manus-panel-shadow);
+  backdrop-filter: blur(5px);
+}
+
+.dm-panel::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 1px solid var(--manus-panel-inner);
+  pointer-events: none;
+}
+
+/* --- Scrollbar (audit 1) ------------------------------------------------------ */
+
+html {
+  scrollbar-color: var(--manus-scroll-thumb) var(--manus-scroll-track);
+}
+
+::-webkit-scrollbar {
+  width: 9px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--manus-scroll-track);
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid var(--manus-scroll-track);
+  border-radius: 9px;
+  background: var(--manus-scroll-thumb);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--manus-scroll-thumb-hover);
+}
+
+/* --- Product surfaces inside the environment ------------------------------- */
+
+/*
+  Inside the DocMatch+ environment the page surfaces are transparent, so the
+  atmosphere, the signal lines and the DNA sit behind every screen of the flow.
+  Panels, controls and overlays keep their own surfaces.
+*/
+html .docmatch-environment .route-surface,
+html .docmatch-environment main.route-surface.route-surface--intake {
+  background: transparent;
+}
+
+html .docmatch-environment .route-surface::before {
+  content: none;
+}
+
+/*
+  The assessment shell carries the interview, the safety response and the
+  result. Its own canvas fill sat on top of the environment, so those three
+  screens were the only ones where the strand and the signal lines did not
+  show. The stage light it draws is kept; only the opaque fill is dropped.
+*/
+html .docmatch-environment .assessment-shell,
+html .docmatch-environment .page-shell {
+  background: radial-gradient(ellipse at 48% 26%, var(--light-stage) 0%, transparent 50%);
+}
+
+/* --- Bars (audit 8) -------------------------------------------------------- */
+
+/*
+  The Manus nav: a translucent bar over the moving background, held by one
+  hairline rather than by a border of its own weight, with the same 10px blur
+  that carries the landing nav.
+*/
+html .docmatch-environment .assessment-header,
+html .docmatch-environment .topbar,
+html .docmatch-environment .spine-rail {
+  border-block-end-color: var(--manus-nav-edge);
+}
+
+html .docmatch-environment .assessment-header {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+html .docmatch-environment .assessment-header__rule {
+  background: var(--manus-nav-edge);
+}
+
+/* --- Panels (audit 10, 11, 12) --------------------------------------------- */
+
+/*
+  The explorer modules and the result trays take the Manus asset shell: the
+  dark diagonal wash, the structural edge and the long soft shadow. The
+  critical module keeps its own edge, so a selected warning still reads as one.
+*/
+html .docmatch-environment .module:not([data-active='true']) {
+  border-color: var(--manus-panel-edge);
+  background: var(--manus-panel);
+  box-shadow: var(--manus-panel-shadow);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+/* --- Question eyebrow (audit 5) -------------------------------------------- */
+
+/*
+  The question category takes the Manus eyebrow letterform, so the interview
+  opens the same way each stage of the introduction does. The safety register
+  keeps its own colour: the rule in routing-flow.css is more specific.
+*/
+html .question__eyebrow {
+  color: var(--manus-meta);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}

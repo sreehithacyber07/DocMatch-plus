@@ -1,0 +1,389 @@
+/* ---------------------------------------------------------------------------
+   Shell
+   Mobile is a different composition, not a narrowed desktop: the spine becomes
+   a sticky horizontal bar above the working area. The grid flips at the tablet
+   breakpoint, where a persistent vertical rail stops costing usable width.
+   --------------------------------------------------------------------------- */
+
+.page-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
+  overflow-x: clip;
+  background: var(--color-surface-canvas);
+  color: var(--color-on-surface-canvas);
+}
+
+.page-shell__main {
+  min-width: 0;
+  width: 100%;
+  padding-block: var(--space-page-block) max(var(--space-page-block), env(safe-area-inset-bottom));
+  padding-inline: max(var(--space-page-inline), env(safe-area-inset-left))
+    max(var(--space-page-inline), env(safe-area-inset-right));
+  scroll-margin-block-start: var(--spacing-4);
+}
+
+.page-shell[data-surface='document'] .page-shell__main {
+  max-width: var(--measure-content);
+}
+
+.page-shell__skip-link {
+  position: fixed;
+  z-index: 20;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  color: var(--color-on-surface-action);
+  background: var(--color-surface-action);
+  font-family: var(--font-ui);
+  font-size: var(--text-control);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-control--line-height);
+  white-space: nowrap;
+}
+
+.page-shell__skip-link:focus-visible {
+  width: max-content;
+  height: auto;
+  margin: var(--spacing-2);
+  padding: var(--spacing-3) var(--spacing-4);
+  clip-path: none;
+}
+
+.page-shell__announcement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+   Spine rail
+   Mobile: a sticky horizontal bar. It is translucent with a backdrop blur
+   because content scrolls underneath it, so its labels sit over changing
+   luminance; the scrim holds their contrast without an opaque band eating
+   vertical space on a short screen. This is the only blurred surface.
+   --------------------------------------------------------------------------- */
+
+.spine-rail {
+  position: sticky;
+  z-index: 10;
+  top: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--spacing-3);
+  min-width: 0;
+  padding-block: var(--spacing-2);
+  padding-inline: max(var(--space-page-inline), env(safe-area-inset-left))
+    max(var(--space-page-inline), env(safe-area-inset-right));
+  border-block-end: 1px solid var(--edge-quiet);
+  background: var(--scrim-bar);
+  color: var(--emission-text);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.spine-rail__identity {
+  display: flex;
+  align-items: baseline;
+  font-family: var(--font-ui);
+  font-size: var(--text-control);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--tracking-control);
+  line-height: var(--text-control--line-height);
+}
+
+.spine-rail__plus {
+  color: var(--color-border-interactive);
+}
+
+/* The wordmark is available to assistive tech at every size; the monogram is
+   the visual form. */
+.spine-rail__identity-name {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.spine-rail__axis-region {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.spine-rail__axis-line {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: var(--edge-quiet);
+}
+
+.spine-rail__nodes {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 320px;
+  margin: 0;
+  padding: 0;
+  gap: var(--spacing-1);
+  list-style: none;
+}
+
+.spine-rail__node {
+  display: flex;
+  min-width: 0;
+}
+
+.spine-rail__node-control {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  min-width: var(--control-target-minimum);
+  width: var(--control-target-minimum);
+  height: var(--control-target-minimum);
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: var(--color-surface-rail);
+  color: var(--emission-pictogram);
+  cursor: pointer;
+  transition:
+    color var(--motion-duration-control) var(--motion-ease-standard),
+    background-color var(--motion-duration-control) var(--motion-ease-standard);
+}
+
+.spine-rail__node-control:not(button) {
+  cursor: default;
+}
+
+.spine-rail__node-mark {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+}
+
+/* Hover illumination stays inside the control's own footprint so attention is
+   acknowledged without a halo bleeding into neighbouring stages. */
+button.spine-rail__node-control:hover {
+  color: var(--color-border-interactive);
+  background: var(--color-surface-focus);
+  box-shadow: inset 0 0 0 1px var(--edge-luminous);
+}
+
+.spine-rail__node[data-state='completed'] .spine-rail__node-control {
+  color: var(--color-status-success);
+}
+
+.spine-rail__node-lit {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: var(--color-surface-selected);
+  box-shadow:
+    inset 0 0 0 1px var(--edge-luminous),
+    0 0 10px 0 var(--glow-selected);
+}
+
+.spine-rail__node-lit[data-register='critical'] {
+  background: var(--color-surface-critical);
+  box-shadow:
+    inset 0 0 0 1px var(--color-border-critical),
+    0 0 10px 0 var(--light-occupant-critical);
+}
+
+/* Fallback mark for a rail driven by position alone. */
+.spine-rail__node-dot {
+  display: block;
+  width: var(--spacing-2);
+  height: var(--spacing-2);
+  background: currentColor;
+}
+
+.spine-rail__stage {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-2);
+  min-width: 0;
+  font-family: var(--font-ui);
+}
+
+.spine-rail__stage-label {
+  overflow: hidden;
+  color: var(--emission-text);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-data);
+  line-height: var(--text-caption--line-height);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spine-rail__position {
+  color: var(--emission-text-secondary);
+  font-size: var(--text-caption);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-medium);
+  line-height: var(--text-caption--line-height);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+   Tablet and up: the rail becomes the persistent vertical spine.
+   --------------------------------------------------------------------------- */
+
+@media (min-width: 43.75rem) {
+  .page-shell {
+    grid-template-columns: var(--size-rail) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .page-shell__main {
+    padding-block: var(--space-page-block) max(var(--space-page-block), env(safe-area-inset-bottom));
+    padding-inline: var(--space-page-inline) max(var(--space-page-inline), env(safe-area-inset-right));
+  }
+
+  .spine-rail {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: var(--size-rail) minmax(0, 1fr) auto;
+    align-self: start;
+    justify-items: center;
+    width: var(--size-rail);
+    height: 100vh;
+    height: 100svh;
+    height: 100dvh;
+    gap: var(--spacing-4);
+    padding-block: max(0px, env(safe-area-inset-top)) var(--spacing-4);
+    padding-inline: 0 0;
+    border-block-end: 0;
+    border-inline-end: 1px solid var(--edge-quiet);
+    background: var(--color-surface-rail);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .spine-rail__identity {
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: var(--size-rail);
+    border-block-end: 1px solid var(--edge-quiet);
+  }
+
+  .spine-rail__axis-region {
+    align-items: center;
+    width: 100%;
+    min-height: 0;
+  }
+
+  .spine-rail__axis-line {
+    top: 0;
+    right: auto;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    height: auto;
+  }
+
+  .spine-rail__nodes {
+    flex-direction: column;
+    width: auto;
+    max-width: none;
+    height: 100%;
+    max-height: 400px;
+    gap: var(--spacing-2);
+  }
+
+  .spine-rail__stage {
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: var(--spacing-3);
+  }
+
+  .spine-rail__stage-label {
+    max-height: 30vh;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+}
+
+@media (min-width: 68.75rem) {
+  .spine-rail__nodes {
+    gap: var(--spacing-3);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Flow
+   --------------------------------------------------------------------------- */
+
+.flow {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.flow--compact {
+  gap: var(--spacing-2);
+}
+
+.flow--control {
+  gap: var(--spacing-3);
+}
+
+.flow--section {
+  gap: var(--spacing-8);
+}
+
+.flow--major {
+  gap: var(--spacing-12);
+}
+
+/*
+  Below this width five 45px targets plus the wordmark and the stage name no
+  longer fit the bar. The rail's node list is a secondary jump control, so it
+  steps aside rather than shrinking under the touch target floor; the tray below
+  keeps every stage reachable, and the bar still carries the stage and position.
+*/
+@media (max-width: 22.5rem) {
+  .spine-rail__axis-region {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spine-rail__node-control {
+    transition: none;
+  }
+}
+
+/* A stage surface lets its screen own the full working height, so a centred
+   composition is not stranded at the top of a tall page. */
+@media (min-width: 68.75rem) {
+  .page-shell[data-surface='stage'] .page-shell__main {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
+    min-height: 100dvh;
+  }
+}

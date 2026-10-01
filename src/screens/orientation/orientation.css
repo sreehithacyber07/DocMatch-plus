@@ -1,0 +1,431 @@
+/* ---------------------------------------------------------------------------
+   Orientation screen
+
+   Composition: a dominant volume (the well) with its control tray docked
+   beneath it, context beside it, and a quiet status line under both. The well
+   holds the slot the body view will occupy, so the arrangement does not have to
+   change when it arrives.
+   --------------------------------------------------------------------------- */
+
+.orientation {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-8);
+  min-width: 0;
+  width: 100%;
+  max-width: var(--measure-content);
+  margin-inline: auto;
+}
+
+/* --- Masthead ------------------------------------------------------------ */
+
+.orientation__masthead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-3);
+  min-width: 0;
+}
+
+.orientation__title {
+  max-width: 22ch;
+  color: var(--color-on-surface-canvas);
+  text-wrap: balance;
+}
+
+.orientation__lede {
+  max-width: 58ch;
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+/* --- Stage: the well and its tray ---------------------------------------- */
+
+.orientation__stage {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-width: 0;
+}
+
+.well {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  align-content: start;
+  justify-items: center;
+  min-width: 0;
+  min-height: var(--size-well-min);
+  overflow: hidden;
+  padding: var(--spacing-5) var(--spacing-4) var(--spacing-10);
+  border: 1px solid var(--edge-quiet);
+  border-block-end: 0;
+  background: var(--surface-well);
+}
+
+/*
+  A single low-amplitude radial gradient, centred behind the occupant. It models
+  one light source above the stage so the occupant reads as standing inside a
+  volume rather than sitting on a flat panel. This is the depth cue the body
+  view will rely on, so it is established here rather than added later.
+*/
+.well__light {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background:
+    radial-gradient(76% 58% at 50% 34%, var(--light-stage) 0%, transparent 72%);
+  pointer-events: none;
+}
+
+.well[data-register='critical'] .well__light {
+  background:
+    radial-gradient(76% 58% at 50% 34%, var(--light-stage-critical) 0%, transparent 72%);
+}
+
+/*
+  The grounding line. It fades at both ends so the well reads as an open volume
+  rather than a boxed panel, and it gives the occupant a floor to stand on.
+*/
+.well__floor {
+  position: absolute;
+  right: 0;
+  bottom: var(--spacing-10);
+  left: 0;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    var(--edge-quiet) 22%,
+    var(--edge-quiet) 78%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.well:focus-visible {
+  outline-color: var(--color-focus-ring);
+  outline-offset: calc(var(--focus-ring-offset) * -1);
+}
+
+.well__index {
+  position: relative;
+  z-index: 1;
+  justify-self: start;
+  color: var(--color-on-surface-canvas-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.well__occupant {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: var(--spacing-3);
+  min-width: 0;
+  text-align: center;
+}
+
+.well__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-border-interactive);
+}
+
+.well[data-register='critical'] .well__mark {
+  color: var(--color-border-critical);
+}
+
+/*
+  The occupant's mark is scaled by the well rather than by a larger size prop,
+  which keeps the pictogram size scale at its three authored steps.
+*/
+.well__mark .pictogram {
+  width: var(--size-occupant);
+  height: var(--size-occupant);
+  filter: drop-shadow(0 0 20px var(--light-occupant));
+}
+
+.well[data-register='critical'] .well__mark .pictogram {
+  filter: drop-shadow(0 0 20px var(--light-occupant-critical));
+}
+
+.well__name {
+  color: var(--color-on-surface-canvas);
+}
+
+.well__action {
+  max-width: 34ch;
+  color: var(--color-on-surface-canvas-secondary);
+  text-wrap: balance;
+}
+
+/* --- Track: the tray docked to the base of the well ---------------------- */
+
+.track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  min-width: 0;
+  border: 1px solid var(--edge-quiet);
+  background: var(--surface-tray);
+}
+
+.track__node {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: var(--control-target-minimum);
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-3) var(--spacing-2);
+  border: 0;
+  border-inline-start: 1px solid var(--edge-quiet);
+  background: transparent;
+  color: var(--color-on-surface-canvas-secondary);
+  cursor: pointer;
+  transition:
+    color var(--motion-duration-control) var(--motion-ease-standard),
+    background-color var(--motion-duration-control) var(--motion-ease-standard);
+}
+
+.track__node:first-child {
+  border-inline-start: 0;
+}
+
+.track__node-body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+}
+
+.track__node-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*
+  Hover illumination is bounded by the node itself: a one pixel luminous edge
+  plus a short inner wash. Nothing bleeds outside the control, so attention is
+  acknowledged without lighting up the tray.
+*/
+.track__node:hover {
+  background: var(--color-surface-focus);
+  color: var(--color-on-surface-focus);
+  box-shadow: inset 0 0 0 1px var(--edge-luminous);
+}
+
+.track__node[data-state='complete'] {
+  color: var(--color-status-success);
+}
+
+.track__node[data-state='active'] {
+  color: var(--color-on-surface-selected);
+}
+
+.track__node-lit {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: var(--color-surface-selected);
+  box-shadow:
+    inset 0 0 0 1px var(--edge-luminous),
+    0 0 15px 0 var(--glow-selected);
+}
+
+.track__node-lit[data-register='critical'] {
+  background: var(--color-surface-critical);
+  box-shadow:
+    inset 0 0 0 1px var(--color-border-critical),
+    0 0 15px 0 var(--light-occupant-critical);
+}
+
+/* --- Guidance ------------------------------------------------------------ */
+
+.guidance {
+  display: grid;
+  min-width: 0;
+  padding: var(--spacing-5);
+  border: 1px solid var(--edge-quiet);
+  border-inline-start: 2px solid var(--color-border-interactive);
+  background: var(--color-surface-plane);
+}
+
+/* The panel carries the register of the stage it describes, so the safety step
+   does not read in the interactive accent. */
+.guidance[data-register='critical'] {
+  border-inline-start-color: var(--color-border-critical);
+}
+
+.guidance__body {
+  display: grid;
+  gap: var(--spacing-3);
+  min-width: 0;
+}
+
+.guidance__step {
+  color: var(--color-on-surface-plane-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.guidance__name {
+  color: var(--color-on-surface-plane);
+}
+
+.guidance__detail {
+  color: var(--color-on-surface-plane-secondary);
+}
+
+.guidance__exchange {
+  display: grid;
+  gap: var(--spacing-3);
+  margin: 0;
+  padding-block-start: var(--spacing-3);
+  border-block-start: 1px solid var(--edge-quiet);
+}
+
+.guidance__exchange-row {
+  display: grid;
+  gap: var(--spacing-1);
+  min-width: 0;
+}
+
+.guidance__exchange dt {
+  color: var(--color-on-surface-plane-secondary);
+}
+
+.guidance__exchange dd {
+  margin: 0;
+  color: var(--color-on-surface-plane);
+}
+
+/* --- Status -------------------------------------------------------------- */
+
+.orientation__status {
+  display: grid;
+  gap: var(--spacing-2);
+  min-width: 0;
+  padding-block-start: var(--spacing-4);
+  border-block-start: 1px solid var(--edge-quiet);
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+/* ---------------------------------------------------------------------------
+   Tablet
+   --------------------------------------------------------------------------- */
+
+@media (min-width: 43.75rem) {
+  .orientation {
+    gap: var(--spacing-10);
+  }
+
+  .track__node {
+    padding-inline: var(--spacing-3);
+  }
+
+}
+
+/* ---------------------------------------------------------------------------
+   Desktop: context moves beside the stage.
+   --------------------------------------------------------------------------- */
+
+@media (min-width: 68.75rem) {
+  .orientation {
+    grid-template-columns: minmax(280px, 22%) minmax(0, 1fr);
+    align-content: start;
+    gap: var(--spacing-8) var(--spacing-8);
+  }
+
+  .orientation__masthead {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 46ch);
+    align-items: end;
+    gap: var(--spacing-8);
+  }
+
+  .orientation__lede {
+    padding-block-end: var(--spacing-1);
+  }
+
+  .guidance {
+    grid-column: 1;
+    grid-row: 2;
+    /* Hugs its content. Stretching it to the height of the stage column left a
+       tall empty field under the last line. */
+    align-self: start;
+    align-content: start;
+  }
+
+  /* The mark is the anchor in the well, so the name does not need to outrun the
+     page heading. Pinned to the display step rather than its desktop step. */
+  .well__name {
+    font-size: var(--text-display);
+    line-height: var(--text-display--line-height);
+  }
+
+  .orientation__status {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: var(--spacing-6);
+  }
+
+  .orientation__status-safety {
+    text-align: right;
+  }
+
+  .orientation__stage {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .orientation__status {
+    grid-column: 1 / -1;
+  }
+
+  .well {
+    min-height: min(52vh, 460px);
+    padding-inline: var(--spacing-8);
+  }
+}
+
+@media (min-width: 90rem) {
+  .well {
+    min-height: min(56vh, 520px);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Narrow phones: the tray stacks its label under the mark so five stages fit
+   without truncation or overlap.
+   --------------------------------------------------------------------------- */
+
+@media (max-width: 26.25rem) {
+  .track__node {
+    padding-inline: var(--spacing-1);
+  }
+
+  .track__node-body {
+    flex-direction: column;
+    gap: var(--spacing-1);
+  }
+
+  .track__node-name {
+    font-size: var(--text-caption);
+    letter-spacing: var(--tracking-data);
+    line-height: var(--text-caption--line-height);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track__node {
+    transition: none;
+  }
+}

@@ -1,0 +1,86 @@
+.pictogram {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: var(--pictogram-size);
+  height: var(--pictogram-size);
+  overflow: visible;
+  color: inherit;
+  fill: currentColor;
+  vertical-align: middle;
+}
+
+.pictogram [data-part="primary"],
+.pictogram [data-part="secondary"],
+.pictogram [data-part="signal"] {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    fill var(--motion-duration-control) var(--motion-ease-standard),
+    transform var(--motion-duration-control) var(--motion-ease-standard);
+}
+
+/*
+  Secondary mass is carried by its own token, never by alpha. A dimmed part must
+  still clear the non-text contrast floor against its surface, which an opacity
+  step cannot guarantee on this palette.
+*/
+.pictogram [data-part="secondary"],
+.pictogram [data-part="signal"] {
+  fill: var(--emission-pictogram-quiet);
+}
+
+.pictogram[data-state="focus"],
+.pictogram[data-state="active"] {
+  color: var(--color-border-interactive);
+}
+
+.pictogram[data-name="location"][data-state="focus"] [data-part="signal"],
+.pictogram[data-name="location"][data-state="active"] [data-part="signal"] {
+  fill: currentColor;
+  transform: translateY(-2px);
+}
+
+.pictogram[data-name="question"][data-state="focus"] [data-part="signal"],
+.pictogram[data-name="question"][data-state="active"] [data-part="signal"] {
+  fill: currentColor;
+  transform: translateX(1px);
+}
+
+.pictogram[data-state="completed"] {
+  color: var(--color-status-success);
+}
+
+.pictogram[data-name="routing"][data-state="completed"] [data-part="signal"] {
+  fill: currentColor;
+  transform: translateX(3px);
+}
+
+.pictogram[data-state="completed"] [data-part="secondary"],
+.pictogram[data-state="completed"] [data-part="signal"] {
+  fill: currentColor;
+}
+
+.pictogram[data-state="unavailable"] {
+  color: var(--color-on-surface-unavailable);
+}
+
+.pictogram[data-state="critical"] {
+  color: var(--color-border-critical);
+}
+
+.pictogram[data-name="alert"][data-state="critical"] [data-part="signal"] {
+  fill: currentColor;
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pictogram [data-part="primary"],
+  .pictogram [data-part="secondary"],
+  .pictogram [data-part="signal"] {
+    transition: none;
+  }
+
+  .pictogram[data-state] [data-part="signal"] {
+    transform: none;
+  }
+}

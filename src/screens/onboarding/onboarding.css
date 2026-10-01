@@ -1,0 +1,1696 @@
+/*
+  The introduction.
+  ---------------------------------------------------------------------------
+
+  Four rows: identity, stage, progress rail, footer. The stage is the only row
+  that grows, so the composition fills the viewport without leaving a band of
+  dead space under the content, and the footer never floats in the middle of
+  nothing.
+
+  There is no panel around the figure and no panel around the copy. The two sit
+  in one grid, separated by space, which is the whole point of the rebuild: the
+  previous version drew a large rectangle in the centre and put a list on one
+  side and a paragraph on the other.
+
+  EFFECTS, with the reason each one is spent:
+
+    radial field   the hero ends on a lit centre falling off to black. Carrying
+                   the same falloff behind the figure makes the cut from the
+                   cinematic to the introduction continuous rather than a jump
+                   to a different surface.
+    vignette       darkens the frame edges so the figure holds its contrast
+                   against the copy beside it at every viewport width.
+    floor ring     an ellipse under the figure gives it a ground. Without one a
+                   cut-out body reads as floating artwork rather than as an
+                   object standing in a volume.
+*/
+
+.onboarding {
+  /* STAGE GEOMETRY IS FIXED.
+
+     The stage row is minmax(--stage-reserve, 1fr), not 1fr. A bare 1fr row
+     keeps an automatic min-content floor, so a taller stage grew the row and
+     pushed the progress rail, the footer and the CTA down the page. Reserving
+     the row means the tallest stage defines it once and no stage can move the
+     rows beneath it. */
+  --stage-reserve: 520px;
+  /* The tallest stage copy is Route, which carries the SOAP note. */
+  --copy-reserve: 360px;
+  --headline-reserve: 90px;
+  --body-reserve: 100px;
+  display: grid;
+  grid-template-rows: auto minmax(var(--stage-reserve), 1fr) auto auto;
+  gap: var(--spacing-5);
+  min-height: 100dvh;
+  padding: var(--spacing-5) var(--space-page-inline) var(--spacing-5);
+  background:
+    radial-gradient(80% 55% at 50% 22%, var(--field-mid), transparent 68%),
+    var(--color-surface-canvas);
+  color: var(--color-on-surface-canvas);
+  overflow: clip;
+}
+
+.onboarding:focus-visible {
+  outline: none;
+}
+
+/* --- Identity ------------------------------------------------------------- */
+
+.onboarding__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+}
+
+.onboarding__skip {
+  min-height: 35px;
+}
+
+/* --- The stage ------------------------------------------------------------ */
+
+/* The anchor box. Every stage layer is absolutely positioned inside it, so an
+   outgoing and an incoming stage occupy the same geometry at the same time and
+   neither can size the row. */
+.onboarding__stage {
+  position: relative;
+  min-height: 0;
+}
+
+.onboarding__stage-content {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  gap: var(--spacing-5);
+  align-items: center;
+  width: 100%;
+  min-height: 0;
+}
+
+/* The copy zones are reserved so a longer headline or the Route stage extra
+   note cannot move the lines above or below them. */
+.onboarding__copy {
+  display: grid;
+  gap: var(--spacing-2);
+  align-content: start;
+  align-self: center;
+  min-height: var(--copy-reserve);
+  max-width: 34rem;
+}
+
+.onboarding__index,
+.onboarding__eyebrow {
+  min-height: var(--text-caption--line-height);
+}
+
+.onboarding__headline {
+  min-height: var(--headline-reserve);
+}
+
+.onboarding__body {
+  min-height: var(--body-reserve);
+}
+
+.onboarding__index {
+  color: var(--color-status-info);
+  margin: 0;
+}
+
+.onboarding__eyebrow {
+  color: var(--color-on-surface-canvas-secondary);
+  margin: 0;
+}
+
+.onboarding__headline {
+  margin: 0;
+  text-wrap: balance;
+  color: var(--color-on-surface-canvas);
+  font-size: var(--text-display);
+  line-height: var(--text-display--line-height);
+  letter-spacing: var(--tracking-display);
+}
+
+.onboarding__body {
+  margin: 0;
+  max-width: var(--measure-reading);
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+/* --- The persistent visual ------------------------------------------------ */
+
+.ovisual {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  height: 100%;
+}
+
+.ovisual__field {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(55% 45% at 50% 42%, var(--field-core), transparent 70%);
+  pointer-events: none;
+}
+
+.ovisual__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(90% 75% at 50% 45%, transparent 45%, var(--vignette-edge));
+  pointer-events: none;
+}
+
+.ovisual__figure {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  height: 100%;
+  max-height: 52vh;
+  min-height: 260px;
+}
+
+
+.ovisual__art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.ovisual__overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke-linecap: square;
+  pointer-events: none;
+}
+
+.ovisual__floor {
+  position: absolute;
+  inset: auto 8% -10px 8%;
+  height: 30px;
+  background: radial-gradient(50% 50% at 50% 50%, var(--floor-ring), transparent 72%);
+  pointer-events: none;
+}
+
+/* Layer ticks for the Refine stage. */
+.ovisual__layers {
+  position: absolute;
+  inset-block-end: 0;
+  display: flex;
+  gap: var(--spacing-3);
+}
+
+.ovisual__layer-tick {
+  color: var(--color-on-surface-unavailable);
+  transition: color var(--motion-duration-content) var(--motion-ease-standard);
+}
+
+.ovisual__layer-tick[data-state='on'] {
+  color: var(--color-border-interactive);
+}
+
+/* --- Stage-specific scenes ------------------------------------------------ */
+
+.ovisual__orbit {
+  stroke: var(--edge-luminous);
+  stroke-width: 1;
+}
+
+.ovisual__orbit--inner {
+  stroke: var(--color-border-interactive);
+}
+
+.ovisual__cross {
+  stroke: var(--color-border-interactive);
+  stroke-width: 0.8;
+}
+
+.ovisual__target {
+  fill: var(--color-border-interactive);
+  stroke: none;
+}
+
+.ovisual__scene {
+  position: relative;
+  width: min(100%, 560px);
+  height: min(100%, 390px);
+  min-height: 280px;
+  isolation: isolate;
+}
+
+.ovisual__micro {
+  position: absolute;
+  z-index: 2;
+  top: 3px;
+  left: 2%;
+  margin: 0;
+  color: var(--color-border-interactive);
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.clarify-scene__body {
+  position: absolute;
+  inset: 34px auto 0 0;
+  width: 39%;
+  overflow: hidden;
+}
+
+.clarify-scene__body img {
+  width: 100%;
+  height: 90%;
+  object-fit: contain;
+  object-position: center top;
+  opacity: 0.88;
+  filter: drop-shadow(0 0 14px var(--glow-selected));
+  transform: scale(1.55);
+  transform-origin: 50% 0;
+}
+
+.clarify-scene__asset-fallback {
+  display: grid;
+  min-height: 70%;
+  place-items: center;
+  padding: 12px;
+  color: var(--color-on-surface-canvas-secondary);
+  font-size: 12px;
+  text-align: center;
+}
+
+.clarify-scene__anchor {
+  position: absolute;
+  top: 51%;
+  left: 50%;
+  width: 11px;
+  height: 11px;
+  border: 2px solid var(--color-border-interactive);
+  border-radius: 50%;
+  background: var(--color-surface-canvas);
+  box-shadow: 0 0 13px var(--glow-selected);
+}
+
+.clarify-scene__location {
+  position: absolute;
+  bottom: 0;
+  left: 7%;
+  display: grid;
+  gap: 2px;
+  padding: 5px 9px;
+  border-left: 1px solid var(--color-border-interactive);
+  background: var(--color-surface-canvas);
+}
+
+.clarify-scene__location span,
+.clarify-scene__answer > span {
+  color: var(--color-border-interactive);
+  font-size: 0.67rem;
+  font-weight: 650;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.clarify-scene__location strong {
+  color: var(--color-on-surface-canvas);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.clarify-scene__sequence {
+  position: absolute;
+  top: 43px;
+  right: 0;
+  bottom: 6px;
+  display: grid;
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  width: 58%;
+}
+
+.clarify-scene__step {
+  position: relative;
+  display: grid;
+  align-content: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 6px 6px 6px 17px;
+  border-left: 1px solid var(--color-border-structural);
+}
+
+.clarify-scene__step::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-border-interactive);
+  box-shadow: 0 0 10px var(--glow-selected);
+  transform: translateY(-50%);
+}
+
+.clarify-scene__question {
+  color: var(--color-on-surface-canvas-secondary);
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+
+.clarify-scene__answer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px 10px;
+}
+
+.clarify-scene__answer strong {
+  color: var(--color-on-surface-canvas);
+  font-size: 1.04rem;
+  font-weight: 650;
+}
+
+.clarify-scene__choices {
+  color: var(--color-on-surface-unavailable);
+  font-size: 0.7rem;
+  line-height: 1.25;
+}
+
+.clarify-scene__clock {
+  width: 18px;
+  height: 18px;
+  stroke: var(--color-border-interactive);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.check-scene svg,
+.route-scene svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.check-scene text,
+.route-scene text {
+  font-family: inherit;
+  font-weight: 650;
+  letter-spacing: 0.07em;
+}
+
+.check-scene__heading,
+.route-scene__signal {
+  fill: var(--color-on-surface-canvas-secondary);
+  font-size: 15px;
+}
+
+.check-scene__base,
+.route-scene__path-base {
+  fill: none;
+  stroke: var(--color-border-structural);
+  stroke-width: 1;
+}
+
+.check-scene__assessment {
+  fill: none;
+  stroke: var(--color-border-interactive);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 5px var(--glow-selected));
+}
+
+.check-scene__safety,
+.check-scene__interrupt {
+  fill: none;
+  stroke: var(--color-status-warning);
+  stroke-width: 1.6;
+}
+
+.check-scene__warning-halo {
+  fill: none;
+  stroke: var(--color-status-warning);
+  stroke-width: 1.3;
+}
+
+.check-scene__warning {
+  fill: var(--color-status-warning);
+  filter: drop-shadow(0 0 7px var(--color-status-warning));
+}
+
+.check-scene__result,
+.check-scene__review {
+  fill: var(--color-on-surface-canvas);
+  font-size: 14px;
+}
+
+.check-scene__review {
+  fill: var(--color-status-warning);
+}
+
+.check-scene__detail {
+  fill: var(--color-on-surface-canvas-secondary);
+  font-size: 11px;
+  font-weight: 450 !important;
+  letter-spacing: 0 !important;
+}
+
+.route-scene__source {
+  fill: var(--color-border-interactive);
+}
+
+.route-scene__trace {
+  fill: none;
+  stroke: url(#route-trace);
+  stroke-width: 1.7;
+  filter: drop-shadow(0 0 5px var(--glow-selected));
+}
+
+.route-scene__trace--out {
+  stroke-width: 2.2;
+}
+
+.route-scene__core-outer,
+.route-scene__core-inner,
+.route-scene__core-ticks {
+  fill: none;
+  stroke: var(--color-border-interactive);
+  stroke-width: 1.1;
+}
+
+.route-scene__core-outer {
+  stroke: var(--color-border-structural);
+}
+
+.route-scene__core-route {
+  fill: none;
+  stroke: var(--color-border-interactive);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.route-scene__core-point,
+.route-scene__beacon {
+  fill: var(--color-border-interactive);
+  filter: drop-shadow(0 0 8px var(--glow-selected));
+}
+
+.route-scene__beacon-halo {
+  fill: none;
+  stroke: var(--color-border-interactive);
+  stroke-width: 1.6;
+}
+
+.route-scene__destination {
+  fill: var(--color-on-surface-canvas);
+  font-size: 12px;
+}
+
+.route-scene__detail {
+  fill: var(--color-on-surface-canvas-secondary);
+  font-size: 12px;
+  font-weight: 450 !important;
+  letter-spacing: 0 !important;
+}
+
+/* --- Progress rail -------------------------------------------------------- */
+
+/* A segment belongs to the stage it leaves, so the active stage never lights
+   territory beyond its own node. */
+.onboarding__rail {
+  position: relative;
+  padding-block-start: var(--spacing-3);
+}
+
+.onboarding__rail ol {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.onboarding__rail li {
+  position: relative;
+  min-width: 0;
+}
+
+.onboarding__segment {
+  position: absolute;
+  z-index: 0;
+  top: 5px;
+  left: 5px;
+  width: 100%;
+  height: 1px;
+  background: var(--color-border-structural);
+  pointer-events: none;
+}
+
+.onboarding__segment-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--color-border-interactive);
+  box-shadow: 0 0 7px var(--glow-selected);
+  transform-origin: left center;
+}
+
+.onboarding__stop {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: start;
+  gap: var(--spacing-1);
+  width: 100%;
+  min-height: var(--control-target-minimum);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-on-surface-canvas-secondary);
+  cursor: pointer;
+  text-align: left;
+}
+
+.onboarding__stop:disabled {
+  cursor: default;
+}
+
+.onboarding__stop:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.onboarding__stop-node {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--color-border-structural);
+  border-radius: 50%;
+  background: var(--color-border-structural);
+  transition: background var(--motion-duration-control) var(--motion-ease-standard),
+    border-color var(--motion-duration-control) var(--motion-ease-standard),
+    box-shadow var(--motion-duration-control) var(--motion-ease-standard),
+    transform var(--motion-duration-control) var(--motion-ease-standard);
+}
+
+.onboarding__rail li[data-state='complete'] .onboarding__stop-node {
+  background: var(--color-border-interactive);
+  border-color: var(--color-border-interactive);
+  box-shadow: 0 0 5px var(--glow-selected);
+}
+
+.onboarding__rail li[data-state='active'] .onboarding__stop-node {
+  background: var(--color-border-interactive);
+  border-color: var(--color-border-interactive);
+  box-shadow: 0 0 15px var(--glow-selected);
+  transform: scale(1.3);
+}
+
+.onboarding__rail li[data-state='active'] .onboarding__stop-node::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border: 1px solid var(--color-border-interactive);
+  border-radius: 50%;
+  animation: onboarding-node-breathe 2.4s ease-in-out infinite;
+}
+
+@keyframes onboarding-node-breathe {
+  0%, 100% { opacity: 0.25; transform: scale(0.9); }
+  50% { opacity: 0.65; transform: scale(1.12); }
+}
+
+.onboarding__rail li[data-state='active'] .onboarding__stop-name {
+  color: var(--color-on-surface-canvas);
+}
+
+.onboarding__stop:hover .onboarding__stop-name {
+  color: var(--color-border-interactive);
+}
+
+/* --- Footer --------------------------------------------------------------- */
+
+.onboarding__foot {
+  display: grid;
+  gap: var(--spacing-4);
+  align-items: end;
+  padding-block-start: var(--spacing-4);
+  border-top: 1px solid var(--color-border-structural);
+}
+
+.onboarding__actions {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* One reserved width for Next and Begin assessment, so the final stage cannot
+   widen the control and drag its left edge across the footer. */
+.onboarding__actions .cta {
+  min-width: 15rem;
+  justify-content: space-between;
+}
+
+/*
+  One column below the desktop breakpoint, so the stage row is split between
+  the visual and the copy. Both rows are reserved: the visual keeps the height
+  its tallest scene needs (the route diagram at 280px, the figure at 260px) and
+  the copy keeps its own reserve. Without explicit rows the fixed stage height
+  was divided by content and the figure overflowed onto the headline.
+*/
+@media (max-width: 68.749rem) {
+  .onboarding {
+    --visual-reserve: 280px;
+    --stage-reserve: calc(var(--visual-reserve) + var(--spacing-5) + var(--copy-reserve));
+  }
+
+  .onboarding__stage-content {
+    grid-template-rows: var(--visual-reserve) var(--copy-reserve);
+    align-content: center;
+  }
+}
+
+/* --- Tablet --------------------------------------------------------------- */
+
+@media (min-width: 43.75rem) {
+
+  .onboarding__actions {
+    justify-content: flex-end;
+  }
+}
+
+/* --- Desktop -------------------------------------------------------------- */
+
+@media (min-width: 68.75rem) {
+  .onboarding {
+    gap: var(--spacing-6);
+    padding: var(--spacing-6) var(--space-page-inline);
+  }
+
+  .onboarding {
+    --stage-reserve: 360px;
+    --copy-reserve: 360px;
+    --headline-reserve: 140px;
+    --body-reserve: 60px;
+  }
+
+  .onboarding__stage-content {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: var(--spacing-10);
+  }
+
+  .onboarding__headline {
+    font-size: var(--text-display-desktop);
+    line-height: var(--text-display-desktop--line-height);
+  }
+
+  .ovisual__figure {
+    max-height: 58vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onboarding__rail li[data-state='active'] .onboarding__stop-node::after {
+    animation: none;
+  }
+}
+
+/* --- Short viewports ------------------------------------------------------ */
+
+/*
+  A 768-tall desktop window cannot give the figure 58vh and still fit the rail
+  and the footer, so the figure yields first. It is the element that can lose
+  height without losing meaning.
+*/
+@media (max-height: 50rem) {
+  .ovisual__figure {
+    max-height: 42vh;
+    min-height: 200px;
+  }
+
+  .onboarding {
+    gap: var(--spacing-4);
+  }
+}
+
+@media (max-width: 43.749rem) {
+  .check-scene__heading,
+  .route-scene__signal {
+    font-size: 18px;
+  }
+
+  .check-scene__result,
+  .check-scene__review,
+  .route-scene__destination {
+    font-size: 16px;
+  }
+
+  .route-scene__detail {
+    font-size: 14px;
+  }
+
+  .onboarding {
+    padding-block-end: 86px;
+  }
+
+  .onboarding__foot {
+    margin-block-start: 72px;
+  }
+
+  .onboarding__actions {
+    position: fixed;
+    z-index: 12;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    justify-content: flex-end;
+    padding: 14px max(20px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom));
+    border-top: 1px solid var(--color-border-structural);
+    background: var(--color-surface-canvas);
+  }
+
+  .onboarding__actions .cta {
+    min-height: 56px;
+    box-shadow: 0 12px 36px var(--color-surface-canvas);
+  }
+}
+
+/* --- Stage 05: route, SOAP document, care team ----------------------------- */
+
+.route-scene__caption {
+  fill: var(--color-on-surface-canvas-secondary);
+  font-size: 11px;
+}
+
+/* A translucent clinical document: an outline with a faint fill, so it reads
+   as a page being assembled rather than as a solid card. */
+.route-scene__doc {
+  fill: var(--light-stage);
+  stroke: var(--edge-luminous);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+
+.route-scene__doc-title {
+  fill: var(--color-status-info);
+  font-size: 10px;
+}
+
+.route-scene__soap-key {
+  fill: var(--color-border-interactive);
+  font-size: 13px;
+}
+
+.route-scene__soap-label {
+  fill: var(--color-on-surface-canvas);
+  font-size: 10px;
+  font-weight: 500 !important;
+  letter-spacing: 0.02em !important;
+}
+
+.route-scene__soap-rule {
+  stroke: var(--edge-quiet);
+  stroke-width: 1;
+}
+
+.route-scene__packet {
+  fill: var(--color-border-interactive);
+  filter: drop-shadow(0 0 6px var(--glow-selected));
+}
+
+.route-scene__care-halo {
+  fill: none;
+  stroke: var(--color-status-success);
+  stroke-width: 1.3;
+}
+
+.route-scene__care-node {
+  fill: var(--color-surface-canvas);
+  stroke: var(--color-status-success);
+  stroke-width: 1.6;
+}
+
+.route-scene__care-glyph {
+  fill: none;
+  stroke: var(--color-status-success);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+/* The one SOAP explanation in the product. */
+.onboarding__soap-note {
+  display: grid;
+  gap: 0;
+  margin-block-start: var(--spacing-2);
+  padding-inline-start: var(--spacing-3);
+  border-inline-start: 1px solid var(--color-border-interactive);
+}
+
+.onboarding__soap-title {
+  margin: 0;
+  color: var(--color-on-surface-canvas);
+}
+
+.onboarding__soap-expansion {
+  margin: 0;
+  color: var(--color-status-info);
+}
+
+.onboarding__soap-line {
+  margin: 0;
+  max-width: 32rem;
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+/* --- Handoff rail ---------------------------------------------------------- */
+
+/*
+  DocMatch+ prepares the handoff.
+
+  Mobile first: a vertical path, connectors running down between nodes, the
+  care-team decisions indented beneath the last node. Tablet: two rows of two.
+  Desktop: one horizontal path across the footer width, with the decisions
+  branching below the care-team node.
+
+  Connectors fill along their own axis. Because the axis changes with the
+  layout, the fill is a CSS transform whose origin and scale axis are set per
+  breakpoint, rather than a Framer value locked to one direction.
+*/
+.onboarding__foot {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.handoff-rail {
+  display: grid;
+  gap: var(--spacing-4);
+  min-width: 0;
+}
+
+.handoff-rail__intro {
+  display: grid;
+  gap: 0;
+}
+
+.handoff-rail__title {
+  margin: 0;
+  color: var(--color-on-surface-canvas);
+}
+
+.handoff-rail__lead {
+  margin: 0;
+  max-width: 40rem;
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.handoff-rail__path {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The column is pinned to its track. Without it the implicit column grew to the
+   width of the decision list, stretching the care-team node under the Next
+   button, where its box swallowed taps. */
+.handoff-rail__step {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  min-width: 0;
+}
+
+.handoff-rail__node {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--spacing-3);
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity var(--motion-duration-spatial) var(--motion-ease-standard),
+    transform var(--motion-duration-spatial) var(--motion-ease-standard);
+}
+
+.handoff-rail__step[data-lit='true'] .handoff-rail__node {
+  opacity: 1;
+  transform: none;
+}
+
+.handoff-rail__mark {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--color-border-structural);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-canvas);
+  transition:
+    border-color var(--motion-duration-content) var(--motion-ease-standard),
+    box-shadow var(--motion-duration-content) var(--motion-ease-standard);
+}
+
+.handoff-rail__step[data-lit='true'] .handoff-rail__mark {
+  border-color: var(--color-border-interactive);
+  box-shadow: 0 0 16px var(--glow-hover);
+}
+
+.handoff-rail__step[data-owner='care-team'][data-lit='true'] .handoff-rail__mark {
+  border-color: var(--color-status-success);
+  box-shadow: 0 0 16px var(--light-stage);
+}
+
+.handoff-rail__text {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+}
+
+.handoff-rail__node-title {
+  color: var(--color-on-surface-canvas);
+}
+
+.handoff-rail__step[data-owner='care-team'] .handoff-rail__node-title {
+  color: var(--color-status-success);
+}
+
+.handoff-rail__node-detail {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+/* Vertical connector (mobile). */
+.handoff-rail__connector {
+  position: relative;
+  display: block;
+  width: 1px;
+  height: 25px;
+  margin-inline-start: 20px;
+  background: var(--color-border-structural);
+  overflow: visible;
+}
+
+.handoff-rail__connector-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--color-border-interactive);
+  box-shadow: 0 0 8px var(--glow-selected);
+  transform: scaleY(0);
+  transform-origin: top center;
+  transition: transform 0.42s var(--motion-ease-standard);
+}
+
+.handoff-rail__connector[data-lit='true'] .handoff-rail__connector-fill {
+  transform: scaleY(1);
+}
+
+/* The information mark: runs the connector once as it fills. */
+.handoff-rail__signal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  translate: -2px 0;
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-pill);
+  background: var(--ink-brightest);
+  box-shadow: 0 0 8px var(--glow-selected);
+  opacity: 0;
+}
+
+.handoff-rail__connector[data-lit='true'] .handoff-rail__signal {
+  animation: handoff-signal-down 0.46s var(--motion-ease-standard) 1 both;
+}
+
+@keyframes handoff-signal-down {
+  0% { opacity: 0; transform: translateY(0); }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(22px); }
+}
+
+@keyframes handoff-signal-across {
+  0% { opacity: 0; left: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; left: calc(100% - 5px); }
+}
+
+/* Care-team decisions: branches off the last node. */
+.handoff-rail__decisions {
+  display: grid;
+  gap: var(--spacing-2);
+  margin: var(--spacing-3) 0 0 20px;
+  padding: 0 0 0 var(--spacing-4);
+  border-inline-start: 1px solid var(--color-status-success);
+  list-style: none;
+}
+
+.handoff-rail__decision {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--spacing-2);
+  opacity: 0;
+  transform: translateX(-6px);
+  transition:
+    opacity var(--motion-duration-spatial) var(--motion-ease-standard),
+    transform var(--motion-duration-spatial) var(--motion-ease-standard);
+}
+
+.handoff-rail__decisions[data-shown='true'] .handoff-rail__decision {
+  opacity: 1;
+  transform: none;
+}
+
+.handoff-rail__branch {
+  position: absolute;
+  inset-inline-start: calc(-1 * var(--spacing-4));
+  inset-block-start: 50%;
+  width: 15px;
+  height: 1px;
+  background: var(--color-status-success);
+}
+
+.handoff-rail__decision-mark {
+  display: inline-flex;
+}
+
+.handoff-rail__decision-label {
+  color: var(--color-on-surface-canvas);
+}
+
+/* Next participates in the story: quiet until the rail completes. */
+.onboarding__actions .cta {
+  transition:
+    border-color var(--motion-duration-content) var(--motion-ease-standard),
+    box-shadow var(--motion-duration-content) var(--motion-ease-standard);
+}
+
+.onboarding__actions[data-ready='true'] .cta--quiet {
+  border-color: var(--color-border-interactive);
+  box-shadow: inset 3px 0 0 var(--color-border-interactive), 0 0 18px var(--glow-hover);
+}
+
+.onboarding__actions[data-ready='true'] .cta__mark {
+  animation: handoff-next-nudge 0.5s var(--motion-ease-standard) 1 both;
+}
+
+@keyframes handoff-next-nudge {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(4px); }
+  100% { transform: translateX(0); }
+}
+
+/* Tablet: two rows of two. */
+@media (min-width: 43.75rem) {
+  .handoff-rail__path {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-4) var(--spacing-6);
+  }
+
+  .handoff-rail__connector {
+    display: none;
+  }
+
+  .handoff-rail__decisions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Desktop: one horizontal path across the footer, Next at its end. */
+@media (min-width: 68.75rem) {
+  .onboarding__foot {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+  }
+
+  .handoff-rail {
+    grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--spacing-6);
+  }
+
+  .handoff-rail__path {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+  }
+
+  .handoff-rail__node {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+    align-items: start;
+    gap: var(--spacing-2);
+    padding-inline-end: var(--spacing-5);
+  }
+
+  .handoff-rail__connector {
+    display: block;
+    position: absolute;
+    inset-block-start: 20px;
+    inset-inline-start: 45px;
+    inset-inline-end: 5px;
+    width: auto;
+    height: 1px;
+    margin: 0;
+  }
+
+  .handoff-rail__connector-fill {
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+
+  .handoff-rail__connector[data-lit='true'] .handoff-rail__connector-fill {
+    transform: scaleX(1);
+  }
+
+  .handoff-rail__signal {
+    top: 0;
+    left: 0;
+    translate: 0 -2px;
+  }
+
+  .handoff-rail__connector[data-lit='true'] .handoff-rail__signal {
+    animation-name: handoff-signal-across;
+  }
+
+  /* Two columns of decisions under the care-team node. Only the first column
+     carries a branch tick, so a tick never runs through a neighbouring label. */
+  .handoff-rail__decisions {
+    width: max-content;
+    grid-template-columns: repeat(2, max-content);
+    gap: var(--spacing-2) var(--spacing-5);
+    margin: var(--spacing-3) 0 0 20px;
+    padding-inline-start: var(--spacing-3);
+  }
+
+  .handoff-rail__decision:nth-child(even) .handoff-rail__branch {
+    display: none;
+  }
+
+  .handoff-rail__decision:nth-child(odd) .handoff-rail__branch {
+    inset-inline-start: calc(-1 * var(--spacing-3));
+    width: 10px;
+  }
+
+  .onboarding__actions {
+    padding-block-start: var(--spacing-2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .handoff-rail__node,
+  .handoff-rail__decision,
+  .handoff-rail__connector-fill {
+    transition: none;
+  }
+
+  .handoff-rail__signal,
+  .onboarding__actions[data-ready='true'] .cta__mark {
+    animation: none;
+  }
+}
+
+/*
+  Phones: the SOAP document is drawn at roughly half scale, where its section
+  names would render near 5px. The letters carry the structure on their own
+  at that size, so the names and the small title step aside and the letters
+  grow instead of becoming unreadable.
+*/
+@media (max-width: 43.749rem) {
+  .route-scene__soap-label,
+  .route-scene__doc-title,
+  .route-scene__caption {
+    display: none;
+  }
+
+  .route-scene__soap-key {
+    font-size: 20px;
+  }
+}
+
+/* R7 consent is a short gate, not a policy wall. */
+.before-begin {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--spacing-5);
+  background: color-mix(in srgb, var(--color-surface-canvas) 84%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.before-begin__dialog {
+  display: grid;
+  gap: var(--spacing-4);
+  width: min(100%, 680px);
+  padding: var(--spacing-8);
+  border: 1px solid var(--color-border-interactive);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 88% 8%, var(--light-occupant) 0%, transparent 38%),
+    var(--color-surface-rail);
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.58);
+}
+
+.before-begin__dialog > p,
+.before-begin__dialog h2,
+.before-begin__privacy p {
+  margin: 0;
+}
+
+.before-begin__eyebrow {
+  color: var(--color-border-interactive);
+}
+
+.before-begin__dialog h2 {
+  color: var(--color-on-surface-canvas);
+  outline: none;
+}
+
+.before-begin__dialog > .type-body,
+.before-begin__privacy {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.before-begin__privacy {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--spacing-3);
+  align-items: start;
+  padding-block: var(--spacing-3);
+  border-block: 1px solid var(--edge-quiet);
+}
+
+.before-begin__privacy .pictogram {
+  color: var(--color-border-interactive);
+}
+
+.before-begin__privacy strong {
+  color: var(--color-on-surface-canvas);
+}
+
+.before-begin__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
+}
+
+@media (max-width: 43.749rem) {
+  .before-begin {
+    align-items: end;
+    padding: var(--spacing-3);
+  }
+
+  .before-begin__dialog {
+    gap: var(--spacing-3);
+    padding: var(--spacing-5);
+  }
+
+  .before-begin__actions,
+  .before-begin__actions > * {
+    width: 100%;
+  }
+
+  .before-begin__actions {
+    flex-direction: column-reverse;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .before-begin {
+    backdrop-filter: none;
+  }
+}
+
+/* ==========================================================================
+   R8.1 composition
+   --------------------------------------------------------------------------
+
+   Six stages on one screen. The rules above keep each stage's artwork and
+   type; this block arranges the frame around them and replaces the footer.
+
+   Desktop: a centred frame of fixed maximum width with the stage rail down
+   the left, then the figure, then one column holding the copy and its action.
+   The figure and that column share one vertical centre, so the headline reads
+   beside the figure rather than below it. The frame is sized to the window,
+   so the introduction never scrolls.
+
+   Narrower screens: the rail across the top, then the figure, the copy and
+   the action in normal flow. The action is never fixed to the window, so it
+   can never cover the rail or the copy.
+
+   The figure and the copy crossfade in their own slots. Old and new layers
+   share one grid cell during the fade, so each slot is as tall as its
+   content, with no reserved blank space.
+   ========================================================================== */
+
+.onboarding {
+  --rail-step: 56px;
+  --copy-column: minmax(22rem, 30rem);
+  --frame-gap: var(--spacing-10);
+  --headline-reserve: 0px;
+  --body-reserve: 0px;
+  /* The landing's header replaced the introduction's own: one row, the frame. */
+  grid-template-rows: minmax(0, 1fr);
+  gap: var(--spacing-4);
+}
+
+.onboarding__head,
+.onboarding__frame {
+  width: min(100%, 90rem);
+  margin-inline: auto;
+}
+
+.onboarding__skip {
+  min-height: var(--control-target-minimum);
+}
+
+.onboarding__frame {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-4);
+  align-content: start;
+  min-height: 0;
+}
+
+.onboarding__rail ol {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+/* --- Stage slots ----------------------------------------------------------- */
+
+.onboarding__stage {
+  display: grid;
+  gap: var(--spacing-4);
+  min-height: 0;
+}
+
+.onboarding__visual-slot,
+.onboarding__copy-slot {
+  display: grid;
+  min-height: 0;
+}
+
+.onboarding__visual-slot > *,
+.onboarding__copy-slot > * {
+  grid-area: 1 / 1;
+  min-height: 0;
+}
+
+.onboarding__layer {
+  display: grid;
+  height: 100%;
+}
+
+/* The sizers hold the copy slot at the height of the tallest stage. */
+.onboarding__copy-sizer {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.onboarding__copy-slot > .onboarding__stage-content {
+  align-self: center;
+}
+
+/* The copy layer is in flow now; the absolute stage box above is retired. */
+.onboarding__stage-content {
+  position: static;
+  inset: auto;
+  display: block;
+  width: auto;
+}
+
+.onboarding__copy {
+  align-self: auto;
+  min-height: 0;
+  max-width: 34rem;
+}
+
+.onboarding__copy-column {
+  display: grid;
+  gap: var(--spacing-5);
+  align-content: start;
+  min-width: 0;
+}
+
+/* --- The Handoff stage's decision list ----------------------------------- */
+
+.onboarding__decisions {
+  display: grid;
+  gap: var(--spacing-2);
+  margin-block-start: var(--spacing-2);
+  padding-block-start: var(--spacing-3);
+  border-top: 1px solid var(--color-border-structural);
+}
+
+.onboarding__decisions-title {
+  margin: 0;
+  color: var(--color-status-info);
+  letter-spacing: var(--tracking-caption);
+}
+
+.onboarding__decisions ul {
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  gap: var(--spacing-2) var(--spacing-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.onboarding__decisions li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--color-on-surface-canvas);
+}
+
+.onboarding__decisions .pictogram {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+/* --- Route and Handoff scenes ------------------------------------------- */
+
+.route-scene__branch {
+  fill: none;
+  stroke: var(--trail-line);
+  stroke-width: 1;
+  stroke-dasharray: 4 5;
+}
+
+.route-scene__candidate {
+  fill: var(--color-surface-canvas);
+  stroke: var(--color-on-surface-canvas-secondary);
+  stroke-width: 1.3;
+}
+
+.route-scene__candidate--chosen {
+  fill: var(--color-border-interactive);
+  stroke: var(--color-border-interactive);
+  filter: drop-shadow(0 0 7px var(--glow-selected));
+}
+
+.route-scene__signal {
+  letter-spacing: 0.02em;
+}
+
+.handoff-scene__fragment {
+  fill: var(--surface-well);
+  stroke: var(--edge-luminous);
+  stroke-width: 1;
+}
+
+.handoff-scene__fragment-label {
+  fill: var(--color-on-surface-canvas);
+  font-size: 13px;
+  font-weight: 500 !important;
+  letter-spacing: 0.01em !important;
+}
+
+.handoff-scene__key-ring {
+  fill: var(--color-surface-canvas);
+  stroke: var(--color-border-interactive);
+  stroke-width: 1.1;
+}
+
+.handoff-scene__check {
+  fill: none;
+  stroke: var(--color-status-success);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.handoff-scene__status {
+  fill: var(--color-status-success);
+  font-size: 11px;
+  letter-spacing: 0.02em !important;
+}
+
+/* --- Below desktop ------------------------------------------------------- */
+
+@media (max-width: 68.749rem) {
+  .onboarding {
+    --visual-reserve: 250px;
+    min-height: 100dvh;
+  }
+
+  .onboarding__stage {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .onboarding__visual-slot {
+    height: var(--visual-reserve);
+  }
+
+  .onboarding__rail {
+    padding-block-start: 0;
+  }
+
+  .onboarding__actions {
+    justify-content: flex-start;
+  }
+}
+
+/* --- Desktop -------------------------------------------------------------- */
+
+@media (min-width: 68.75rem) {
+  .onboarding {
+    height: 100dvh;
+    min-height: 0;
+    padding: var(--spacing-5) var(--space-page-inline);
+  }
+
+  .onboarding__frame {
+    grid-template-columns: 9rem minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    column-gap: var(--frame-gap);
+    align-items: center;
+    height: 100%;
+  }
+
+  /* The figure and the copy column share one vertical centre. */
+  .onboarding__stage {
+    grid-template-columns: minmax(0, 1fr) var(--copy-column);
+    column-gap: var(--frame-gap);
+    align-items: center;
+    align-self: stretch;
+    height: 100%;
+  }
+
+  .onboarding__visual-slot {
+    height: 100%;
+  }
+
+  .onboarding__copy-column {
+    gap: var(--spacing-6);
+  }
+
+  .onboarding__actions {
+    justify-content: flex-start;
+  }
+
+  .ovisual__figure {
+    max-height: min(100%, 70vh);
+    min-height: 0;
+  }
+
+  /* The rail runs down the left edge of the frame, one fixed step per stage,
+     so the segment between two nodes is always one step long. The segment is
+     the horizontal fill from the rules above turned through a right angle,
+     which keeps the fill timing and axis logic unchanged. */
+  .onboarding__rail {
+    align-self: center;
+    padding: 0;
+  }
+
+  .onboarding__rail ol {
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: var(--rail-step);
+  }
+
+  .onboarding__segment {
+    top: 24px;
+    left: 5px;
+    width: var(--rail-step);
+    transform: rotate(90deg);
+    transform-origin: 0 50%;
+  }
+
+  .onboarding__stop {
+    grid-template-columns: 10px minmax(0, 1fr);
+    align-items: center;
+    justify-items: start;
+    gap: var(--spacing-3);
+    height: var(--control-target-minimum);
+  }
+
+  .onboarding__stop-name {
+    font-size: var(--text-label);
+  }
+}
+
+/* Short desktop windows, down to 1280 by 720: the headline, the gaps and the
+   figure yield before any content does, so nothing falls below the fold. */
+@media (min-width: 68.75rem) and (max-height: 50rem) {
+  .onboarding {
+    --rail-step: 50px;
+    --frame-gap: var(--spacing-8);
+    gap: var(--spacing-3);
+    padding-block: var(--spacing-4);
+  }
+
+  .onboarding__headline {
+    font-size: var(--text-display);
+    line-height: var(--text-display--line-height);
+  }
+
+  .onboarding__copy {
+    gap: var(--spacing-1);
+  }
+
+  .onboarding__copy-column {
+    gap: var(--spacing-5);
+  }
+}
+
+/* --- Phone ----------------------------------------------------------------- */
+
+@media (max-width: 43.749rem) {
+  .onboarding {
+    --visual-reserve: 220px;
+    gap: var(--spacing-3);
+    padding-block: var(--spacing-3) var(--spacing-5);
+  }
+
+  .onboarding__actions {
+    position: static;
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+
+  .onboarding__actions .cta {
+    width: 100%;
+    min-width: 0;
+    min-height: var(--control-target-minimum);
+    box-shadow: none;
+  }
+
+  .onboarding__stop-name {
+    font-size: 11px;
+  }
+
+  /* Two shrinkable columns, so a long decision wraps instead of widening the
+     column past a narrow phone. */
+  .onboarding__decisions ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-1) var(--spacing-4);
+  }
+}

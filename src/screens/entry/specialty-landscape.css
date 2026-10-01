@@ -1,0 +1,212 @@
+.dm-landscape {
+  --landscape-recede: 0;
+  position: relative;
+  display: grid;
+  align-items: center;
+  min-height: 115svh;
+  padding: 10vh clamp(28px, 8vw, 120px) 14vh;
+  border-top: 1px solid var(--manus-section-rule);
+  color: var(--manus-heading);
+  overflow: clip;
+}
+
+.dm-landscape__frame {
+  display: grid;
+  grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
+  align-items: center;
+  gap: clamp(35px, 5vw, 88px);
+  width: 100%;
+  max-width: 1280px;
+  min-height: 620px;
+  margin: auto;
+}
+
+.dm-landscape__copy { position: relative; z-index: 2; min-width: 0; }
+.dm-landscape__copy h2 {
+  max-width: 610px;
+  margin: 20px 0 0;
+  font: 400 clamp(40px, 4.5vw, 70px) / 1.04 var(--font-display);
+  letter-spacing: -0.07em;
+  text-wrap: balance;
+}
+
+.dm-landscape__accent {
+  margin: 18px 0 0;
+  color: var(--manus-accent);
+  font: italic 500 clamp(23px, 2.15vw, 31px) / 1.15 var(--font-accent);
+}
+
+.dm-landscape__body {
+  max-width: 510px;
+  margin: 24px 0 0;
+  color: var(--manus-description);
+  font-size: clamp(14px, 1.1vw, 16px);
+  line-height: 1.72;
+}
+
+.dm-landscape__count {
+  margin-top: clamp(30px, 4vh, 52px);
+  opacity: calc(1 - var(--landscape-recede) * 0.55);
+}
+
+.dm-landscape__count-caption,
+.dm-landscape__count-label,
+.dm-landscape__field-caption {
+  margin: 0;
+  color: var(--manus-cyan);
+  font: 800 11px / 1.4 var(--font-ui);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.dm-landscape__number {
+  margin: 7px 0 4px -0.07em;
+  color: #eef4f7;
+  font: 400 clamp(100px, 14vw, 190px) / 0.91 var(--font-display);
+  letter-spacing: -0.105em;
+  font-variant-numeric: tabular-nums;
+}
+
+.dm-landscape__count-label { color: var(--manus-meta); }
+.dm-landscape__disclaimer {
+  max-width: 440px;
+  margin: 23px 0 0;
+  padding-left: 14px;
+  border-left: 1px solid var(--manus-steel);
+  color: #9aafc0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.dm-landscape__field {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  height: min(72svh, 660px);
+  min-height: 530px;
+  transform: translate3d(0, calc(var(--landscape-recede) * -24px), 0) scale(calc(1 - var(--landscape-recede) * 0.07));
+  opacity: calc(1 - var(--landscape-recede) * 0.8);
+}
+
+.dm-landscape__field::before {
+  position: absolute;
+  inset: 5% 0;
+  background: radial-gradient(60% 47% at 52% 50%, rgba(31, 66, 88, 0.13), transparent 82%);
+  pointer-events: none;
+  content: '';
+}
+
+.dm-landscape__field-caption {
+  position: absolute;
+  z-index: 2;
+  top: 10%;
+  left: clamp(20px, 4vw, 60px);
+  color: #8fabbc;
+}
+
+.dm-landscape-wheel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  outline: none;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  opacity: 0.2;
+  transition: opacity 650ms ease;
+}
+
+.dm-landscape[data-active] .dm-landscape-wheel { opacity: 1; }
+.dm-landscape-wheel[data-dragging] { cursor: grabbing; }
+.dm-landscape-wheel:focus-visible { outline: 1px solid rgba(82, 214, 245, 0.55); outline-offset: -6px; }
+.dm-landscape-wheel__labels { position: absolute; inset: 0; overflow: hidden; mask-image: linear-gradient(transparent, #000 16%, #000 82%, transparent); }
+.dm-landscape-wheel__item {
+  position: absolute;
+  top: 50%;
+  left: clamp(20px, 4vw, 60px);
+  max-width: calc(100% - 80px);
+  overflow: hidden;
+  color: color-mix(in srgb, #eef4f7 calc(var(--wheel-proximity, 0) * 100%), #7594a8);
+  font: 400 clamp(30px, 3.4vw, 53px) / 1.08 var(--font-display);
+  letter-spacing: -0.055em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transform-origin: left center;
+  will-change: transform, opacity, filter;
+  pointer-events: none;
+}
+
+.dm-landscape__exit {
+  position: absolute;
+  right: clamp(28px, 8vw, 120px);
+  bottom: 3.8vh;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  opacity: calc(0.48 + var(--landscape-recede) * 0.52);
+}
+
+.dm-landscape__exit span {
+  width: clamp(60px, 10vw, 150px);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #67bed5);
+  transform: scaleX(calc(0.5 + var(--landscape-recede) * 0.5));
+  transform-origin: right;
+}
+
+.dm-landscape__exit p {
+  margin: 0;
+  color: #a8c0cf;
+  font: 700 11px / 1.55 var(--font-ui);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.dm-landscape__static {
+  display: grid;
+  align-content: center;
+  gap: 23px;
+  height: 100%;
+  padding-inline: clamp(20px, 4vw, 60px);
+}
+
+.dm-landscape__static span {
+  color: #9bb5c4;
+  font: 400 clamp(29px, 3vw, 44px) / 1.1 var(--font-display);
+  letter-spacing: -0.045em;
+}
+
+.dm-landscape__static span:nth-child(3) { color: #eef4f7; }
+
+.dm-landscape-reel { display: none; }
+
+@media (max-width: 43.75rem) {
+  .dm-landscape { min-height: auto; padding: 85px 28px 115px; }
+  .dm-landscape__frame { display: flex; flex-direction: column; align-items: stretch; gap: 36px; min-height: 0; }
+  .dm-landscape__copy h2 { font-size: clamp(36px, 9vw, 49px); }
+  .dm-landscape__body { font-size: 14px; }
+  .dm-landscape__count { margin-top: 28px; }
+  .dm-landscape__number { font-size: clamp(104px, 28vw, 140px); }
+  .dm-landscape__field { height: 290px; min-height: 290px; }
+  .dm-landscape__field-caption { top: 0; left: 0; }
+  .dm-landscape__static { gap: 14px; padding: 30px 0 0; }
+  .dm-landscape__static span { font-size: 24px; }
+  .dm-landscape-reel { display: grid; align-content: center; height: 100%; padding-top: 20px; overflow: hidden; touch-action: pan-y; }
+  .dm-landscape-reel__item { display: flex; align-items: center; height: 47px; max-width: 100%; color: #819eaf; font: 400 clamp(23px, 6vw, 30px) / 1.1 var(--font-display); letter-spacing: -0.045em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: opacity 300ms ease, color 300ms ease; }
+  .dm-landscape-reel__item[data-offset='-2'],
+  .dm-landscape-reel__item[data-offset='2'] { opacity: 0.32; }
+  .dm-landscape-reel__item[data-offset='-1'],
+  .dm-landscape-reel__item[data-offset='1'] { opacity: 0.66; }
+  .dm-landscape-reel__item[data-offset='0'] { color: #eef4f7; opacity: 1; }
+  .dm-landscape__exit { right: 28px; bottom: 32px; gap: 14px; }
+  .dm-landscape__exit span { width: 44px; }
+  .dm-landscape__exit p { font-size: 9px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dm-landscape__field,
+  .dm-landscape__count,
+  .dm-landscape__exit { transform: none; opacity: 1; }
+  .dm-landscape-wheel,
+  .dm-landscape-reel__item { transition: none; }
+}

@@ -1,0 +1,2717 @@
+/* ---------------------------------------------------------------------------
+   Assessment shell
+
+   One identity bar and one icon-only journey. The clinical state beneath can
+   change register without replacing the room or duplicating the brand.
+   --------------------------------------------------------------------------- */
+
+.route-surface--assessment {
+  height: auto;
+  min-height: 100dvh;
+  padding: 0;
+  overflow: visible;
+}
+
+/*
+  The solid canvas-colour layer used to sit under this gradient and paint over
+  the fixed SignalField canvas DocMatchEnvironment renders behind the whole
+  route. The radial highlight alone is see-through outside its 50% stop, so
+  the hero atmosphere now shows everywhere this panel doesn't need the glow.
+*/
+.assessment-shell {
+  display: grid;
+  grid-template-columns: var(--spacing-16) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-width: 0;
+  min-height: 100dvh;
+  background: radial-gradient(ellipse at 48% 26%, var(--light-stage) 0%, transparent 50%);
+  color: var(--color-on-surface-canvas);
+}
+
+.assessment-header {
+  position: relative;
+  z-index: 2;
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: auto 1px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--spacing-5);
+  min-width: 0;
+  min-height: var(--spacing-16);
+  padding: var(--spacing-3) var(--spacing-6);
+  border-block-end: 1px solid var(--edge-quiet);
+  background: var(--scrim-bar);
+}
+
+.assessment-header__logo {
+  display: block;
+  width: calc(var(--spacing-16) * 1.75);
+  height: auto;
+  object-fit: contain;
+}
+
+.assessment-header__rule {
+  width: 1px;
+  height: var(--spacing-6);
+  background: var(--edge-quiet);
+}
+
+.assessment-header__context {
+  display: grid;
+  gap: var(--spacing-0);
+  min-width: 0;
+}
+
+.assessment-header__context small,
+.assessment-header__status {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.assessment-header__context strong {
+  overflow: hidden;
+  color: var(--color-on-surface-canvas);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.assessment-header__status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  white-space: nowrap;
+}
+
+.assessment-header__status span {
+  color: var(--color-status-success);
+}
+
+.assessment-shell[data-register='critical'] .assessment-header__context small,
+.assessment-shell[data-register='critical'] .assessment-header__status span {
+  color: var(--color-surface-critical-strong);
+}
+
+.journey {
+  grid-row: 2 / 4;
+  grid-column: 1;
+  display: grid;
+  align-items: start;
+  justify-items: center;
+  min-width: 0;
+  padding-block: var(--spacing-8);
+  border-inline-end: 1px solid var(--edge-quiet);
+  background: color-mix(in srgb, var(--color-surface-rail) 76%, transparent);
+}
+
+.journey__stages {
+  display: grid;
+  justify-items: center;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.journey__stage {
+  display: grid;
+  justify-items: center;
+}
+
+.journey__link {
+  display: block;
+  width: 1px;
+  height: var(--spacing-8);
+  background: var(--edge-quiet);
+}
+
+.journey__stage[data-state='complete'] .journey__link,
+.journey__stage[data-state='active'] .journey__link {
+  background: linear-gradient(to bottom, var(--color-status-success), var(--color-border-interactive));
+  box-shadow: 0 0 var(--spacing-2) var(--light-occupant);
+}
+
+.journey__node {
+  position: relative;
+  display: inline-flex;
+  width: var(--control-target-minimum);
+  height: var(--control-target-minimum);
+  align-items: center;
+  justify-content: center;
+  color: var(--color-on-surface-unavailable);
+}
+
+.journey__lit {
+  position: absolute;
+  inset: var(--spacing-1);
+  border: 1px solid var(--edge-luminous);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--light-occupant) 0%, transparent 72%);
+  box-shadow: 0 0 var(--spacing-4) var(--glow-selected);
+}
+
+.journey__lit[data-register='critical'] {
+  border-color: var(--color-border-critical);
+  background: radial-gradient(circle, var(--light-occupant-critical) 0%, transparent 72%);
+  box-shadow: 0 0 var(--spacing-4) var(--light-occupant-critical);
+}
+
+.journey__stage[data-state='complete'] .journey__node {
+  color: rgba(91, 139, 165, 0.8);
+}
+
+.journey__stage[data-state='active'] .journey__node {
+  color: var(--color-border-interactive);
+}
+
+.assessment-shell__main {
+  grid-column: 2;
+  grid-row: 2;
+  width: 100%;
+  min-width: 0;
+  min-height: calc(100dvh - var(--spacing-16) - var(--spacing-10));
+  padding: var(--spacing-6) var(--spacing-8);
+}
+
+.assessment-shell__main > * {
+  width: min(100%, var(--measure-content));
+  margin-inline: auto;
+}
+
+.assessment-shell__notice {
+  grid-column: 2;
+  grid-row: 3;
+  margin: 0;
+  padding: var(--spacing-2) var(--spacing-8) var(--spacing-3);
+  color: var(--color-on-surface-canvas-secondary);
+  text-align: center;
+}
+
+/*
+  Save failure: a calm line in the content flow, so it never covers a control.
+  The live region is always mounted and has no box of its own; only the text,
+  when present, takes space.
+*/
+/* Wide layouts give each main child full height; the notice must not take it. */
+.assessment-shell__main > .assessment-save-notice {
+  min-height: 0;
+}
+
+.assessment-save-notice__text {
+  margin: 0 0 var(--spacing-4);
+  padding: var(--spacing-3) var(--spacing-4);
+  border: 1px solid var(--color-border-structural);
+  border-left: 2px solid var(--color-border-interactive);
+  background: var(--color-surface-plane);
+  color: var(--color-on-surface-plane-secondary);
+}
+
+.assessment-shell[data-register='critical'] .assessment-save-notice__text {
+  margin: var(--spacing-4) 0 0;
+}
+
+@media (max-width: 43.749rem) {
+  .assessment-shell {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+  }
+
+  .assessment-header {
+    grid-template-columns: auto 1px minmax(0, 1fr);
+    gap: var(--spacing-3);
+    min-height: var(--spacing-12);
+    padding: var(--spacing-2) var(--spacing-4);
+  }
+
+  .assessment-header__logo {
+    width: calc(var(--spacing-16) * 1.25);
+    height: auto;
+  }
+
+  .assessment-header__status {
+    display: none;
+  }
+
+  .journey {
+    grid-row: 2;
+    grid-column: 1;
+    align-items: center;
+    padding: var(--spacing-1) var(--spacing-4);
+    border-inline-end: 0;
+    border-block-end: 1px solid var(--edge-quiet);
+  }
+
+  .journey__stages {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .journey__stage {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .journey__link {
+    width: 100%;
+    height: 1px;
+  }
+
+  .journey__node {
+    flex: 0 0 var(--control-target-minimum);
+  }
+
+  .assessment-shell__main {
+    grid-column: 1;
+    grid-row: 3;
+    min-height: 0;
+    padding: var(--spacing-6) var(--spacing-4);
+  }
+
+  .assessment-shell__notice {
+    grid-column: 1;
+    grid-row: 4;
+    padding-inline: var(--spacing-4);
+  }
+}
+
+@media (min-width: 56.25rem) and (max-width: 68.749rem) {
+  .route-surface--assessment,
+  .assessment-shell {
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .assessment-shell__main {
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  .interview,
+  .priority,
+  .handoff {
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: var(--spacing-4);
+    min-height: 100%;
+  }
+
+  .interview__aside,
+  .priority__aside,
+  .handoff__aside {
+    height: 100%;
+    max-height: calc(100dvh - 120px);
+    min-height: 0;
+    overflow: hidden;
+    padding: var(--spacing-3);
+    border: 1px solid var(--edge-quiet);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(180deg, rgba(5, 20, 36, 0.72), rgba(2, 13, 25, 0.42));
+  }
+
+  .snapshot {
+    height: 100%;
+    padding-inline-start: 0;
+    border-inline-start: 0;
+  }
+
+  .thread {
+    max-height: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Assessment
+
+   Three states share one room: the interview, the priority escalation and the
+   handoff. They use the same two-track composition, the same open field
+   vocabulary and the same rails, so moving between them reads as the product
+   changing subject rather than changing application.
+
+   The vocabulary here is deliberately narrow:
+
+     open field        a caption above a value, no border, no plate
+     thin rail         a 1px line with lit nodes, carrying sequence
+     lit leading edge  state on a border-inline-start, not a filled block
+     free pictogram    a mark beside its label, never inside a square
+
+   A bordered surface appears only where something genuinely needs separating
+   from what surrounds it, which on these screens is the answer targets alone.
+   --------------------------------------------------------------------------- */
+
+.interview,
+.priority,
+.handoff {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-8);
+  min-width: 0;
+  align-content: start;
+}
+
+/* --- The locus row -------------------------------------------------------- */
+
+/*
+  What we are talking about and where. An open row on a lit leading edge, so it
+  frames the question without becoming a box above it.
+*/
+.interview__locus {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-3);
+  min-width: 0;
+  padding-inline-start: var(--spacing-3);
+  border-inline-start: 2px solid var(--color-border-interactive);
+}
+
+.interview__locus-mark {
+  display: inline-flex;
+  flex: 0 0 auto;
+  color: var(--color-border-interactive);
+}
+
+.interview__locus-text {
+  display: grid;
+  gap: var(--spacing-0);
+  min-width: 0;
+  margin-inline-end: auto;
+}
+
+.interview__locus-text small {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.interview__locus-text strong {
+  color: var(--color-on-surface-canvas);
+}
+
+/*
+  A text action, not a button shape. Underlined on hover so it never reads as a
+  disabled control.
+*/
+.link-action {
+  min-height: var(--control-target-minimum);
+  padding: var(--spacing-2) 0;
+  border: 0;
+  background: none;
+  color: var(--color-border-interactive);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: var(--text-control);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-control--line-height);
+}
+
+.link-action:hover {
+  color: var(--color-on-surface-canvas);
+  text-decoration: underline;
+  text-underline-offset: var(--spacing-1);
+}
+
+/* --- Interview ------------------------------------------------------------ */
+
+.interview__main {
+  display: grid;
+  gap: var(--spacing-4);
+  min-width: 0;
+  align-content: start;
+}
+
+.interview__phase {
+  margin: 0;
+  color: var(--color-border-interactive);
+}
+
+.interview[data-tone='safety'] .interview__phase {
+  color: var(--color-surface-critical-strong);
+}
+
+/* --- The question --------------------------------------------------------- */
+
+/*
+  No container. The prompt is the largest thing on the screen and the answers
+  sit directly under it; spacing and type carry the composition.
+*/
+.question {
+  display: grid;
+  gap: clamp(10px, 1.2vw, 16px);
+  min-width: 0;
+  max-width: 960px;
+}
+
+.question__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin: 0;
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.question[data-tone='safety'] .question__eyebrow {
+  color: var(--color-surface-critical-strong);
+}
+
+.question__prompt {
+  margin: 0;
+  max-width: 34ch;
+  color: var(--color-on-surface-canvas);
+  text-wrap: balance;
+}
+
+.question__note {
+  margin: 0;
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+/* --- Answers -------------------------------------------------------------- */
+
+.answers {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.answer {
+  display: flex;
+  min-height: 58px;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: 11px 16px;
+  border: 1px solid rgba(72, 122, 151, 0.42);
+  border-radius: 10px;
+  background: linear-gradient(145deg, #071628 0%, #04101d 52%, #020713 100%);
+  color: var(--color-on-surface-canvas);
+  cursor: pointer;
+  text-align: left;
+  box-shadow: inset 0 1px 0 rgba(141, 194, 215, 0.08);
+  transition:
+    border-color var(--motion-duration-control) var(--motion-ease-standard),
+    background var(--motion-duration-control) var(--motion-ease-standard),
+    box-shadow var(--motion-duration-control) var(--motion-ease-standard);
+}
+
+.answer:hover {
+  border-color: rgba(116, 220, 242, 0.55);
+  background: linear-gradient(145deg, #091a2b, #04101d 58%, #020713);
+  box-shadow: inset 0 1px 0 rgba(116, 220, 242, 0.16), 0 0 12px rgba(74, 184, 218, 0.1);
+}
+
+.answer[data-tone='safety']:hover {
+  border-color: rgba(116, 220, 242, 0.55);
+  box-shadow: inset 0 1px 0 rgba(116, 220, 242, 0.16), 0 0 12px rgba(74, 184, 218, 0.1);
+}
+
+.answer[aria-pressed='true'] {
+  border-color: rgba(116, 220, 242, 0.82);
+  background: linear-gradient(145deg, #071628, #04101d 56%, #020713);
+  box-shadow: inset 0 0 0 1px rgba(116, 220, 242, 0.18), inset 0 1px 16px rgba(74, 184, 218, 0.08);
+}
+
+.answer:focus-visible,
+.segmented__step:focus-visible,
+.trend__option:focus-visible,
+.scale-five__stop:focus-visible {
+  outline: 2px solid rgba(116, 220, 242, 0.8);
+  outline-offset: 2px;
+}
+
+/* A ring, not a filled square. It reads as a choice marker at any size. */
+.answer__indicator {
+  display: inline-block;
+  width: var(--spacing-4);
+  height: var(--spacing-4);
+  flex: 0 0 auto;
+  border: 2px solid var(--color-border-structural);
+  border-radius: 50%;
+  transition: border-color var(--motion-duration-control) var(--motion-ease-standard);
+}
+
+.answer:hover .answer__indicator {
+  border-color: var(--color-border-interactive);
+}
+
+.answer[data-tone='safety']:hover .answer__indicator {
+  border-color: var(--color-border-critical);
+}
+
+.answer__label {
+  min-width: 0;
+}
+
+/* --- Binary decision ------------------------------------------------------ */
+
+/*
+  Yes and No are the two ends of one decision, so they are drawn as one
+  instrument: two nodes on a shared baseline. Nothing is boxed. Two bordered
+  rectangles side by side implied two independent things to evaluate, which is
+  not what a binary question asks.
+
+  The baseline is a hairline through the node centres, and it is inset so it
+  runs BETWEEN the two nodes rather than out past them: a line that continued
+  to the edges would read as a scale with values beyond the choices.
+*/
+.answers--binary {
+  position: relative;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  width: min(100%, 460px);
+}
+
+.answers--binary::before {
+  content: none;
+}
+
+.answer--binary {
+  justify-content: center;
+  min-height: 62px;
+  gap: 10px;
+  text-align: left;
+}
+
+.answer--binary:hover,
+.answer--binary[aria-pressed='true'],
+.answer--binary[data-tone='safety']:hover {
+  border-color: rgba(116, 220, 242, 0.72);
+}
+
+/* The node carries the whole state change: nothing else moves or fills. */
+.answer--binary .answer__indicator {
+  width: 18px;
+  height: 18px;
+  background: #020713;
+  transition:
+    border-color var(--motion-duration-control) var(--motion-ease-standard),
+    background-color var(--motion-duration-control) var(--motion-ease-standard),
+    box-shadow var(--motion-duration-control) var(--motion-ease-standard);
+}
+
+.answer--binary:hover .answer__indicator {
+  border-color: var(--color-border-interactive);
+  box-shadow: 0 0 14px var(--glow-hover);
+}
+
+.answer--binary[data-tone='safety']:hover .answer__indicator {
+  border-color: var(--color-border-interactive);
+  box-shadow: 0 0 10px rgba(74, 184, 218, 0.24);
+}
+
+.answer--binary[aria-pressed='true'] .answer__indicator {
+  border-color: var(--color-border-interactive);
+  background: #020713;
+  box-shadow: inset 0 0 0 4px var(--color-border-interactive);
+}
+
+.answer--binary[data-tone='safety'][aria-pressed='true'] .answer__indicator {
+  border-color: var(--color-border-interactive);
+  background: #020713;
+}
+
+.answer--binary:hover .answer__label {
+  color: var(--color-border-interactive);
+}
+
+.answer--binary[data-tone='safety']:hover .answer__label {
+  color: var(--color-border-interactive);
+}
+
+.answer--binary:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+@media (min-width: 43.75rem) {
+  .answers--grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Small clinical signals give the descriptive choices a shape without
+   implying that these intake answers are weighted routing evidence. */
+.answer--graphic {
+  min-height: 64px;
+  gap: var(--spacing-3);
+}
+
+.answer__graphic {
+  width: 46px;
+  height: 32px;
+  flex: 0 0 46px;
+  stroke: var(--color-on-surface-canvas-secondary);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke var(--motion-duration-control) var(--motion-ease-standard);
+}
+
+.answer--graphic:hover .answer__graphic,
+.answer--graphic[aria-pressed='true'] .answer__graphic {
+  stroke: var(--color-border-interactive);
+}
+
+.answer--graphic:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* --- Five point intensity scale ------------------------------------------- */
+
+/*
+  One horizontal progression. Each stop is a free-standing expression with its
+  number and word beneath it; selection lights a radial halo behind the mark
+  rather than drawing a box around it.
+*/
+.scale-five {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  min-width: 0;
+  padding-block-start: 2px;
+}
+
+.scale-five__track {
+  display: none;
+}
+
+.scale-five__stop {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--spacing-1);
+  min-width: 0;
+  min-height: 104px;
+  padding: 10px 5px;
+  border: 1px solid rgba(72, 122, 151, 0.42);
+  border-radius: 10px;
+  background: linear-gradient(145deg, #071628, #04101d 52%, #020713);
+  color: var(--color-on-surface-canvas-secondary);
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(141, 194, 215, 0.08);
+  transition: border-color var(--motion-duration-control) var(--motion-ease-standard),
+    box-shadow var(--motion-duration-control) var(--motion-ease-standard),
+    color var(--motion-duration-control) var(--motion-ease-standard);
+}
+
+/*
+  The ramp. Colour is one of four signals, never the only one: the drawn
+  expression changes its brow, eyes and mouth at every step as well.
+*/
+.scale-five__stop[data-level='1'] { --pain-tint: var(--pain-level-1); }
+.scale-five__stop[data-level='2'] { --pain-tint: var(--pain-level-2); }
+.scale-five__stop[data-level='3'] { --pain-tint: var(--pain-level-3); }
+.scale-five__stop[data-level='4'] { --pain-tint: var(--pain-level-4); }
+.scale-five__stop[data-level='5'] { --pain-tint: var(--pain-level-5); }
+
+.scale-five__halo {
+  position: absolute;
+  top: var(--spacing-1);
+  left: 50%;
+  width: var(--spacing-12);
+  height: var(--spacing-12);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(74, 184, 218, 0.18) 0%, transparent 72%);
+  opacity: 0;
+  transform: translateX(-50%);
+  transition: opacity var(--motion-duration-content) var(--motion-ease-standard);
+}
+
+.scale-five__stop:hover,
+.scale-five__stop[aria-pressed='true'] {
+  color: var(--color-on-surface-canvas);
+  border-color: rgba(116, 220, 242, 0.7);
+  box-shadow: inset 0 1px 0 rgba(116, 220, 242, 0.15), 0 0 12px rgba(74, 184, 218, 0.1);
+}
+
+.scale-five__stop:hover .scale-five__halo {
+  opacity: 0.5;
+}
+
+.scale-five__stop[aria-pressed='true'] .scale-five__halo {
+  opacity: 1;
+}
+
+.scale-five__number {
+  font-variant-numeric: tabular-nums;
+}
+
+.scale-five__stop[aria-pressed='true'] .scale-five__number {
+  color: var(--color-border-interactive);
+}
+
+.scale-five__stop .pain-face {
+  stroke: var(--color-on-surface-canvas-secondary);
+}
+
+.scale-five__stop[aria-pressed='true'] .pain-face {
+  stroke: var(--color-border-interactive);
+}
+
+.scale-five__stop .pain-face__mouth[data-filled='true'] {
+  fill: var(--color-on-surface-canvas-secondary);
+}
+
+.scale-five__stop[aria-pressed='true'] .pain-face__mouth[data-filled='true'] {
+  fill: var(--color-border-interactive);
+}
+
+.scale-five__label {
+  text-align: center;
+  text-wrap: balance;
+}
+
+.pain-face {
+  position: relative;
+  display: block;
+  width: var(--spacing-10);
+  height: var(--spacing-10);
+  fill: none;
+  stroke: var(--pain-tint, var(--color-on-surface-canvas-secondary));
+  stroke-linecap: round;
+  stroke-width: 1.4;
+}
+
+.pain-face__head {
+  stroke-width: 1.2;
+}
+
+.pain-face__mouth[data-filled='true'] {
+  fill: var(--pain-tint);
+}
+
+/* --- Segmented duration --------------------------------------------------- */
+
+.segmented {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.segmented__track {
+  display: none;
+}
+
+.segmented__step {
+  position: relative;
+  display: flex;
+  min-height: 50px;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: 10px 14px;
+  border: 1px solid rgba(72, 122, 151, 0.42);
+  border-radius: 9px;
+  background: linear-gradient(145deg, #071628, #04101d 52%, #020713);
+  color: var(--color-on-surface-canvas-secondary);
+  cursor: pointer;
+  text-align: left;
+  transition: color var(--motion-duration-control) var(--motion-ease-standard),
+    border-color var(--motion-duration-control) var(--motion-ease-standard),
+    box-shadow var(--motion-duration-control) var(--motion-ease-standard);
+}
+
+.segmented__node {
+  display: inline-block;
+  width: var(--spacing-2);
+  height: var(--spacing-2);
+  flex: 0 0 auto;
+  border: 1px solid var(--color-border-structural);
+  border-radius: 50%;
+  background: var(--color-surface-canvas);
+  transition:
+    background-color var(--motion-duration-control) var(--motion-ease-standard),
+    border-color var(--motion-duration-control) var(--motion-ease-standard);
+}
+
+.segmented__step:hover,
+.segmented__step[aria-pressed='true'] {
+  color: var(--color-on-surface-canvas);
+  border-color: rgba(116, 220, 242, 0.68);
+  box-shadow: inset 0 1px 0 rgba(116, 220, 242, 0.14), 0 0 10px rgba(74, 184, 218, 0.08);
+}
+
+.segmented__step:hover .segmented__node,
+.segmented__step[aria-pressed='true'] .segmented__node {
+  border-color: var(--color-border-interactive);
+  background: #020713;
+  box-shadow: inset 0 0 0 2px var(--color-border-interactive);
+}
+
+/* --- Trend ---------------------------------------------------------------- */
+
+.trend {
+  display: grid;
+  gap: var(--spacing-2);
+  min-width: 0;
+}
+
+.trend__option {
+  display: grid;
+  justify-items: center;
+  gap: var(--spacing-2);
+  min-height: var(--control-target-minimum);
+  padding: var(--spacing-4) var(--spacing-3);
+  border: 1px solid rgba(72, 122, 151, 0.42);
+  border-radius: 10px;
+  background: linear-gradient(145deg, #071628, #04101d 52%, #020713);
+  color: var(--color-on-surface-canvas-secondary);
+  cursor: pointer;
+  transition:
+    border-color var(--motion-duration-control) var(--motion-ease-standard),
+    color var(--motion-duration-control) var(--motion-ease-standard);
+}
+
+.trend__option:hover,
+.trend__option[aria-pressed='true'] {
+  border-color: rgba(116, 220, 242, 0.7);
+  color: var(--color-on-surface-canvas);
+  box-shadow: inset 0 1px 0 rgba(116, 220, 242, 0.14), 0 0 10px rgba(74, 184, 218, 0.08);
+}
+
+.trend__arrow {
+  width: var(--spacing-6);
+  height: var(--spacing-6);
+  fill: currentColor;
+}
+
+.trend__option:hover .trend__arrow[data-direction='worsening'],
+.trend__option[aria-pressed='true'] .trend__arrow[data-direction='worsening'] {
+  fill: var(--color-status-warning);
+}
+
+.trend__option:hover .trend__arrow[data-direction='improving'],
+.trend__option[aria-pressed='true'] .trend__arrow[data-direction='improving'] {
+  fill: var(--color-status-success);
+}
+
+@media (min-width: 43.75rem) {
+  .trend {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* --- Progression ---------------------------------------------------------- */
+
+.progression {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding-block-start: var(--spacing-4);
+  border-block-start: 1px solid var(--edge-quiet);
+}
+
+.progression__label {
+  color: var(--color-on-surface-canvas-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.progression__nodes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2);
+  min-width: 0;
+}
+
+.progression__nodes span {
+  display: block;
+  width: var(--spacing-2);
+  height: var(--spacing-2);
+  border-radius: 50%;
+  background: var(--color-border-structural);
+  transition: background-color var(--motion-duration-content) var(--motion-ease-standard);
+}
+
+.progression__nodes span[data-state='done'] {
+  background: rgba(91, 139, 165, 0.7);
+}
+
+.progression__nodes span[data-state='current'] {
+  background: var(--color-border-interactive);
+  box-shadow: 0 0 8px rgba(74, 184, 218, 0.3);
+}
+
+.progression[data-tone='safety'] .progression__nodes span[data-state='current'] {
+  box-shadow: 0 0 8px rgba(74, 184, 218, 0.3);
+}
+
+/* --- Session snapshot ----------------------------------------------------- */
+
+/*
+  Open fields and a thin response rail. The panel itself never scrolls: only the
+  response list does, and it fades at its edges rather than showing a track.
+*/
+.snapshot {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  gap: var(--spacing-4);
+  min-width: 0;
+  min-height: 0;
+  padding-inline-start: var(--spacing-4);
+  border-inline-start: 1px solid var(--edge-quiet);
+}
+
+.snapshot__head {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--color-border-interactive);
+}
+
+.snapshot__head p {
+  margin: 0;
+}
+
+.snapshot__fields,
+.snapshot__states {
+  display: grid;
+  gap: var(--spacing-3);
+  min-width: 0;
+}
+
+.snapshot__field {
+  display: grid;
+  gap: var(--spacing-0);
+  min-width: 0;
+}
+
+.snapshot__field span {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.snapshot__field strong {
+  color: var(--color-on-surface-canvas);
+  overflow-wrap: anywhere;
+}
+
+.snapshot__field[data-register='safety'] strong {
+  color: var(--color-status-success);
+}
+
+.interview[data-tone='safety'] .snapshot__field[data-register='safety'] strong,
+.priority .snapshot__field[data-register='safety'] strong {
+  color: var(--color-surface-critical-strong);
+}
+
+.snapshot__responses {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--spacing-2);
+  min-width: 0;
+  min-height: 0;
+}
+
+.snapshot__responses-title,
+.snapshot__empty {
+  margin: 0;
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.thread {
+  display: grid;
+  gap: var(--spacing-3);
+  margin: 0;
+  padding: 0;
+  min-height: 0;
+  max-height: 340px;
+  overflow-y: auto;
+  list-style: none;
+  /* The list fades into the panel at its scrolling edges, so a partly visible
+     response reads as more content rather than as a clipped one. */
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    var(--ink-pure) var(--spacing-3),
+    var(--ink-pure) calc(100% - var(--spacing-3)),
+    transparent 100%
+  );
+  scrollbar-width: none;
+}
+
+.thread::-webkit-scrollbar {
+  display: none;
+}
+
+.thread__entry {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+  min-width: 0;
+  padding-inline-start: var(--spacing-1);
+}
+
+/* The connecting rail between response nodes. */
+.thread__entry:not(:last-child)::before {
+  position: absolute;
+  top: var(--spacing-4);
+  bottom: calc(var(--spacing-3) * -1);
+  left: var(--spacing-2);
+  width: 1px;
+  background: var(--edge-quiet);
+  content: '';
+}
+
+.thread__node {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: var(--spacing-2);
+  height: var(--spacing-2);
+  flex: 0 0 auto;
+  margin-block-start: var(--spacing-1);
+  border-radius: 50%;
+  background: var(--color-border-interactive);
+}
+
+.thread__entry[data-kind='safety'] .thread__node {
+  background: var(--color-surface-critical-strong);
+}
+
+.thread__entry[data-kind='intake'] .thread__node {
+  background: var(--color-status-success);
+}
+
+.thread__body {
+  display: grid;
+  flex: 1 1 auto;
+  gap: var(--spacing-0);
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+}
+
+button.thread__body {
+  cursor: pointer;
+}
+
+.thread__label {
+  color: var(--color-on-surface-canvas-secondary);
+  overflow-wrap: anywhere;
+}
+
+.thread__value {
+  color: var(--color-on-surface-canvas);
+}
+
+.thread__change {
+  color: var(--color-border-interactive);
+  opacity: 0;
+  transition: opacity var(--motion-duration-control) var(--motion-ease-standard);
+}
+
+button.thread__body:hover .thread__change,
+button.thread__body:focus-visible .thread__change {
+  opacity: 1;
+}
+
+/* ---------------------------------------------------------------------------
+   Priority escalation
+
+   The same room, lit red. No bordered rectangle around the state: one urgent
+   rail down the left and an open column of fields.
+   --------------------------------------------------------------------------- */
+
+.priority {
+  isolation: isolate;
+  overflow: clip;
+}
+
+.priority__field {
+  position: absolute;
+  z-index: -1;
+  top: calc(var(--spacing-12) * -1);
+  right: calc(var(--spacing-12) * -1);
+  bottom: calc(var(--spacing-12) * -1);
+  left: calc(var(--spacing-12) * -1);
+  background:
+    radial-gradient(56% 50% at 16% 26%, rgba(153, 37, 52, 0.1) 0%, transparent 70%),
+    radial-gradient(44% 40% at 8% 70%, rgba(153, 37, 52, 0.06) 0%, transparent 66%);
+  pointer-events: none;
+}
+
+.priority__state {
+  position: relative;
+  display: grid;
+  gap: var(--spacing-4);
+  justify-items: start;
+  min-width: 0;
+  padding-inline-start: var(--spacing-5);
+}
+
+/* The urgent rail. It carries the whole state, replacing the border that used
+   to be drawn around it. */
+.priority__rail {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 3px;
+  background: linear-gradient(
+    to bottom,
+    var(--color-surface-critical-strong) 0%,
+    var(--color-border-critical) 55%,
+    transparent 100%
+  );
+}
+
+.priority__symbol {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--spacing-16);
+  height: var(--spacing-16);
+  color: var(--color-surface-critical-strong);
+}
+
+.priority__orbit {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border: 1px solid var(--color-border-critical);
+  border-radius: 50%;
+  box-shadow: 0 0 18px rgba(201, 75, 84, 0.18);
+}
+
+.priority__eyebrow {
+  margin: 0;
+  color: var(--color-surface-critical-strong);
+}
+
+.priority__headline {
+  margin: 0;
+  max-width: 18ch;
+  color: var(--color-on-surface-canvas);
+  outline: none;
+  text-wrap: balance;
+}
+
+.priority__guidance {
+  margin: 0;
+  max-width: 52ch;
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.priority__indicator {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: var(--spacing-3);
+  min-width: 0;
+  padding-block: var(--spacing-3);
+  border-block: 1px solid var(--edge-quiet);
+}
+
+.priority__indicator-mark {
+  display: inline-flex;
+  width: var(--spacing-8);
+  height: var(--spacing-8);
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border-critical);
+  border-radius: 50%;
+  color: var(--color-surface-critical-strong);
+}
+
+.priority__indicator > span {
+  display: grid;
+  gap: var(--spacing-0);
+  min-width: 0;
+}
+
+.priority__indicator small {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.priority__indicator strong {
+  color: var(--color-on-surface-canvas);
+}
+
+.priority__status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-8);
+}
+
+.priority__status > span {
+  display: grid;
+  gap: var(--spacing-0);
+}
+
+.priority__status small {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.priority__status strong {
+  color: var(--color-on-surface-canvas);
+}
+
+/*
+  The urgent action. Its shape is distinct from every other control in the
+  product: a cut trailing corner, so it is recognisable as the one thing to
+  press even before the words are read.
+*/
+.urgent-action {
+  display: inline-flex;
+  min-height: var(--control-target-minimum);
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-8) var(--spacing-3) var(--spacing-5);
+  border: 1px solid rgba(220, 93, 103, 0.82);
+  background: linear-gradient(
+    120deg,
+    #30121c 0%,
+    #511c29 100%
+  );
+  color: var(--color-on-surface-canvas);
+  cursor: pointer;
+  clip-path: polygon(0 0, 100% 0, 100% 65%, calc(100% - var(--spacing-4)) 100%, 0 100%);
+  text-decoration: none;
+  transition: filter var(--motion-duration-control) var(--motion-ease-standard);
+}
+
+.urgent-action:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 0 14px rgba(201, 75, 84, 0.2);
+}
+
+.priority__prototype,
+.priority__fallback {
+  margin: 0;
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.priority__fallback:empty {
+  display: none;
+}
+
+.priority__restart {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+/* ---------------------------------------------------------------------------
+   Handoff
+   --------------------------------------------------------------------------- */
+
+.handoff__main {
+  display: grid;
+  gap: var(--spacing-6);
+  min-width: 0;
+  align-content: start;
+}
+
+.handoff__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin: 0;
+  color: var(--color-status-success);
+}
+
+.handoff__direction {
+  display: grid;
+  gap: var(--spacing-2);
+  min-width: 0;
+}
+
+.handoff__direction-label {
+  color: var(--color-on-surface-canvas-secondary);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  font-weight: var(--font-weight-semibold);
+}
+
+.handoff__specialty {
+  margin: 0;
+  color: var(--ink-pure);
+  font-weight: var(--font-weight-bold);
+}
+
+.handoff__section-title {
+  margin: 0 0 var(--spacing-2);
+  color: var(--color-border-interactive);
+}
+
+.handoff__why,
+.handoff__summary,
+.handoff__next {
+  padding-inline-start: var(--spacing-4);
+  border-inline-start: 1px solid var(--edge-quiet);
+}
+
+.handoff__next-line-primary {
+  color: var(--color-on-surface-canvas);
+}
+
+.handoff__next-line-secondary {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.handoff__why p,
+.handoff__next p {
+  margin: 0;
+  max-width: 58ch;
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.reasons {
+  display: grid;
+  gap: var(--spacing-3);
+  margin: var(--spacing-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reasons li {
+  position: relative;
+  display: grid;
+  gap: var(--spacing-0);
+  min-width: 0;
+  padding-inline-start: var(--spacing-4);
+}
+
+.reasons__node {
+  position: absolute;
+  top: var(--spacing-1);
+  left: 0;
+  display: block;
+  width: var(--spacing-2);
+  height: var(--spacing-2);
+  border-radius: 50%;
+  background: var(--color-border-interactive);
+}
+
+.reasons li span {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.reasons li strong {
+  color: var(--color-on-surface-canvas);
+}
+
+.summary-fields {
+  display: grid;
+  gap: var(--spacing-3);
+  margin: 0;
+  min-width: 0;
+}
+
+.summary-fields > div {
+  display: grid;
+  gap: var(--spacing-0);
+  min-width: 0;
+}
+
+.summary-fields dt {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.summary-fields dd {
+  margin: 0;
+  color: var(--color-on-surface-canvas);
+  overflow-wrap: anywhere;
+}
+
+.handoff__alternatives {
+  margin: 0;
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.handoff__actions {
+  display: grid;
+  gap: var(--spacing-2);
+  margin-block-start: var(--spacing-4);
+}
+
+.ghost-button,
+.cta {
+  display: inline-flex;
+  min-height: var(--control-target-minimum);
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-3) var(--spacing-5);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition:
+    border-color var(--motion-duration-control) var(--motion-ease-standard),
+    background-color var(--motion-duration-control) var(--motion-ease-standard),
+    color var(--motion-duration-control) var(--motion-ease-standard);
+}
+
+.ghost-button {
+  border: 1px solid #365b78;
+  background: #0b1724;
+  color: var(--ink-pure);
+}
+
+.ghost-button .pictogram {
+  color: #365b78;
+}
+
+.ghost-button:hover {
+  border-color: #63d8ff;
+  color: var(--ink-pure);
+}
+
+.cta {
+  border: 1px solid #2d7ff9;
+  background: #050912;
+  color: var(--ink-pure);
+}
+
+.cta .pictogram {
+  color: #63d8ff;
+}
+
+/*
+  Hover is a lift, not a flood.
+*/
+.cta:hover {
+  border-color: #63d8ff;
+  background: #07101a;
+  color: var(--ink-pure);
+}
+
+.assessment-shell button.cta,
+.assessment-shell button.ghost-button {
+  border-radius: 9px;
+  background: linear-gradient(145deg, #071628, #04101d 52%, #020713);
+  box-shadow: inset 0 1px 0 rgba(141, 194, 215, 0.08);
+}
+
+.assessment-shell button.cta {
+  border-color: rgba(116, 220, 242, 0.68);
+  color: var(--color-on-surface-canvas);
+}
+
+.assessment-shell button.ghost-button {
+  border-color: rgba(72, 122, 151, 0.42);
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.assessment-shell button.cta:hover:not(:disabled),
+.assessment-shell button.ghost-button:hover:not(:disabled) {
+  border-color: rgba(116, 220, 242, 0.74);
+  background: linear-gradient(145deg, #091a2b, #04101d 58%, #020713);
+  box-shadow: inset 0 1px 0 rgba(116, 220, 242, 0.16), 0 0 12px rgba(74, 184, 218, 0.1);
+}
+
+.assessment-shell button.cta:active:not(:disabled),
+.assessment-shell button.ghost-button:active:not(:disabled) {
+  background: linear-gradient(145deg, #04101d, #020713);
+  box-shadow: inset 0 2px 5px rgba(0, 2, 10, 0.48);
+}
+
+.assessment-shell button.cta:disabled {
+  border-color: rgba(72, 122, 151, 0.3);
+  background: linear-gradient(145deg, #04101d, #020713);
+  color: var(--color-on-surface-canvas-secondary);
+  box-shadow: inset 0 1px 0 rgba(141, 194, 215, 0.04);
+}
+
+.assessment-shell button.cta:focus-visible,
+.assessment-shell button.ghost-button:focus-visible {
+  outline: 2px solid rgba(116, 220, 242, 0.8);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   Desktop: the conversation and its record, side by side.
+
+   The aside is a fixed track so the question never reflows as answers land, and
+   it owns its own height so only its response list scrolls.
+   --------------------------------------------------------------------------- */
+
+@media (min-width: 68.75rem) {
+  .interview,
+  .priority,
+  .handoff {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 340px);
+    gap: var(--spacing-10);
+  }
+
+  .interview__aside,
+  .priority__aside,
+  .handoff__aside {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    min-width: 0;
+    min-height: 0;
+    align-content: start;
+  }
+
+  .handoff__aside {
+    position: sticky;
+    top: calc(var(--spacing-16) + var(--spacing-6));
+    height: calc(100dvh - var(--spacing-16) - var(--spacing-12));
+  }
+
+  .question__prompt {
+    max-width: 20ch;
+  }
+
+  .priority__headline {
+    max-width: 16ch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .answer,
+  .segmented__step,
+  .trend__option,
+  .scale-five__stop,
+  .scale-five__halo,
+  .thread__change,
+  .ghost-button,
+  .cta,
+  .urgent-action {
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Interface stability and density correction
+   --------------------------------------------------------------------------- */
+
+.assessment-shell {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.journey {
+  grid-row: 2;
+  align-items: center;
+  padding-block: var(--spacing-4);
+}
+
+.journey__link {
+  height: var(--spacing-6);
+}
+
+.assessment-shell__main {
+  min-height: 0;
+  padding: var(--spacing-4) var(--spacing-6);
+}
+
+.interview,
+.priority,
+.handoff {
+  gap: var(--spacing-6);
+}
+
+.interview__main,
+.handoff__main {
+  gap: var(--spacing-4);
+}
+
+.interview__locus {
+  gap: var(--spacing-2);
+}
+
+.interview__phase {
+  padding-block-start: var(--spacing-1);
+}
+
+.question {
+  gap: var(--spacing-3);
+}
+
+.question__prompt {
+  max-width: 34ch;
+  text-wrap: pretty;
+}
+
+.question__note {
+  max-width: 62ch;
+}
+
+.progression {
+  gap: var(--spacing-2);
+  padding-block-start: var(--spacing-2);
+}
+
+.progression__nodes {
+  gap: var(--spacing-1);
+}
+
+.progression__nodes span {
+  width: 7px;
+  height: 7px;
+}
+
+.snapshot {
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  gap: var(--spacing-3);
+  padding-inline-start: var(--spacing-3);
+}
+
+.snapshot__identity,
+.snapshot__status {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.snapshot__identity strong,
+.snapshot__status strong {
+  color: var(--color-on-surface-canvas);
+  overflow-wrap: anywhere;
+}
+
+.snapshot__identity span,
+.snapshot__status span {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.snapshot__status[data-register='safety'] strong {
+  color: var(--color-status-success);
+}
+
+.interview[data-tone='safety'] .snapshot__status[data-register='safety'] strong,
+.priority .snapshot__status[data-register='safety'] strong {
+  color: var(--color-surface-critical-strong);
+}
+
+.snapshot__responses {
+  gap: var(--spacing-1);
+}
+
+.thread {
+  gap: var(--spacing-2);
+}
+
+.thread__entry {
+  gap: var(--spacing-2);
+}
+
+.thread__entry:not(:last-child)::before {
+  bottom: calc(var(--spacing-2) * -1);
+}
+
+.priority__state {
+  gap: var(--spacing-3);
+  padding-inline-start: var(--spacing-4);
+}
+
+.priority__symbol {
+  width: 52px;
+  height: 52px;
+}
+
+.priority__headline {
+  max-width: 28ch;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  line-height: 1.08;
+  text-wrap: pretty;
+}
+
+.priority__guidance {
+  max-width: 60ch;
+}
+
+.priority__indicator {
+  padding-block: var(--spacing-2);
+}
+
+.priority__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  align-items: center;
+}
+
+.urgent-action {
+  width: auto;
+  max-width: 100%;
+  padding: var(--spacing-2) var(--spacing-6) var(--spacing-2) var(--spacing-4);
+}
+
+.priority__fallback {
+  max-width: 62ch;
+  font-size: 0.6875rem;
+}
+
+/* A patient-reset control on a priority screen must meet the full touch
+   target, like every other action there. */
+.priority__restart {
+  justify-self: start;
+  min-height: var(--control-target-minimum);
+}
+
+@media (min-width: 43.75rem) {
+  .answers--grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 68.75rem) {
+  .route-surface--assessment {
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .assessment-shell {
+    height: 100dvh;
+    min-height: 0;
+  }
+
+  .assessment-header {
+    min-height: 64px;
+    padding-block: var(--spacing-2);
+  }
+
+  .assessment-shell__main {
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .assessment-shell__main > * {
+    min-height: 100%;
+  }
+
+  .interview,
+  .priority,
+  .handoff {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
+    gap: var(--spacing-6);
+  }
+
+  .interview__main {
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    min-height: 0;
+  }
+
+  .question {
+    align-content: start;
+    align-self: start;
+    padding-block: var(--spacing-2);
+  }
+
+  .question__prompt {
+    max-width: 34ch;
+  }
+
+  .interview__aside,
+  .priority__aside,
+  .handoff__aside {
+    height: 100%;
+    max-height: calc(100dvh - 104px);
+    overflow: hidden;
+    padding: var(--spacing-3);
+    border: 1px solid var(--edge-quiet);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(180deg, rgba(5, 20, 36, 0.72), rgba(2, 13, 25, 0.42));
+  }
+
+  .snapshot {
+    padding-inline-start: 0;
+    border-inline-start: 0;
+  }
+
+  .snapshot {
+    height: 100%;
+  }
+
+  .thread {
+    max-height: none;
+  }
+
+  .priority {
+    align-items: start;
+  }
+
+  .priority__state {
+    align-self: start;
+  }
+
+  .handoff__aside {
+    position: sticky;
+    top: 0;
+  }
+}
+
+@media (max-width: 43.749rem) {
+  .assessment-shell {
+    grid-template-rows: auto auto minmax(0, 1fr);
+  }
+
+  .assessment-shell__main {
+    padding: var(--spacing-4);
+  }
+
+  .interview__aside,
+  .priority__aside,
+  .handoff__aside {
+    min-height: 280px;
+  }
+
+  .question__prompt {
+    max-width: none;
+  }
+
+  .answers--binary {
+    width: 100%;
+  }
+
+  .scale-five__label {
+    font-size: 0.65rem;
+  }
+}
+
+/* The response trail owns its scroll area; actions never cover its last node. */
+@media (min-width: 56.25rem) {
+  .interview__aside,
+  .priority__aside,
+  .handoff__aside {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    min-height: 0;
+    overflow: hidden;
+    padding: var(--spacing-2) 0 var(--spacing-2) var(--spacing-5);
+    border: 0;
+    border-inline-start: 1px solid var(--edge-quiet);
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .interview__aside > .trail,
+  .priority__aside > .trail,
+  .handoff__aside > .trail {
+    min-height: 0;
+    overflow-y: auto;
+    padding-inline-end: var(--spacing-2);
+    scrollbar-width: thin;
+  }
+
+  .handoff__actions {
+    position: relative;
+    z-index: 1;
+    margin-block-start: 0;
+    padding-block-start: var(--spacing-3);
+    border-block-start: 1px solid var(--edge-quiet);
+    background: var(--color-surface-canvas);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   R6 route intelligence
+
+   Thin traces and moving nodes, not filled analytics bars. Their ordering and
+   length are redundant signals; colour is never the only carrier of strength.
+   --------------------------------------------------------------------------- */
+
+.intelligence-rail {
+  min-width: 0;
+  min-height: 0;
+}
+
+.intelligence-rail--desktop {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--spacing-4);
+  height: 100%;
+}
+
+.intelligence-rail--mobile {
+  display: none;
+}
+
+.intelligence-rail__tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-block-end: 1px solid var(--edge-quiet);
+}
+
+.intelligence-rail__tabs button {
+  position: relative;
+  min-height: var(--control-target-minimum);
+  padding: var(--spacing-2);
+  border: 0;
+  background: transparent;
+  color: var(--color-on-surface-canvas-secondary);
+  cursor: pointer;
+}
+
+.intelligence-rail__tabs button::after {
+  content: '';
+  position: absolute;
+  inset-inline: var(--spacing-2);
+  inset-block-end: -1px;
+  height: 1px;
+  background: var(--color-border-interactive);
+  box-shadow: 0 0 10px var(--glow-selected);
+  opacity: 0;
+  transform: scaleX(0.45);
+  transition: opacity var(--motion-duration-control) var(--motion-ease-standard),
+    transform var(--motion-duration-control) var(--motion-ease-standard);
+}
+
+.intelligence-rail__tabs button[aria-selected='true'] {
+  color: var(--color-on-surface-canvas);
+}
+
+.intelligence-rail__tabs button[aria-selected='true']::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.intelligence-rail__tabs button:focus-visible,
+.route-sheet summary:focus-visible,
+.route-field__other summary:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.intelligence-rail--desktop > [role='tabpanel'] {
+  min-height: 0;
+  overflow-y: auto;
+  padding-inline-end: var(--spacing-2);
+  scrollbar-width: thin;
+}
+
+.route-field {
+  display: grid;
+  gap: var(--spacing-4);
+  min-width: 0;
+  align-content: start;
+}
+
+.route-field__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+}
+
+.route-field__head > span:last-child {
+  display: grid;
+  gap: 1px;
+}
+
+.route-field__beacon {
+  position: relative;
+  width: 9px;
+  height: 9px;
+  flex: 0 0 auto;
+  margin-block-start: 5px;
+  border: 1px solid var(--color-border-interactive);
+  border-radius: 50%;
+  box-shadow: 0 0 12px var(--glow-selected);
+}
+
+.route-field__beacon::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: inherit;
+  background: var(--color-border-interactive);
+}
+
+.route-field__title,
+.route-field__scope,
+.route-field__announcement,
+.route-update__title {
+  margin: 0;
+}
+
+.route-field__title {
+  color: var(--color-on-surface-canvas);
+}
+
+.route-field__scope,
+.route-field__announcement,
+.route-update__title {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.route-field__announcement {
+  min-height: 2.8em;
+  padding-block-end: var(--spacing-2);
+  border-block-end: 1px solid var(--edge-quiet);
+}
+
+.direction-list {
+  display: grid;
+  gap: var(--spacing-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.direction-list[data-secondary='true'] {
+  gap: var(--spacing-3);
+  padding-block-start: var(--spacing-3);
+  opacity: 0.72;
+}
+
+.direction {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: var(--spacing-3);
+  align-items: center;
+  min-width: 0;
+}
+
+.direction__glyph {
+  display: inline-flex;
+  color: var(--color-border-interactive);
+}
+
+.direction__body,
+.direction__label-line {
+  display: grid;
+  min-width: 0;
+}
+
+.direction__label-line {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: var(--spacing-2);
+}
+
+.direction__label-line strong {
+  color: var(--color-on-surface-canvas);
+  overflow-wrap: anywhere;
+}
+
+.direction__label-line small {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.direction__trace {
+  position: relative;
+  display: block;
+  height: 10px;
+  margin-block-start: 3px;
+}
+
+.direction__trace::before,
+.direction__trace-fill {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 4px;
+  height: 1px;
+}
+
+.direction__trace::before {
+  content: '';
+  background: var(--edge-quiet);
+}
+
+.direction__trace-fill {
+  background: linear-gradient(90deg, var(--color-border-structural), var(--color-border-interactive));
+  box-shadow: 0 0 8px var(--glow-selected);
+  transform-origin: left center;
+}
+
+.direction__trace-node {
+  position: absolute;
+  inset-block-start: 1px;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--color-border-interactive);
+  border-radius: 50%;
+  background: var(--color-surface-canvas);
+  box-shadow: 0 0 9px var(--glow-selected);
+  transform: translateX(-50%);
+}
+
+.route-field__other {
+  padding-block-start: var(--spacing-1);
+  border-block-start: 1px solid var(--edge-quiet);
+}
+
+.route-field__other summary,
+.route-sheet summary {
+  cursor: pointer;
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.route-update {
+  display: grid;
+  gap: var(--spacing-2);
+  padding-block-start: var(--spacing-3);
+  border-block-start: 1px solid var(--edge-quiet);
+}
+
+.route-update ul {
+  display: grid;
+  gap: var(--spacing-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.route-update li {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: var(--spacing-2);
+}
+
+.route-update li > span:last-child {
+  display: grid;
+  gap: 0;
+}
+
+.route-update__movement {
+  color: var(--color-border-interactive);
+  font-family: var(--font-ui);
+  line-height: 1.5;
+}
+
+.route-update strong {
+  color: var(--color-on-surface-canvas);
+}
+
+.route-update small {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+/* The final trace resolves to one locked node beside the selected direction. */
+.route-lock {
+  display: grid;
+  grid-template-columns: auto minmax(90px, 240px) auto;
+  align-items: center;
+  gap: var(--spacing-3);
+  width: min(100%, 520px);
+  padding-block-start: var(--spacing-2);
+}
+
+.route-lock__glyph {
+  display: inline-flex;
+  color: var(--color-border-interactive);
+}
+
+.route-lock__signal {
+  position: relative;
+  display: block;
+  height: 12px;
+}
+
+.route-lock__signal::before,
+.route-lock__signal > span {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 5px;
+  height: 1px;
+}
+
+.route-lock__signal::before {
+  content: '';
+  background: var(--edge-quiet);
+}
+
+.route-lock__signal > span {
+  background: var(--color-border-interactive);
+  box-shadow: 0 0 10px var(--glow-selected);
+  transform-origin: left center;
+}
+
+.route-lock__signal i {
+  position: absolute;
+  inset-block-start: 1px;
+  inset-inline-end: 0;
+  width: 9px;
+  height: 9px;
+  border: 2px solid var(--color-border-interactive);
+  border-radius: 50%;
+  background: var(--color-surface-canvas);
+  box-shadow: 0 0 12px var(--glow-selected);
+}
+
+.route-lock__strength {
+  display: grid;
+  gap: 0;
+  white-space: nowrap;
+}
+
+.route-lock__strength small {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.route-lock__strength strong {
+  color: var(--color-on-surface-canvas);
+}
+
+.ranked li {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.ranked small {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+@media (max-width: 56.249rem) {
+  .interview__aside {
+    min-height: 0;
+  }
+
+  .intelligence-rail--desktop {
+    display: none;
+  }
+
+  .intelligence-rail--mobile {
+    display: grid;
+    gap: var(--spacing-2);
+  }
+
+  .route-sheet {
+    border-block: 1px solid var(--edge-quiet);
+  }
+
+  .route-sheet + .route-sheet {
+    border-block-start: 0;
+  }
+
+  .route-sheet > summary {
+    display: flex;
+    min-height: var(--control-target-minimum);
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3);
+    list-style: none;
+    padding-block: var(--spacing-2);
+  }
+
+  .route-sheet > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .route-sheet > summary > span:first-child {
+    display: grid;
+    gap: 0;
+  }
+
+  .route-sheet > summary small {
+    color: var(--color-on-surface-canvas-secondary);
+  }
+
+  .route-sheet > summary strong {
+    color: var(--color-on-surface-canvas);
+  }
+
+  .route-sheet__chevron {
+    color: var(--color-border-interactive);
+    transition: transform var(--motion-duration-control) var(--motion-ease-standard);
+  }
+
+  .route-sheet[open] .route-sheet__chevron {
+    transform: rotate(180deg);
+  }
+
+  .route-sheet > .route-field,
+  .route-sheet > .trail {
+    padding: var(--spacing-3) 0 var(--spacing-5);
+  }
+}
+
+@media (max-width: 43.749rem) {
+  .route-lock {
+    grid-template-columns: auto minmax(60px, 1fr) auto;
+  }
+
+  .ranked li {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .ranked li small {
+    grid-column: 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intelligence-rail__tabs button::after,
+  .route-sheet__chevron {
+    transition: none;
+  }
+}
+
+/* R7 deployment context and patient-session boundary controls. */
+.assessment-header__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
+}
+
+.assessment-header__mode {
+  color: var(--color-on-surface-canvas-secondary);
+  white-space: nowrap;
+}
+
+.assessment-header__new-patient {
+  display: inline-flex;
+  min-height: var(--control-target-minimum);
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  border: 1px solid var(--edge-quiet);
+  background: transparent;
+  color: var(--color-on-surface-canvas-secondary);
+  cursor: pointer;
+}
+
+.assessment-header__new-patient:hover,
+.assessment-header__new-patient:focus-visible {
+  border-color: var(--color-border-interactive);
+  color: var(--color-on-surface-canvas);
+}
+
+.assessment-header__new-patient:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.assessment-header__new-patient .pictogram {
+  color: var(--color-border-interactive);
+}
+
+@media (max-width: 43.749rem) {
+  .assessment-header {
+    grid-template-columns: auto 1px minmax(0, 1fr) auto;
+  }
+
+  .assessment-header__mode,
+  .assessment-header__new-patient span {
+    display: none;
+  }
+
+  .assessment-header__actions {
+    gap: 0;
+  }
+
+  .assessment-header__new-patient {
+    width: var(--control-target-minimum);
+    justify-content: center;
+    padding: 0;
+  }
+}
+
+/* --- Questionnaire rebuild ------------------------------------------------ */
+
+/*
+  The safety label. A small muted-red mark beside two words, above a question
+  that otherwise keeps the normal question styling. The 1px border and faint
+  red tint give the label a shape of its own, so it reads as a label rather
+  than as a coloured eyebrow and does not depend on colour alone. It never
+  flashes, and nothing else on the screen turns red for it.
+*/
+.safety-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  justify-self: start;
+  margin: 0;
+  padding: 4px 8px;
+  border: 1px solid rgba(201, 75, 84, 0.55);
+  background: rgba(65, 13, 24, 0.28);
+  color: var(--safety-label-ink);
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.11em;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+.safety-label__mark {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  background: var(--safety-label-ink);
+}
+
+.question[data-tone='safety'] .question__note {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+/* The side panel while the questions are answered: status only, no specialties. */
+.refining-status {
+  display: grid;
+  gap: var(--spacing-2);
+  padding-block-end: var(--spacing-4);
+  margin-block-end: var(--spacing-4);
+  border-bottom: 1px solid var(--color-border-structural);
+}
+
+.refining-status__title {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-2);
+  margin: 0;
+  color: var(--color-on-surface-canvas);
+}
+
+.refining-status__body {
+  margin: 0;
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+/* Multi-select: square check marks, because several can be on at once. */
+.answers-multi {
+  display: grid;
+  gap: 12px;
+}
+
+.answer__check {
+  display: inline-block;
+  width: var(--spacing-4);
+  height: var(--spacing-4);
+  flex: 0 0 auto;
+  border: 2px solid var(--color-border-structural);
+  transition: border-color var(--motion-duration-control) var(--motion-ease-standard),
+    background-color var(--motion-duration-control) var(--motion-ease-standard);
+}
+
+.answer:hover .answer__check {
+  border-color: var(--color-border-interactive);
+}
+
+.answer__check[data-checked='true'] {
+  border-color: var(--color-border-interactive);
+  background: #020713;
+  box-shadow: inset 0 0 0 3px var(--color-border-interactive);
+}
+
+.answers-multi__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.answers-multi__continue {
+  flex: 0 0 auto;
+  width: min(100%, 220px);
+  min-height: 48px;
+}
+
+.answers-multi__hint {
+  margin: 0;
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.answers-multi__continue:disabled {
+  cursor: not-allowed;
+  border-color: var(--color-border-structural);
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+@media (max-width: 43.749rem) {
+  .answers-multi__continue {
+    width: 100%;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Associated location. A focused step inside the interview: the same hologram
+   artwork, one additional area. The artwork is placed exactly as the body map
+   places it, so the shared hit geometry registers on it.
+   --------------------------------------------------------------------------- */
+
+.assoc {
+  display: grid;
+  gap: 12px;
+}
+
+.assoc__support {
+  margin: 0;
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.assoc__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 13rem) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.assoc__stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1024 / 1536;
+  overflow: hidden;
+  border: 1px solid rgba(72, 122, 151, 0.38);
+  border-radius: 10px;
+  background: linear-gradient(155deg, #071628, #04101d 52%, #020713);
+}
+
+.assoc__art,
+.assoc__map {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.assoc__art {
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+}
+
+.assoc__art[data-variant='female'] {
+  right: auto;
+  left: 50%;
+  width: auto;
+  max-width: none;
+  transform: translateX(-50%);
+}
+
+.assoc__map {
+  overflow: visible;
+}
+
+.assoc__region > * {
+  fill: transparent;
+  stroke: transparent;
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+  transition:
+    fill var(--motion-duration-control) var(--motion-ease-standard),
+    stroke var(--motion-duration-control) var(--motion-ease-standard);
+}
+
+.assoc__region[data-role='primary'] > * {
+  fill: rgba(2, 7, 19, 0.54);
+  stroke: rgba(222, 238, 247, 0.86);
+  stroke-dasharray: 5 4;
+  stroke-width: 2;
+}
+
+.assoc__region[data-role='option'] {
+  cursor: pointer;
+  outline: none;
+}
+
+.assoc__region[data-role='option']:hover > *,
+.assoc__region[data-role='option']:focus-visible > * {
+  fill: color-mix(in srgb, var(--color-border-interactive) 12%, transparent);
+  stroke: color-mix(in srgb, var(--color-border-interactive) 60%, transparent);
+  stroke-width: 1.5;
+}
+
+/*
+  The hologram is itself cyan, so a cyan tint alone disappears into it. The
+  selected area is veiled darker inside its own outline, which lets one thin
+  bright cyan edge and a restrained glow read clearly. Red stays for safety.
+*/
+.assoc__region[data-selected] > * {
+  fill: rgba(2, 7, 19, 0.68);
+  stroke: rgba(116, 220, 242, 0.95);
+  stroke-width: 3;
+  filter: drop-shadow(0 0 4px rgba(74, 184, 218, 0.38));
+}
+
+.assoc__panel {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.assoc__summary {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.assoc__summary-row {
+  display: grid;
+  gap: 3px;
+  padding: 10px 14px;
+  border: 1px solid rgba(72, 122, 151, 0.38);
+  border-radius: 9px;
+  background: linear-gradient(145deg, #071628, #04101d 52%, #020713);
+}
+
+.assoc__summary-row[data-role='primary'] {
+  border-inline-start: 2px dashed rgba(222, 238, 247, 0.62);
+}
+
+.assoc__summary-row[data-role='additional']:not([data-empty]) {
+  border-color: rgba(116, 220, 242, 0.68);
+  box-shadow: inset 0 1px 0 rgba(116, 220, 242, 0.1);
+}
+
+.assoc__summary-row dt {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.assoc__summary-row dd {
+  margin: 0;
+  color: var(--color-on-surface-canvas);
+}
+
+.assoc__summary-row[data-empty] dd {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.assoc__views {
+  display: inline-flex;
+  gap: var(--spacing-2);
+}
+
+.assoc__view {
+  min-height: var(--control-target-minimum);
+  padding: var(--spacing-2) var(--spacing-4);
+  border: 1px solid rgba(72, 122, 151, 0.42);
+  border-radius: 9px;
+  background: linear-gradient(145deg, #071628, #04101d 52%, #020713);
+  color: var(--color-on-surface-canvas);
+  cursor: pointer;
+}
+
+.assoc__view[aria-pressed='true'],
+.assoc__view:hover {
+  border-color: rgba(116, 220, 242, 0.74);
+  box-shadow: inset 0 1px 0 rgba(116, 220, 242, 0.14);
+}
+
+.assoc__view:focus-visible {
+  outline: 2px solid rgba(116, 220, 242, 0.8);
+  outline-offset: 2px;
+}
+
+.assoc__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+  align-items: center;
+}
+
+.assoc__actions > button {
+  flex: 1 1 10rem;
+  width: auto;
+  min-height: 48px;
+}
+
+.assoc__continue:disabled {
+  cursor: not-allowed;
+  border-color: var(--color-border-structural);
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+@media (max-width: 640px) {
+  .assoc__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .assoc__stage {
+    max-width: 13rem;
+    justify-self: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .assoc__region > * {
+    transition: none;
+  }
+}

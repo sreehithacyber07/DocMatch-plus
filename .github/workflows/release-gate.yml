@@ -1,0 +1,83 @@
+# Public-source verification only. No deployment, live database access, or secrets.
+name: public-ci
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install (lockfile only)
+        run: npm ci
+
+      - name: Typecheck and build (app)
+        run: npm run build
+
+      - name: Typecheck (Edge Functions shared code and tests)
+        run: npx tsc -p tsconfig.functions.json --noEmit
+
+      - name: Frontend tests
+        run: npx tsx --test "src/**/*.test.ts"
+
+      - name: Backend tests (trusted operations, clinical parity, rate limiting)
+        run: npx tsx --test supabase/functions/tests/*.test.ts
+
+      - name: Lint changed JavaScript and TypeScript
+        run: |
+          base="${{ github.event.pull_request.base.sha || github.event.before }}"
+          if [ -z "$base" ] || ! git cat-file -e "$base^{commit}" 2>/dev/null; then
+            # The first public commit is a curated snapshot of existing code.
+            # Check its maintained public scripts; later changes are linted below.
+            npx eslint scripts/audit/body-silhouette-audit.mjs scripts/audit/body-hitmap-generate.mjs
+          else
+            git diff --name-only -z --diff-filter=ACMR "$base" HEAD -- '*.ts' '*.tsx' '*.js' '*.mjs' |
+              xargs -0 -r npx eslint
+          fi
+
+      - name: Dependency audit
+        run: npm audit --audit-level=high
+
+      - name: Secret scan (tracked files)
+        run: |
+          if git grep -nIE 'sb_secret_[A-Za-z0-9_-]{16,}|eyJhbGciOi[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{10,}|postgres(ql)?://[^ :/]+:[^@ ]{6,}@|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|sk-ant-[A-Za-z0-9-]{20,}|AKIA[0-9A-Z]{16}|-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY' -- . ':!package-lock.json'; then
+            echo "Possible credential committed."; exit 1
+          fi
+          if git ls-files | grep -E '(^|/)\.env($|\.)' | grep -v '\.env\.example$'; then
+            echo "Environment file committed."; exit 1
+          fi
+          if git ls-files | grep -E '(^|/)(\.vercel|scratch|_manus_reference)/'; then
+            echo "Local-only directory committed."; exit 1
+          fi
+          drive='C:'
+          if git grep -nF -e "${drive}\\Users\\" -e "${drive}/Users/" -- . ':!package-lock.json' || git grep -nE 'dpl_[A-Za-z0-9]{10,}' -- . ':!package-lock.json'; then
+            echo "Local path or deployment identifier committed."; exit 1
+          fi
+
+      - name: Migration ordering
+        run: |
+          ls supabase/migrations/*.sql | xargs -n1 basename > /tmp/migrations.txt
+          if ! sort -c /tmp/migrations.txt; then echo "Migrations are not in timestamp order."; exit 1; fi
+          dupes=$(cut -d_ -f1 /tmp/migrations.txt | uniq -d)
+          if [ -n "$dupes" ]; then echo "Duplicate migration versions: $dupes"; exit 1; fi
+          grep -vE '^[0-9]{14}_[a-z0-9_]+\.sql$' /tmp/migrations.txt && { echo "Unexpected migration file name."; exit 1; } || true

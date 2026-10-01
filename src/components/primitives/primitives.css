@@ -1,0 +1,1301 @@
+/*
+  DocMatch+ primitives.
+  ---------------------------------------------------------------------------
+
+  Buttons, fields, choice groups, the combobox, the hover card and the dialog.
+  Every value is an existing token from tokens.css; this file adds none.
+
+  Variant selectors carry two classes on purpose. The legacy .cta and
+  .ghost-button rules are global and remain on some buttons as test and layout
+  hooks; the doubled class keeps the primitive's own geometry and colour in
+  charge wherever both apply.
+
+  EFFECTS, with the reason each one is spent:
+
+    focus ring       the only focus indicator, drawn outside the control so it
+                     never changes the control's size.
+    selected glow    a selected choice cell is lit with the product's existing
+                     selected-illumination token, the same light the Body
+                     Explorer uses for a chosen region.
+    dialog scrim     darkens the page behind a modal so the reader sees that it
+                     is out of reach while the dialog is open.
+    spinner rotation shows that work is in progress while a button is loading.
+                     It stops under reduced motion and the label carries the
+                     state instead.
+*/
+
+/* --- Button ------------------------------------------------------------------ */
+
+/* A pointer-following edge light, shared by ordinary controls. It is absent at
+   rest and never changes the dark button centre. */
+.dm-specular { position: relative; }
+.dm-specular:not(.dm-button--warning)::before {
+  position: absolute;
+  z-index: 2;
+  inset: -1px;
+  padding: 1px;
+  border-radius: inherit;
+  background: radial-gradient(95px circle at var(--specular-x, 50%) var(--specular-y, 50%), rgba(93, 220, 245, 0.72), transparent 78%);
+  opacity: 0;
+  pointer-events: none;
+  content: '';
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  transition: opacity 180ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .dm-specular:not(.dm-button--warning):hover::before { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dm-specular::before { transition: none; }
+}
+
+.dm-button.dm-button--primary,
+.dm-button.dm-button--secondary,
+.dm-button.dm-button--quiet,
+.dm-button.dm-button--warning,
+.dm-button.dm-button--back,
+.dm-button.dm-button--icon {
+  position: relative;
+  display: inline-flex;
+  width: auto;
+  min-width: var(--control-target-minimum);
+  min-height: var(--control-target-minimum);
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-3) var(--spacing-5);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  /* Manus button letterform: Manrope 800, uppercase, 0.08em. The label is 12px
+     rather than the Manus 10px so it stays legible at kiosk distance. */
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  font-weight: 800;
+  line-height: var(--text-control--line-height);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: none;
+  transition:
+    background-color var(--motion-duration-control) var(--motion-ease-standard),
+    border-color var(--motion-duration-control) var(--motion-ease-standard),
+    color var(--motion-duration-control) var(--motion-ease-standard),
+    box-shadow var(--motion-duration-control) var(--motion-ease-standard);
+}
+
+.dm-button:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: 3px;
+}
+
+/*
+  PRIMARY: a dark translucent surface with a thin cyan edge and white ink.
+  Hover makes the surface a little more opaque and the edge a little brighter,
+  with a faint light held close to the edge. The fill never turns blue, so the
+  ink keeps its contrast at every frame. Press compresses by one pixel.
+*/
+.dm-button.dm-button--primary {
+  border-color: var(--control-edge);
+  background: var(--control-surface);
+  color: var(--ink-pure);
+  box-shadow: inset 0 1px 0 var(--control-edge-glow);
+}
+
+.dm-button.dm-button--primary:hover:not(:disabled) {
+  border-color: var(--control-edge-hover);
+  background: var(--control-surface-hover);
+  box-shadow:
+    inset 0 1px 0 var(--control-edge-glow),
+    0 0 14px -4px var(--control-edge-glow);
+}
+
+.dm-button.dm-button--primary:active:not(:disabled) {
+  background: var(--control-surface-pressed);
+  box-shadow: inset 0 1px 3px var(--surface-abyss);
+}
+
+/* SECONDARY, QUIET and BACK: the Manus ghost. A structural edge that warms to
+   steel on hover; never cyan, so the primary action stays the only lit one. */
+.dm-button.dm-button--secondary,
+.dm-button.dm-button--quiet,
+.dm-button.dm-button--back {
+  border-color: var(--control-edge-structural);
+  background: var(--control-surface-quiet);
+  color: var(--manus-ghost-ink);
+}
+
+.dm-button.dm-button--secondary {
+  color: var(--color-on-surface-canvas);
+}
+
+.dm-button.dm-button--secondary:hover:not(:disabled),
+.dm-button.dm-button--quiet:hover:not(:disabled),
+.dm-button.dm-button--back:hover:not(:disabled) {
+  border-color: var(--control-edge-structural-hover);
+  background: var(--control-surface-quiet);
+  color: var(--color-on-surface-canvas);
+}
+
+.dm-button.dm-button--secondary:active:not(:disabled),
+.dm-button.dm-button--quiet:active:not(:disabled),
+.dm-button.dm-button--back:active:not(:disabled) {
+  background: var(--control-surface-pressed);
+}
+
+.dm-button.dm-button--back {
+  justify-content: flex-start;
+  padding-inline-start: var(--spacing-3);
+}
+
+/* Small drawn chevrons: back points left, forward points right. */
+.dm-button.dm-button--back .dm-button__label::before,
+.dm-button.dm-button--forward .dm-button__label::after {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-bottom: 1.5px solid currentColor;
+  border-left: 1.5px solid currentColor;
+}
+
+.dm-button.dm-button--back .dm-button__label::before {
+  margin-inline-end: var(--spacing-2);
+  transform: translateY(-1px) rotate(45deg);
+}
+
+.dm-button.dm-button--forward .dm-button__label::after {
+  margin-inline-start: var(--spacing-2);
+  color: var(--control-edge-hover);
+  transform: translateY(-1px) rotate(-135deg);
+}
+
+/* WARNING keeps the critical colours: it must never read like a normal step. */
+.dm-button.dm-button--warning {
+  border-color: var(--color-border-critical);
+  background: var(--color-surface-critical);
+  color: var(--color-on-surface-critical);
+}
+
+.dm-button.dm-button--warning:hover:not(:disabled) {
+  background: var(--color-surface-critical-strong);
+  color: var(--color-on-surface-critical-strong);
+}
+
+/* ICON: a dark translucent square with a quiet edge. */
+.dm-button.dm-button--icon {
+  width: var(--control-target-minimum);
+  padding: 0;
+  border-color: var(--control-edge-structural);
+  background: var(--control-surface);
+  color: var(--color-on-surface-canvas);
+}
+
+.dm-button.dm-button--icon:hover:not(:disabled) {
+  border-color: var(--control-edge);
+  background: var(--control-surface-hover);
+}
+
+.dm-button:disabled,
+.dm-button[data-loading] {
+  cursor: not-allowed;
+}
+
+.dm-button.dm-button--primary:disabled,
+.dm-button.dm-button--secondary:disabled,
+.dm-button.dm-button--quiet:disabled,
+.dm-button.dm-button--back:disabled,
+.dm-button.dm-button--warning:disabled,
+.dm-button.dm-button--icon:disabled {
+  border-color: var(--color-border-structural);
+  background: var(--surface-abyss);
+  color: var(--color-on-surface-unavailable);
+  box-shadow: none;
+}
+
+.dm-button__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.dm-button__progress {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+}
+
+.dm-button__progress svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-dasharray: 30 14;
+  animation: dm-spin 0.9s linear infinite;
+}
+
+@keyframes dm-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* --- Field ------------------------------------------------------------------- */
+
+.dm-field {
+  position: relative;
+  display: grid;
+  gap: var(--spacing-1);
+  align-content: start;
+  min-width: 0;
+}
+
+.dm-field__label,
+.dm-choice-group__legend,
+.dm-date__legend {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-2);
+  padding: 0;
+  color: var(--color-on-surface-canvas);
+  font-family: var(--font-ui);
+  font-size: var(--text-label);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-label--line-height);
+  letter-spacing: var(--tracking-control);
+}
+
+.dm-field__optional {
+  color: var(--color-on-surface-canvas-secondary);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-regular);
+}
+
+.dm-field__helper,
+.dm-choice-group__hint,
+.dm-date__hint {
+  margin: 0;
+  color: var(--color-on-surface-canvas-secondary);
+  font-size: var(--text-caption);
+  line-height: var(--text-caption--line-height);
+}
+
+.dm-field__frame {
+  display: flex;
+  align-items: center;
+  min-height: var(--control-target-minimum);
+  border: 1px solid var(--color-border-structural);
+  border-radius: var(--radius-sm);
+  background: var(--control-surface);
+  transition:
+    border-color var(--motion-duration-control) var(--motion-ease-standard),
+    box-shadow var(--motion-duration-control) var(--motion-ease-standard);
+}
+
+.dm-field__frame:hover {
+  border-color: var(--control-edge-structural-hover);
+}
+
+/*
+  An outline, not a filled ring. This used to be an inset box-shadow the same
+  width as the border, which stacked with the bright border-color change into
+  a solid cyan box around the whole field. Drawn outside the control instead,
+  matching the rest of the system's one focus pattern, so a focused field
+  reads as "outlined" rather than "lit blue".
+*/
+.dm-field__frame:focus-within {
+  border-color: var(--control-edge);
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/*
+  Having a value is not a selected or focused state, so it does not borrow
+  the bright interactive cyan. A steel lift is enough to show the field has
+  been used; the dark plane and its content carry the rest.
+*/
+.dm-field[data-filled] .dm-field__frame {
+  border-color: var(--control-edge-structural-hover);
+}
+
+.dm-field[data-invalid] .dm-field__frame {
+  border-color: var(--color-status-error);
+}
+
+/*
+  A field that is both invalid and focused (the common pattern of moving
+  focus to the first error on submit) keeps one signal, not two: the error
+  red carries through to the focus outline instead of mixing with the
+  ordinary cyan ring, which read as ambiguous next to a red border.
+*/
+.dm-field[data-invalid] .dm-field__frame:focus-within {
+  outline-color: var(--color-status-error);
+}
+
+.dm-field[data-disabled] .dm-field__frame {
+  border-color: var(--color-border-structural);
+  background: var(--color-surface-unavailable);
+}
+
+.dm-field__mark {
+  display: inline-flex;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-inline-start: var(--spacing-3);
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.dm-field__mark svg,
+.dm-combobox__toggle svg,
+.dm-chip__remove svg,
+.dm-dialog__close svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dm-field__input {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  min-height: calc(var(--control-target-minimum) - 2px);
+  padding: var(--spacing-2) var(--spacing-3);
+  border: 0;
+  background: transparent;
+  color: var(--color-on-surface-canvas);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--text-body--line-height);
+}
+
+.dm-field__input::placeholder {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.dm-field__input:focus {
+  outline: none;
+}
+
+.dm-field__input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.dm-field__error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-1);
+  margin: 0;
+  color: var(--color-status-error);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--text-caption--line-height);
+}
+
+.dm-field__error svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+.dm-conditional {
+  overflow: hidden;
+}
+
+.dm-conditional > .dm-field {
+  padding-block-start: var(--spacing-2);
+}
+
+/* --- Choice groups ----------------------------------------------------------- */
+
+.dm-choice-group,
+.dm-date {
+  display: grid;
+  gap: var(--spacing-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.dm-choice-group:focus-visible,
+.dm-date:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: 5px;
+}
+
+.dm-choice-group__cells {
+  display: grid;
+  gap: var(--spacing-2);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.dm-choice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  min-height: var(--control-target-minimum);
+  padding: var(--spacing-2) var(--spacing-3);
+  border: 1px solid var(--color-border-structural);
+  border-radius: var(--radius-sm);
+  background: var(--control-surface);
+  color: var(--color-on-surface-canvas);
+  cursor: pointer;
+  transition:
+    border-color var(--motion-duration-control) var(--motion-ease-standard),
+    background-color var(--motion-duration-control) var(--motion-ease-standard),
+    box-shadow var(--motion-duration-control) var(--motion-ease-standard);
+}
+
+/* Hover is a border lift and nothing else: no plane change, no fill. */
+.dm-choice:hover {
+  border-color: var(--control-edge-structural-hover);
+}
+
+/*
+  A selected cell is the SAME dark plane as an unselected one.
+
+  It used to carry a cyan border AND a 1px cyan inset ring AND an outer glow,
+  which together read as a blue tile rather than a dark tile that happens to be
+  chosen. Selection is now a single thin cyan edge and the cyan mark inside it,
+  which is what the eye needs and all the theme allows cyan for.
+*/
+.dm-choice[data-checked] {
+  border-color: var(--control-edge);
+  background: var(--control-surface-selected);
+  color: var(--ink-pure);
+}
+
+.dm-choice-group[data-invalid] .dm-choice:not([data-checked]) {
+  border-color: var(--color-status-error);
+}
+
+/* The native input stays in the accessibility tree and takes focus; the drawn
+   mark beside it is what the eye reads. */
+.dm-choice__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.dm-choice:has(.dm-choice__input:focus-visible) {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.dm-choice__mark {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--color-on-surface-canvas-secondary);
+  background: var(--surface-well-floor);
+}
+
+.dm-choice__mark--radio {
+  border-radius: 50%;
+}
+
+.dm-choice__mark--check {
+  border-radius: 4px;
+}
+
+.dm-choice__mark svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: var(--control-edge);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  visibility: hidden;
+}
+
+/* The tick is cyan; the box behind it stays dark. Filling the box turned every
+   chosen cell into a bright blue square. */
+.dm-choice[data-checked] .dm-choice__mark,
+.dm-choice__mark[data-checked] {
+  border-color: var(--control-edge);
+  background: var(--surface-well-floor);
+}
+
+.dm-choice[data-checked] .dm-choice__mark--radio {
+  background: var(--surface-well-floor);
+  box-shadow: inset 0 0 0 4px var(--color-border-interactive);
+}
+
+.dm-choice[data-checked] .dm-choice__mark svg,
+.dm-choice__mark[data-checked] svg {
+  visibility: visible;
+}
+
+.dm-choice__label {
+  font-family: var(--font-ui);
+  font-size: var(--text-control);
+  line-height: var(--text-control--line-height);
+}
+
+/* --- Date ------------------------------------------------------------------- */
+
+.dm-date {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  row-gap: var(--spacing-1);
+}
+
+.dm-date > :not(.dm-date__legend):not(.dm-date__meta) {
+  grid-column: 1 / -1;
+}
+
+.dm-date__legend {
+  float: left;
+}
+
+/* The age sits in the legend's row at the legend's line height, so it can
+   appear without moving the field. */
+.dm-date__meta {
+  justify-self: end;
+  min-height: var(--text-label--line-height);
+  line-height: var(--text-label--line-height);
+  color: var(--color-status-info);
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-caption);
+}
+
+/* Day, month and year typed inside one frame, with the calendar control at
+   its end. */
+.dm-date__frame {
+  gap: 0;
+  padding-inline-start: var(--spacing-3);
+}
+
+.dm-date__frame[data-invalid] {
+  border-color: var(--color-status-error);
+}
+
+.dm-date__part {
+  display: inline-flex;
+  align-items: center;
+}
+
+.dm-date__separator {
+  padding-inline: var(--spacing-1);
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.dm-date__input {
+  width: 2.6ch;
+  min-height: calc(var(--control-target-minimum) - 2px);
+  padding: 0 var(--spacing-1);
+  border: 0;
+  background: transparent;
+  color: var(--color-on-surface-canvas);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  box-sizing: content-box;
+}
+
+.dm-date__part--year .dm-date__input {
+  width: 4.6ch;
+}
+
+.dm-date__input::placeholder {
+  color: var(--color-on-surface-canvas-secondary);
+}
+
+.dm-date__input:focus {
+  outline: none;
+  border-radius: 4px;
+  box-shadow: inset 0 -2px 0 var(--color-border-interactive);
+}
+
+.dm-date__input[aria-invalid='true'] {
+  box-shadow: inset 0 -2px 0 var(--color-status-error);
+}
+
+.dm-date__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-target-minimum);
+  height: calc(var(--control-target-minimum) - 2px);
+  margin-inline-start: auto;
+  padding: 13px;
+  border: 0;
+  border-inline-start: 1px solid var(--color-border-structural);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: none;
+  color: var(--color-status-info);
+  cursor: pointer;
+}
+
+.dm-date__trigger svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dm-date__trigger:hover,
+.dm-date__trigger[aria-expanded='true'] {
+  background: var(--control-surface-hover);
+}
+
+.dm-date__trigger:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: -2px;
+}
+
+/* --- Date popover and calendar ------------------------------------------------ */
+
+.dm-date__popover {
+  z-index: 60;
+  display: grid;
+  gap: var(--spacing-3);
+  box-sizing: border-box;
+  padding: var(--spacing-4);
+  border: 1px solid var(--control-edge);
+  border-radius: var(--radius-md);
+  background: var(--surface-elevated);
+  color: var(--color-on-surface-plane);
+  box-shadow: 0 18px 40px var(--vignette-edge);
+}
+
+.dm-date__pending {
+  margin: 0;
+  color: var(--color-on-surface-plane-secondary);
+  font-size: var(--text-caption);
+  line-height: var(--text-caption--line-height);
+}
+
+.dm-date__actions {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+}
+
+.dm-date__actions .dm-button.dm-button--primary,
+.dm-date__actions .dm-button.dm-button--quiet {
+  padding-inline: var(--spacing-4);
+}
+
+.dm-date__confirm svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dm-calendar {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.dm-calendar__caption {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+.dm-calendar__nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 10px;
+  border: 1px solid var(--edge-quiet);
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-on-surface-plane);
+  cursor: pointer;
+}
+
+.dm-calendar__nav:last-child {
+  grid-column: 4;
+}
+
+.dm-calendar__nav svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dm-calendar__nav:hover:not(:disabled) {
+  border-color: var(--color-border-interactive);
+}
+
+.dm-calendar__nav:disabled {
+  border-color: var(--color-border-structural);
+  color: var(--color-on-surface-unavailable);
+  cursor: not-allowed;
+}
+
+.dm-calendar__select {
+  min-width: 0;
+  height: 40px;
+  padding: 0 var(--spacing-2);
+  border: 1px solid var(--color-border-structural);
+  border-radius: var(--radius-sm);
+  background: var(--control-surface);
+  color: var(--color-on-surface-plane);
+  font-family: var(--font-ui);
+  font-size: var(--text-label);
+  cursor: pointer;
+}
+
+.dm-calendar__select:hover {
+  border-color: var(--edge-luminous);
+}
+
+.dm-calendar__nav:focus-visible,
+.dm-calendar__select:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+
+.dm-calendar__grid {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.dm-calendar__grid th {
+  padding-block: var(--spacing-1);
+  color: var(--color-on-surface-plane-secondary);
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+}
+
+.dm-calendar__grid td {
+  padding: 1px;
+  text-align: center;
+}
+
+.dm-calendar__day {
+  width: 100%;
+  aspect-ratio: 1;
+  max-height: 40px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-on-surface-plane);
+  font-family: var(--font-ui);
+  font-size: var(--text-label);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.dm-calendar__day:hover:not(:disabled) {
+  border-color: var(--edge-luminous);
+  background: var(--control-surface-hover);
+}
+
+.dm-calendar__day:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: 0;
+}
+
+.dm-calendar__day--today {
+  border-color: var(--color-border-structural);
+}
+
+/* Chosen, not filled: a thin cyan edge on the same dark day cell. */
+.dm-calendar__day[data-selected] {
+  border-color: var(--control-edge);
+  background: var(--control-surface-selected);
+  color: var(--ink-pure);
+  font-weight: var(--font-weight-semibold);
+}
+
+.dm-calendar__day:disabled {
+  color: var(--color-on-surface-unavailable);
+  cursor: not-allowed;
+}
+
+/* --- Combobox ---------------------------------------------------------------- */
+
+.dm-combobox__frame {
+  position: relative;
+}
+
+.dm-combobox__toggle {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-target-minimum);
+  height: calc(var(--control-target-minimum) - 2px);
+  padding: 13px;
+  border: 0;
+  background: none;
+  color: var(--color-on-surface-canvas-secondary);
+  cursor: pointer;
+}
+
+.dm-combobox[data-open] .dm-combobox__toggle svg {
+  transform: rotate(180deg);
+}
+
+/* Positioned in a portal against the field; see MultiSelectCombobox. */
+.dm-combobox__list {
+  position: fixed;
+  z-index: 60;
+  max-height: 280px;
+  margin: 0;
+  padding: var(--spacing-1);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+  border: 1px solid var(--control-edge-structural);
+  border-radius: var(--radius-sm);
+  background: var(--control-surface-popover);
+  box-shadow: 0 18px 40px var(--vignette-edge);
+}
+
+.dm-combobox__list[hidden] {
+  display: none;
+}
+
+.dm-combobox__option {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  min-height: 44px;
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: 6px;
+  color: var(--color-on-surface-plane);
+  cursor: pointer;
+}
+
+/*
+  The keyboard-active row is a very subtle steel veil and a steel edge. It used
+  to be a 75%-opaque mid-navy fill with a luminous ring, which made the open
+  list read as a blue panel rather than a near-black one.
+*/
+.dm-combobox__option--active {
+  background: var(--control-overlay-hover);
+  box-shadow: inset 0 0 0 1px var(--control-edge-structural);
+}
+
+.dm-combobox__option:hover {
+  background: var(--control-overlay-hover);
+}
+
+/* A chosen row is marked by its cyan tick and a thin cyan left accent, so the
+   row itself never needs a fill to be legible as chosen. */
+.dm-combobox__option[aria-selected='true'] {
+  background: var(--control-overlay-selected);
+  box-shadow: inset 2px 0 0 var(--control-edge);
+}
+
+.dm-combobox__empty {
+  padding: var(--spacing-3);
+  color: var(--color-on-surface-plane-secondary);
+}
+
+.dm-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-1);
+  margin: var(--spacing-1) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dm-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  min-height: 36px;
+  padding-inline-start: var(--spacing-3);
+  /* Steel, not cyan. A patient can choose several conditions, and a row of
+     cyan pills is the single loudest blue on the screen. */
+  border: 1px solid var(--control-edge-selected);
+  border-radius: var(--radius-pill);
+  background: var(--control-surface-selected);
+  color: var(--ink-pure);
+  font-size: var(--text-label);
+}
+
+/* The visible chip stays compact; the remove button's hit area extends to the
+   product target through its padding. */
+.dm-chip__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-target-minimum);
+  height: var(--control-target-minimum);
+  margin: -7px -3px -7px -8px;
+  padding: 16px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--color-on-surface-selected);
+  cursor: pointer;
+}
+
+.dm-chip__remove:hover {
+  background: var(--control-surface-hover);
+}
+
+.dm-chip__remove:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+
+/* --- Checkbox ---------------------------------------------------------------- */
+
+/* The button is the 48px touch target; the 24px box is drawn inside it. The
+   negative margin keeps the drawn box aligned with neighbouring text. */
+.dm-checkbox {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-target-minimum);
+  height: var(--control-target-minimum);
+  margin: -12px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  cursor: pointer;
+}
+
+.dm-checkbox:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: 0;
+}
+
+.dm-checkbox__box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1.5px solid var(--color-on-surface-canvas-secondary);
+  border-radius: 5px;
+  background: var(--surface-well-floor);
+  transition:
+    background-color var(--motion-duration-control) var(--motion-ease-standard),
+    border-color var(--motion-duration-control) var(--motion-ease-standard);
+}
+
+.dm-checkbox:hover .dm-checkbox__box {
+  border-color: var(--control-edge-structural-hover);
+}
+
+.dm-checkbox[data-state='checked'] .dm-checkbox__box {
+  border-color: var(--control-edge);
+  background: var(--surface-well-floor);
+}
+
+.dm-checkbox[aria-invalid='true'] .dm-checkbox__box {
+  border-color: var(--color-status-error);
+}
+
+.dm-checkbox__indicator {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: var(--control-edge);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  visibility: hidden;
+}
+
+.dm-checkbox[data-state='checked'] .dm-checkbox__indicator {
+  visibility: visible;
+}
+
+/* --- Hover card -------------------------------------------------------------- */
+
+.dm-hover-card__anchor {
+  position: relative;
+  display: inline;
+}
+
+.dm-hover-card {
+  position: absolute;
+  z-index: 40;
+  bottom: calc(100% + var(--spacing-2));
+  left: 0;
+  display: grid;
+  gap: var(--spacing-2);
+  width: min(22rem, calc(100vw - 2 * var(--spacing-4)));
+  padding: var(--spacing-4);
+  border: 1px solid var(--control-edge);
+  border-radius: var(--radius-sm);
+  background: var(--surface-elevated);
+  color: var(--color-on-surface-plane);
+  box-shadow: 0 18px 40px var(--vignette-edge);
+  font-size: var(--text-caption);
+  line-height: var(--text-caption--line-height);
+  text-align: left;
+}
+
+.dm-hover-card[hidden] {
+  display: none;
+}
+
+/* --- Dialog ------------------------------------------------------------------ */
+
+.dm-dialog {
+  width: min(44rem, calc(100vw - 2 * var(--spacing-8)));
+  max-width: none;
+  max-height: min(46rem, calc(100dvh - 2 * var(--spacing-8)));
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--control-edge);
+  border-radius: var(--radius-md);
+  background: var(--surface-elevated);
+  color: var(--color-on-surface-plane);
+}
+
+.dm-dialog::backdrop {
+  background: var(--scrim-modal);
+}
+
+.dm-dialog__frame {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  max-height: inherit;
+}
+
+.dm-dialog__head {
+  display: grid;
+  gap: var(--spacing-1);
+  padding: var(--spacing-6) calc(var(--control-target-minimum) + var(--spacing-6)) var(--spacing-4) var(--spacing-6);
+  border-bottom: 1px solid var(--color-border-structural);
+}
+
+.dm-dialog__title {
+  margin: 0;
+  color: var(--color-on-surface-plane);
+  font-family: var(--font-ui);
+  font-size: var(--text-heading-2);
+  line-height: var(--text-heading-2--line-height);
+}
+
+.dm-dialog__title:focus {
+  outline: none;
+}
+
+.dm-dialog__description {
+  margin: 0;
+  color: var(--color-on-surface-plane-secondary);
+  font-size: var(--text-body-small);
+  line-height: var(--text-body-small--line-height);
+}
+
+.dm-dialog__body {
+  min-height: 0;
+  background: var(--surface-reading);
+  padding: var(--spacing-4) var(--spacing-6);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.dm-dialog__body:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: -4px;
+}
+
+.dm-dialog__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4) var(--spacing-6);
+  border-top: 1px solid var(--color-border-structural);
+}
+
+.dm-dialog__close {
+  position: absolute;
+  top: var(--spacing-4);
+  right: var(--spacing-4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-target-minimum);
+  height: var(--control-target-minimum);
+  padding: 14px;
+  border: 1px solid var(--edge-quiet);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-on-surface-plane);
+  cursor: pointer;
+}
+
+.dm-dialog__close:hover {
+  border-color: var(--color-border-interactive);
+  background: var(--control-surface-hover);
+}
+
+.dm-dialog__close:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* On a phone the dialog becomes a full-height sheet. */
+@media (max-width: 43.749rem) {
+  .dm-dialog {
+    width: 100vw;
+    max-height: 100dvh;
+    height: 100dvh;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .dm-dialog__frame {
+    height: 100%;
+  }
+
+  .dm-dialog__head {
+    padding: var(--spacing-5) calc(var(--control-target-minimum) + var(--spacing-5)) var(--spacing-3) var(--spacing-4);
+  }
+
+  .dm-dialog__body,
+  .dm-dialog__footer {
+    padding-inline: var(--spacing-4);
+  }
+
+  .dm-dialog__footer > * {
+    flex: 1;
+  }
+}
+
+@media (min-width: 43.75rem) {
+  .dm-choice-group__cells[data-columns='2'] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dm-choice-group__cells[data-columns='3'] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dm-choice-group__cells[data-columns='4'] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 68.75rem) {
+  .dm-choice-group__cells[data-columns='4'] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dm-button__progress svg {
+    animation: none;
+  }
+
+  .dm-button,
+  .dm-field__frame,
+  .dm-choice,
+  .dm-checkbox__box {
+    transition: none;
+  }
+}
+
+/* --- Overlay motion ------------------------------------------------------------ */
+
+/*
+  MECHANICAL REASON: an overlay that appears in one frame reads as the page
+  breaking. The dialog rises 8px as it fades in and the backdrop fades with it;
+  the calendar and the conditions list fade in 4px from the field they belong
+  to, so each one is seen arriving from its control. Reduced motion removes all
+  of it.
+*/
+.dm-dialog[open] {
+  animation: dm-overlay-in var(--motion-duration-content) var(--motion-ease-enter) both;
+}
+
+.dm-dialog[open]::backdrop {
+  animation: dm-fade-in var(--motion-duration-content) var(--motion-ease-enter) both;
+}
+
+.dm-dialog[data-state='closing'] {
+  animation: dm-overlay-out 180ms var(--motion-ease-exit) both;
+}
+
+.dm-dialog[data-state='closing']::backdrop {
+  animation: dm-fade-out 180ms var(--motion-ease-exit) both;
+}
+
+.dm-date__popover,
+.dm-combobox__list:not([hidden]) {
+  animation: dm-popover-in var(--motion-duration-control) var(--motion-ease-enter) both;
+}
+
+@keyframes dm-overlay-in {
+  from { opacity: 0; transform: translateY(8px); }
+}
+
+@keyframes dm-overlay-out {
+  to { opacity: 0; transform: translateY(8px); }
+}
+
+@keyframes dm-popover-in {
+  from { opacity: 0; transform: translateY(-4px); }
+}
+
+@keyframes dm-fade-in {
+  from { opacity: 0; }
+}
+
+@keyframes dm-fade-out {
+  to { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dm-dialog[open],
+  .dm-dialog[open]::backdrop,
+  .dm-dialog[data-state='closing'],
+  .dm-dialog[data-state='closing']::backdrop,
+  .dm-date__popover,
+  .dm-combobox__list:not([hidden]) {
+    animation: none;
+  }
+}

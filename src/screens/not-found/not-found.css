@@ -1,0 +1,51 @@
+/* Unknown routes: one panel on the product canvas, same tokens as the gates. */
+
+.not-found {
+  display: grid;
+  min-height: 100dvh;
+  padding: var(--space-page-block) var(--space-page-inline);
+  place-items: center;
+  background: var(--color-surface-canvas);
+  color: var(--color-on-surface-canvas);
+}
+
+.not-found__panel {
+  display: grid;
+  width: min(100%, 30rem);
+  gap: var(--spacing-3);
+  padding: var(--spacing-6);
+  border: 1px solid var(--color-border-structural);
+  background: var(--color-surface-plane);
+}
+
+.not-found__eyebrow {
+  margin: 0;
+  color: var(--color-on-surface-plane-secondary);
+  text-transform: uppercase;
+}
+
+.not-found__title,
+.not-found__lead {
+  margin: 0;
+}
+
+.not-found__lead {
+  color: var(--color-on-surface-plane-secondary);
+}
+
+.not-found__action {
+  display: flex;
+  min-height: var(--control-target-minimum);
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-3) var(--spacing-4);
+  border: 1px solid var(--color-border-interactive);
+  background: var(--color-surface-selected);
+  color: var(--color-on-surface-selected);
+  text-decoration: none;
+}
+
+.not-found__action:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
