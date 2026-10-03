@@ -15,15 +15,21 @@
 }
 
 html {
-  min-width: 320px;
   min-height: 100%;
   background: var(--color-surface-canvas);
   color: var(--color-on-surface-canvas);
 }
 
+/*
+  The page floor is the visible viewport (dvh). A phone resolves 100vh to the
+  viewport with its browser toolbar retracted, so while the toolbar shows, a
+  100vh floor sits taller than the 100dvh app shells inside it and the page
+  scrolls on into blank canvas below their last row. 100vh stays as the
+  fallback for browsers without dynamic viewport units.
+*/
 body {
-  min-width: 320px;
   min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
   background: var(--color-surface-canvas);
   color: var(--color-on-surface-canvas);
@@ -34,6 +40,26 @@ body {
 
 #root {
   min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/*
+  The 320 CSS px floor belongs to the screens laid out against it, not to the
+  document. Below 320 px (a phone at 200% page zoom) a document floor makes the
+  browser shrink the page to fit, and every 100dvh shell then stops short of
+  the visible area, leaving blank canvas below it. The patient intake reflows
+  below 320 px instead (intake.css, premium-terms.css), so it has no floor;
+  these screens still need one: the body explorer stage, the interview's phase
+  strip and the result heading measure wider than a zoomed phone.
+*/
+.landing,
+.route-surface:not(.route-surface--intake),
+.care-team-gate,
+.staff-entry,
+.staff-workspace,
+.not-found,
+.route-error {
+  min-width: 320px;
 }
 
 button,

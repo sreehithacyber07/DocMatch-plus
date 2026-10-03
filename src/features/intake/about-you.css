@@ -243,3 +243,58 @@ body:has(.intake[data-phase='basics']) .dm-date__pending { color: #b7d0da; }
   .about-you__name-input,
   .about-you__sex-option { transition: none; }
 }
+
+/*
+  Each row's control is measured on its own, so the fields reflow from the
+  width they are actually given (200% page zoom or large text on a phone)
+  rather than from the window. The thresholds sit below the narrowest row a
+  phone at normal zoom produces, so nothing changes there.
+*/
+.about-you__row-control { container-type: inline-size; }
+
+@media (max-width: 19.999rem) {
+  .about-you__row { padding-inline: 0.6rem; }
+}
+
+/* Too narrow for the date and its calendar control on one line: the calendar
+   control takes a full-width row under the date, inside the same frame. The
+   country and the number stack. */
+@container (max-width: 13.5rem) {
+  .about-you__age-editor .dm-date__frame { flex-wrap: wrap; }
+  .about-you__age-editor .dm-date__trigger {
+    /* Edge to edge: across the frame's start padding as well. */
+    flex: 1 0 calc(100% + var(--spacing-3));
+    margin-inline-start: calc(-1 * var(--spacing-3));
+    border-inline-start: 0;
+    border-top: 1px solid var(--color-border-structural);
+    border-radius: 0 0 0.5rem 0.5rem;
+  }
+  .intake[data-phase='basics'] .about-you__phone-inline .context-phone__row { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Three answers no longer fit their labels side by side (each needs ~76 px;
+   a 320 px phone at normal zoom gives this row 247 px). */
+@container (max-width: 15.25rem) {
+  .about-you__sex-options { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Narrower than day, month and year in one line: day and month above, the year
+   and the calendar control below. Each input keeps the width its placeholder
+   needs, and the calendar control keeps its full target. */
+@container (max-width: 10.25rem) {
+  .about-you__age-editor .dm-date__frame { padding-inline-start: 0.5rem; }
+  .about-you__age-editor .dm-date__part--year {
+    flex: 1 1 calc(100% - var(--control-target-minimum));
+    margin-inline-start: -0.5rem;
+    padding-inline-start: 0.5rem;
+    border-top: 1px solid var(--color-border-structural);
+  }
+  .about-you__age-editor .dm-date__part--year .dm-date__separator { display: none; }
+  .about-you__age-editor .dm-date__part--year .dm-date__input { padding-inline: 2px; }
+  .about-you__age-editor .dm-date__trigger {
+    flex: 0 0 var(--control-target-minimum);
+    margin-inline-start: 0;
+    border-inline-start: 1px solid var(--color-border-structural);
+    border-radius: 0 0 0.5rem 0;
+  }
+}

@@ -124,6 +124,8 @@ export function PatientIntake({ deploymentLabel, sessionNotice, onComplete, onEx
   const headingArrived = useCallback((heading: HTMLHeadingElement | null) => {
     if (!heading) return;
     scrollRef.current?.scrollTo({ top: 0 });
+    // Below 320 px the whole form scrolls instead of its body (intake.css).
+    scrollRef.current?.parentElement?.scrollTo({ top: 0 });
     heading.focus();
   }, []);
 

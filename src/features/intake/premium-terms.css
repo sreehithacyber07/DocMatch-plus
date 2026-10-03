@@ -213,8 +213,11 @@
 }
 .premium-terms-disclosure strong { color: #eff9fb; }
 
+/* Too narrow for both buttons, Agree wraps onto its own full-width line above
+   Back instead of widening the page (a phone at 200% zoom or large text). */
 .premium-terms-actions {
   display: flex;
+  flex-wrap: wrap-reverse;
   justify-content: space-between;
   gap: 1rem;
 }
@@ -250,13 +253,22 @@
 }
 
 @media (max-width: 43.749rem) {
-  .premium-terms-page { padding: 1.35rem 1rem 2rem; }
+  .premium-terms-page { padding: 1.35rem 1rem max(2rem, env(safe-area-inset-bottom)); }
   .premium-terms-layout { gap: 1.7rem; }
-  .premium-terms-title { font-size: clamp(2.15rem, 8vw, 2.8rem); }
+  /* The 13vw floor only bites below ~265 px wide, where 2.15rem would not fit
+     "DocMatch+" on one line. */
+  .premium-terms-title { font-size: clamp(min(2.15rem, 13vw), 8vw, 2.8rem); }
   .premium-terms-intro { font-size: 0.9rem; }
   .premium-terms-reading { padding-inline: 1rem; }
   .premium-terms-section p { margin-left: 0; }
-  .premium-terms-actions .premium-terms-agree { flex: 1; min-width: 0; }
+  .premium-terms-actions .dm-button.premium-terms-agree { flex: 1; min-width: min-content; }
+}
+
+/* Below 320 CSS px (200% page zoom on a phone): narrower margins so the text
+   and the actions keep their size. */
+@media (max-width: 19.999rem) {
+  .premium-terms-page { padding-inline: 0.75rem; }
+  .premium-terms-reading { padding-inline: 0.75rem; }
 }
 
 @media (max-height: 46rem) and (min-width: 56.001rem) {

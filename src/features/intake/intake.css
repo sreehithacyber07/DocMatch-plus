@@ -44,6 +44,7 @@ main.route-surface.route-surface--intake::before {
   --intake-frame: 68.75rem;
   --intake-form-height: 40rem;
   --intake-gutter: var(--space-page-inline);
+  --intake-actions-pad: var(--spacing-4);
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   height: 100dvh;
@@ -421,10 +422,13 @@ main.route-surface.route-surface--intake::before {
 }
 
 /* Back sits at the frame's start edge and the primary action at its end, on
-   every intake screen. */
+   every intake screen. When the row is too narrow for both (a phone at 200%
+   zoom or with large text), the primary action wraps onto its own full-width
+   line above Back rather than widening the screen past the window. */
 .threshold__actions,
 .context__actions-inner {
   display: flex;
+  flex-wrap: wrap-reverse;
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-3);
@@ -599,8 +603,11 @@ main.route-surface.route-surface--intake::before {
   border-top: 1px solid var(--color-border-structural);
 }
 
+/* The bottom safe-area inset is taken here and nowhere else in the intake:
+   no wrapper above the action row pads for it, so it is never stacked. Steps
+   and breakpoints change --intake-actions-pad, never this declaration. */
 .context__actions-inner {
-  padding-block: var(--spacing-4);
+  padding-block: var(--intake-actions-pad) max(var(--intake-actions-pad), env(safe-area-inset-bottom));
 }
 
 .context-step {
@@ -891,6 +898,7 @@ main.route-surface.route-surface--intake::before {
 @media (max-width: 43.749rem) {
   .intake {
     --intake-gutter: var(--spacing-4);
+    --intake-actions-pad: var(--spacing-3);
   }
 
   .intake__bar-inner {
@@ -951,10 +959,6 @@ main.route-surface.route-surface--intake::before {
     text-align: left;
   }
 
-  .context__actions-inner {
-    padding-block: var(--spacing-3);
-  }
-
   /* The retired onboarding dialog stacked these full width on a phone. */
   .threshold__actions.before-begin__actions {
     flex-direction: row;
@@ -964,11 +968,12 @@ main.route-surface.route-surface--intake::before {
     width: auto;
   }
 
-  /* Back stays compact and the primary action takes the rest of the row. */
-  .threshold__actions .dm-button--primary,
-  .context__actions .dm-button--primary {
+  /* Back stays compact and the primary action takes the rest of the row. The
+     row wraps (above) only once the label cannot fit even on two lines. */
+  .threshold__actions .dm-button.dm-button--primary,
+  .context__actions .dm-button.dm-button--primary {
     flex: 1;
-    min-width: 0;
+    min-width: min-content;
   }
 }
 
@@ -1273,7 +1278,7 @@ main.route-surface.route-surface--intake::before {
 .intake[data-phase='basics'] .context__actions-inner {
   justify-content: flex-end;
   gap: 0.75rem;
-  padding-block: 0.8rem;
+  --intake-actions-pad: 0.8rem;
   position: relative;
 }
 .intake[data-phase='basics'] .context__actions-inner::before {
@@ -1352,8 +1357,8 @@ main.route-surface.route-surface--intake::before {
   .intake[data-phase='basics'] .context__scroll { flex: 1 1 auto; }
   .intake[data-phase='basics'] .context__body { gap: 1rem; padding-block: 1rem; }
   .intake[data-phase='basics'] .context__intro { font-size: 0.88rem; }
-  .intake[data-phase='basics'] .context__actions-inner { padding-block: 0.7rem; }
-  .intake[data-phase='basics'] .context__actions .dm-button--primary { min-width: 0; }
+  .intake[data-phase='basics'] .context__actions-inner { --intake-actions-pad: 0.7rem; }
+  .intake[data-phase='basics'] .context__actions .dm-button--primary { min-width: min-content; }
 }
 
 /* The three patient-context screens share one near-black control language. */
@@ -1452,5 +1457,69 @@ body:has(.intake[data-phase='history']) .dm-combobox__option--active { backgroun
   .intake[data-phase='background'] .context__actions-inner {
     flex-direction: column-reverse;
     align-items: stretch;
+  }
+
+  /* Stacked, the label has the full width; below 320 px it may need two lines. */
+  .intake[data-phase='background'] .context__actions .dm-button--primary {
+    white-space: normal;
+  }
+}
+
+/* --- Below 320 CSS px ----------------------------------------------------------
+
+  A phone at 200% page zoom lays the intake out 160 to 215 CSS px wide. The
+  intake has no width floor (globals.css), so it reflows: the gutters narrow,
+  and long words hyphenate rather than push the step wider than the window.
+  Text keeps its size, because enlarging it is why the patient zoomed. Every
+  rule here sits below the narrowest phone at normal zoom, so a phone at
+  100%, a tablet and the desktop never reach it. */
+
+@media (max-width: 19.999rem) {
+  .intake {
+    --intake-gutter: var(--spacing-3);
+    hyphens: auto;
+    overflow-wrap: anywhere;
+  }
+
+  /* A button label breaks between words only; the tighter padding is what
+     keeps "Continue" whole. */
+  .intake .dm-button {
+    padding-inline: var(--spacing-3);
+    hyphens: manual;
+    overflow-wrap: normal;
+  }
+
+  /* Here Continue wraps above Back, and two pinned action rows would leave the
+     fields a sliver of the window. The step scrolls as one: fields, then the
+     actions after them, then the safe area. */
+  .intake[data-phase] .context {
+    display: block;
+    height: 100%;
+    max-height: none;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .intake[data-phase] .context__scroll {
+    overflow: visible;
+  }
+
+  /* Pushed below the close control so the heading has the sheet's full width. */
+  .dm-dialog.under18 {
+    width: calc(100vw - 12px);
+  }
+
+  .under18 .dm-dialog__close {
+    top: var(--spacing-2);
+    right: var(--spacing-2);
+  }
+
+  .under18 .dm-dialog__head {
+    padding: calc(var(--control-target-minimum) + var(--spacing-3)) var(--spacing-3) var(--spacing-2);
+  }
+
+  .under18 .dm-dialog__body,
+  .under18 .dm-dialog__footer {
+    padding-inline: var(--spacing-2);
   }
 }
