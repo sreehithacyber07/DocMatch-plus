@@ -19,6 +19,8 @@ import './staff.css';
 const CONFIG = resolveStaffConfig({
   url: import.meta.env.VITE_SUPABASE_URL,
   publishableKey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+  buildTarget: import.meta.env.VITE_BUILD_TARGET,
+  demoMode: import.meta.env.VITE_DEMO_MODE,
 });
 
 type Phase = 'starting' | 'signed-out' | 'checking' | 'workspace' | 'unconfigured';

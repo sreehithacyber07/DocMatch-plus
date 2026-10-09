@@ -1,5 +1,5 @@
 import type { RegionAssessmentContext } from '../body-explorer/clinical-coverage.ts';
-import { answerIncludes, INTAKE_QUESTION_IDS, type IntakeAnswer } from './intake-questions.ts';
+import { answerIncludes, clarifiedContext, INTAKE_QUESTION_IDS, type IntakeAnswer } from './intake-questions.ts';
 
 const WEIGHTED_SAFETY: Readonly<Record<string, readonly string[]>> = {
   'upper-abdominal-pain': [
@@ -41,6 +41,7 @@ export const EARLY_SAFETY_QUESTION_IDS: ReadonlySet<string> = new Set([
 ]);
 
 const MUSCULOSKELETAL_REGION = /(shoulder|arm|elbow|forearm|wrist|hand|hip|thigh|knee|leg|ankle|foot|back)/;
+const ORAL: ReadonlySet<string> = new Set(['mouth', 'patient-right-jaw', 'patient-left-jaw', 'chin']);
 
 function answered(answers: readonly IntakeAnswer[], questionId: string, ...optionIds: readonly string[]): boolean {
   return answerIncludes(answers, questionId, optionIds);
@@ -51,6 +52,73 @@ function answered(answers: readonly IntakeAnswer[], questionId: string, ...optio
  * seen. It is asked when the branch points at it (a swelling concern, a local
  * swelling or outer-ear tenderness, or a feverish ear), not of every earache.
  */
+/**
+ * NHS Dental abscess and Toothache send swelling around the eye or neck, a lot
+ * of swelling in the mouth, or a mouth that will not open, to 999 or A&E
+ * (PENDING CLINICAL REVIEW). Asked once an oral problem is placed in a tooth
+ * or the gum, a dental swelling or high temperature is reported, or the
+ * concern is a swelling in the mouth or jaw.
+ */
+function dentalSpreadRelevant(context: RegionAssessmentContext, answers: readonly IntakeAnswer[]): boolean {
+  // Phase 3: a facial pain that comes from a tooth carries the same dental emergency check.
+  if (context.complaintId === 'face-general-concern' && answered(answers, INTAKE_QUESTION_IDS.facePainPattern, 'tooth')) return true;
+  if (context.bodyRegionId !== 'face' || !ORAL.has(context.faceSubregionId ?? '')) return false;
+  return context.concernId === 'swelling-lump'
+    || answered(answers, INTAKE_QUESTION_IDS.jawDetail, 'tooth-gum')
+    || answered(answers, INTAKE_QUESTION_IDS.mouthDetail, 'tooth-gum', 'gums', 'tooth')
+    || answered(answers, INTAKE_QUESTION_IDS.jawAssociated, 'tooth')
+    || answered(answers, INTAKE_QUESTION_IDS.toothFeatures, 'swelling', 'temperature')
+    || answered(answers, INTAKE_QUESTION_IDS.oralSwellingSite, 'tooth-gum');
+}
+
+/**
+ * Phase 2 checks (PENDING CLINICAL REVIEW), each made relevant by the branch
+ * or by an answer, never asked of every patient:
+ *
+ *   NHS DVT            a lower-limb swelling, or pain and swelling in one calf
+ *                      or leg, or discoloured skin over a painful lower leg
+ *   NHS Hernia         a tummy or groin lump with any hernia feature
+ *   NHS GCA            temple or scalp tenderness, jaw pain or vision change
+ *   NHS Back pain      any adult back pain
+ *   NHS Cellulitis     skin reported as painful, hot or quickly getting worse
+ *   NHS Varicose veins a bleeding vein
+ *   NHS Broken ribs    a chest injury
+ */
+const LOWER_LIMB = /(thigh|knee|lower-leg|ankle|foot)/;
+function expansionSafety(context: RegionAssessmentContext, answers: readonly IntakeAnswer[]): string[] {
+  const ids: string[] = [];
+  const region = context.bodyRegionId;
+  const concern = context.concernId;
+  if (LOWER_LIMB.test(region) && (
+    concern === 'swelling-lump'
+    || answered(answers, INTAKE_QUESTION_IDS.mskSiteFeatures, 'one-calf', 'skin-colour', 'calf-ankle-swelling')
+    || answered(answers, INTAKE_QUESTION_IDS.legVeinFeatures, 'one-leg')
+  )) ids.push('safety-dvt-one-leg', 'safety-dvt-breathless-chest');
+  if (answered(answers, INTAKE_QUESTION_IDS.legVeinFeatures, 'bleeding-vein')) ids.push('safety-varicose-bleeding');
+  if (answered(answers, INTAKE_QUESTION_IDS.herniaFeatures, 'bigger-cough', 'smaller-lying', 'tight-skin', 'dragging', 'pain', 'sick-bloated')) {
+    ids.push('safety-hernia-complication');
+  }
+  if (answered(answers, INTAKE_QUESTION_IDS.templeFeatures, 'scalp-tender', 'jaw-eating', 'vision')) ids.push('safety-gca-features');
+  if (/back/.test(region) && concern === 'pain' && context.patientMode === 'adult') ids.push('safety-back-urgent');
+  if (answered(answers, INTAKE_QUESTION_IDS.skinDetail, 'painful-hot')) ids.push('safety-skin-hot-swollen', 'safety-skin-infection-emergency');
+  if (region === 'chest' && concern === 'injury') ids.push('safety-upper-abdomen-injury-emergency');
+  /*
+    Phase 3 (PENDING CLINICAL REVIEW). A head or face injury is asked the NHS
+    Head injury 999 and 111 lists. A child is already asked the unresponsive,
+    fit and sudden neurological checks, so only the mechanism and urgent
+    questions are added for a child. A nose injury adds the NHS Broken nose
+    A&E signs; a neck injury the NHS Whiplash urgent signs.
+  */
+  const neckArea = region === 'neck' || context.faceSubregionId === 'upper-neck';
+  if (concern === 'injury' && (region === 'head' || region === 'face') && !neckArea) {
+    if (context.patientMode === 'adult') ids.push('safety-head-injury-signs');
+    ids.push('safety-head-injury-mechanism', 'safety-head-injury-urgent');
+  }
+  if (concern === 'injury' && context.faceSubregionId === 'nose') ids.push('safety-nose-injury-emergency');
+  if (concern === 'injury' && neckArea) ids.push('safety-neck-injury-urgent');
+  return ids;
+}
+
 function earSwellingRelevant(context: RegionAssessmentContext, answers: readonly IntakeAnswer[]): boolean {
   return context.concernId === 'swelling-lump'
     || answered(answers, INTAKE_QUESTION_IDS.earDetail, 'local', 'touch', 'outer')
@@ -94,6 +162,8 @@ function pediatricSafety(context: RegionAssessmentContext, intakeAnswers: readon
     ids.add('safety-throat-airway');
     ids.add('safety-throat-urgent');
   }
+  if (dentalSpreadRelevant(context, intakeAnswers)) ids.add('safety-dental-spreading-swelling');
+  for (const id of expansionSafety(context, intakeAnswers)) ids.add(id);
   if (complaint === 'head-concern') {
     if (concern === 'pain') {
       ids.add('safety-pediatric-headache-sudden-or-injury');
@@ -176,6 +246,8 @@ export function safetyQuestionIdsForClinicalContext(
   intakeAnswers: readonly IntakeAnswer[],
 ): readonly string[] | undefined {
   if (!context) return undefined;
+  // A clarified "Something else" is screened as the family it was clarified to (phase 2).
+  context = clarifiedContext(context, intakeAnswers);
   if (context.patientMode === 'pediatric') return [...pediatricSafety(context, intakeAnswers)];
 
   const ids = new Set<string>();
@@ -184,7 +256,23 @@ export function safetyQuestionIdsForClinicalContext(
     && (concern === 'injury' || answered(intakeAnswers, INTAKE_QUESTION_IDS.otherClarifier, 'injury'));
 
   const weighted = WEIGHTED_SAFETY[context.complaintId];
-  if (weighted) return weighted;
+  /*
+    The approved weighted safety sets are frozen. The phase 2 checks are not
+    added to them: adult limb pain runs the weighted joint complaint, so a calf
+    clot or an urgent back feature reported there is recorded in the answers
+    but not screened by R3. Adding them is a clinical review item
+    (docs/clinical-expansion/phase-2), not a silent change to approved rules.
+  */
+  if (weighted) {
+    // Phase 3 candidate fix (PENDING CLINICAL REVIEW): separate joint-specific
+    // clot and back checks, added beside the frozen set only where they apply.
+    if (context.complaintId !== 'joint-musculoskeletal-pain') return weighted;
+    const extra: string[] = [];
+    if (LOWER_LIMB.test(context.bodyRegionId)) extra.push('safety-joint-dvt-one-leg', 'safety-joint-dvt-breathless');
+    if (context.bodyRegionId === 'upper-back') extra.push('safety-joint-back-urgent');
+    return [...weighted, ...extra];
+  }
+  for (const id of expansionSafety(context, intakeAnswers)) ids.add(id);
 
   /*
     Adult limb injury and movement concerns run the musculoskeletal branch
@@ -290,6 +378,7 @@ export function safetyQuestionIdsForClinicalContext(
     ids.add('safety-throat-airway');
     ids.add('safety-throat-urgent');
   }
+  if (dentalSpreadRelevant(context, intakeAnswers)) ids.add('safety-dental-spreading-swelling');
   if (
     ['skin-change', 'swelling-lump'].includes(concern)
     // A burning or swallowing concern felt in the chest is reflux-type, not an airway swelling.

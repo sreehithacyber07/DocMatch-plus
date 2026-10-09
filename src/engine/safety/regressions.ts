@@ -70,6 +70,9 @@ const SCENARIOS: readonly SafetyRegressionScenario[] = [
       'joint-musculoskeletal-pain-spasm': 'yes',
       'joint-musculoskeletal-pain-swelling-bruising': 'yes',
       'joint-musculoskeletal-pain-use-weight': 'yes',
+      // Phase 3 joint-specific screens (PENDING CLINICAL REVIEW), answered no.
+      'safety-joint-dvt-one-leg': 'no',
+      'safety-joint-back-urgent': 'no',
     },
     expectedFinalStatus: 'result',
     expectedRuleIds: [],

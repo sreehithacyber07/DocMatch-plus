@@ -23,6 +23,7 @@ import { SPECIALTY_REGISTRY } from './specialty-registry.ts';
 const MUSCULOSKELETAL_REGION = /(shoulder|arm|elbow|forearm|wrist|hand|hip|thigh|knee|leg|ankle|foot|back)/;
 const EYE = ['patient-right-eye', 'patient-left-eye'];
 const EAR = ['patient-right-ear', 'patient-left-ear'];
+const ORAL = ['mouth', 'patient-right-jaw', 'patient-left-jaw', 'chin'];
 
 /** The weighted complaints, which have no clinical context in older call sites. */
 const WEIGHTED_ELIGIBILITY: Readonly<Record<string, readonly string[]>> = {
@@ -31,7 +32,8 @@ const WEIGHTED_ELIGIBILITY: Readonly<Record<string, readonly string[]>> = {
   // Headache can reach Neurology or ENT only through the source-backed gate;
   // no extra likelihoods are assigned to either direction here.
   headache: ['neurology', 'otorhinolaryngology'],
-  'joint-musculoskeletal-pain': ['orthopaedics'],
+  // Rheumatology only through the NICE NG100 gate (PENDING CLINICAL REVIEW).
+  'joint-musculoskeletal-pain': ['orthopaedics', 'clinical-immunology-rheumatology'],
 };
 
 function routable(ids: Iterable<string>): string[] {
@@ -66,6 +68,10 @@ export function eligibleRouteDirections(
 
   if (EAR.includes(face) || face === 'nose' || complaintId === 'throat-concern') ids.push('otorhinolaryngology');
   if (EYE.includes(face)) ids.push('ophthalmology');
+  // NHS Toothache, Dental abscess and Gum disease (PENDING CLINICAL REVIEW).
+  if (ORAL.includes(face) && ['mouth-change', 'bleeding-discharge', 'pain', 'swelling-lump'].includes(concern)) ids.push('dentistry');
+  // Phase 3: a facial (cheek, temple, forehead) pain that comes from a tooth.
+  if (context.complaintId === 'face-general-concern' && concern === 'pain') ids.push('dentistry');
   if (concern === 'skin-change') ids.push('dermatology');
   if (MUSCULOSKELETAL_REGION.test(region) && ['pain', 'injury', 'movement-function', 'swelling-lump'].includes(concern)) {
     ids.push('orthopaedics');
@@ -88,6 +94,10 @@ export function eligibleRouteDirections(
     if (context.complaintId === 'face-general-concern' && concern === 'pain' && face !== 'upper-neck') ids.push('neurology', 'otorhinolaryngology');
     // NHS Lumps and NICE NG12: a neck lump that has not gone down.
     if ((region === 'neck' || face === 'upper-neck') && concern === 'swelling-lump') ids.push('otorhinolaryngology');
+    // PENDING CLINICAL REVIEW: a hernia (NHS Hernia) or a breast change (NHS Breast lumps, NICE NG12 1.4).
+    if ((lower || region === 'upper-abdomen' || region === 'chest') && concern === 'swelling-lump') ids.push('general-surgery');
+    // PENDING CLINICAL REVIEW: NICE CG168 varicose vein referral criteria.
+    if (/(thigh|knee|lower-leg|ankle|foot)/.test(region) && ['swelling-lump', 'skin-change', 'pain'].includes(concern)) ids.push('vascular-surgery');
     if (reproductiveBranchEligible(context)
       && ['reproductive-pelvic-change', 'pain', 'swelling-lump', 'other', 'bleeding-discharge'].includes(concern)) {
       ids.push('obstetrics-gynaecology');

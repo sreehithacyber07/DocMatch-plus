@@ -37,6 +37,7 @@ import {
 } from '../../../../src/features/routing-flow/clinical-replay.ts';
 import { INTAKE_QUESTION_IDS, intakeQuestionsFor } from '../../../../src/features/routing-flow/intake-questions.ts';
 import { buildSoapHandoff, type SoapSection } from '../../../../src/features/routing-flow/soap-handoff.ts';
+import { referralPriorityNotes } from '../../../../src/features/routing-flow/referral-priority.ts';
 import { SPECIALTY_REGISTRY } from '../../../../src/features/routing-flow/specialty-registry.ts';
 import { R2B_DEMONSTRATION_KNOWLEDGE } from '../../../../src/engine/data/index.ts';
 import { R3_SAFETY_KNOWLEDGE } from '../../../../src/engine/safety/index.ts';
@@ -246,6 +247,8 @@ export function trustedHandoff(result: TrustedClinicalResult, body: { regionId: 
     converged: outcome.routeType !== 'parent-fallback',
     directionLabel: record.patientFacingName,
     urgentReview: outcome.urgency === 'urgent',
+    referralPriority: referralPriorityNotes(context, replay.run.intakeAnswers).map((note) => note.clinicianText),
+    route: replay.run.route ?? undefined,
   });
   return { specialtyId: record.id, specialtyLabel: record.patientFacingName, urgency: outcome.urgency, sections };
 }

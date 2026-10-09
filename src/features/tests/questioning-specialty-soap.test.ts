@@ -28,6 +28,7 @@ import {
   isWeightedRoutable, specialtyForEngineId,
 } from '../routing-flow/specialty-registry.ts';
 import { answer, controllerFor, currentStep, runInterview, startInterview } from './interview-driver.ts';
+import { contextFor, walkAssessment } from './clinical-walk.ts';
 
 const PAIN_COMPLAINTS = ['upper-abdominal-pain', 'headache', 'joint-musculoskeletal-pain'] as const;
 const ALL_COMPLAINTS = R2B_DEMONSTRATION_COMPLAINTS
@@ -156,6 +157,8 @@ test('every R3 rule fires exactly when its full predicate is satisfied, through 
     const yes = Object.fromEntries(rule.requiredQuestionIds.map((id) => [id, 'yes']));
     // Screened-routing prerequisites for joint injury rules.
     if (rule.id.startsWith('joint-injury')) yes['joint-musculoskeletal-pain-injury'] = 'yes';
+    // The joint clot checks are live only when the painful area is swollen.
+    if (rule.id.startsWith('joint-dvt')) yes['joint-musculoskeletal-pain-swelling-bruising'] = 'yes';
     const { controller } = runInterview(complaintId, yes, 'no');
     if (rule.continuationPolicy === 'must_stop') {
       assert.equal(controller.status, 'interrupted', `${rule.id} should hard stop`);
@@ -285,8 +288,12 @@ test('only modelled specialties are routable, and every R1 candidate renders thr
   const routable = routableSpecialties().map((record) => record.id).toSorted();
   assert.deepEqual(routable, [
     'cardiology',
+    // Gate-only, never Bayesian candidates (questionnaire intelligence pass, PENDING CLINICAL REVIEW).
+    'clinical-immunology-rheumatology',
+    'dentistry',
     'dermatology',
     'general-medicine',
+    'general-surgery',
     'medical-gastroenterology',
     'neurology',
     'obstetrics-gynaecology',
@@ -296,6 +303,7 @@ test('only modelled specialties are routable, and every R1 candidate renders thr
     'paediatrics',
     'respiratory-medicine',
     'urology',
+    'vascular-surgery',
   ]);
   for (const id of ['cardiology', 'pulmonology', 'neurology', 'gastroenterology', 'orthopedics', 'dermatology'] as SpecialtyId[]) {
     assert.equal(SPECIALTY_LABEL[id], specialtyForEngineId(id).patientFacingName);
@@ -313,15 +321,6 @@ const DIFFERENTIATION: readonly {
   complaintId: string;
   answers: Record<string, string>;
 }[] = [
-  {
-    expect: 'Gastroenterology',
-    complaintId: 'upper-abdominal-pain',
-    answers: {
-      'upper-abdominal-pain-meal-relation': 'yes',
-      'upper-abdominal-pain-burning': 'yes',
-      'upper-abdominal-pain-nausea-vomiting': 'yes',
-    },
-  },
   {
     expect: 'Cardiology',
     complaintId: 'shortness-of-breath',
@@ -353,23 +352,98 @@ const DIFFERENTIATION: readonly {
   { expect: 'General Medicine', complaintId: 'headache', answers: {} },
 ];
 
-test('controlled answer paths reach distinct, engine-consistent directions', () => {
-  const reached = new Set<string>();
+test('controlled answer paths lead to distinct engine specialties, which never route on their own', () => {
+  /*
+    Different answers still move the engine to different leaders. What changed
+    (PENDING CLINICAL REVIEW) is that a lead is not a route: with the
+    demonstration likelihoods, which are not clinically calibrated, no lead
+    reaches both thresholds with sufficient independent support, so the engine
+    alone never prints a specialist. The direction comes from the published
+    criteria in direction-gate.ts (scripted paths in questionnaire-rebuild.test).
+  */
+  const LEADER: Readonly<Record<string, SpecialtyId>> = {
+    Cardiology: 'cardiology',
+    'Respiratory Medicine': 'pulmonology',
+    Orthopaedics: 'orthopedics',
+  };
+  const leaders = new Set<string>();
   for (const scenario of DIFFERENTIATION) {
     const { controller } = runInterview(scenario.complaintId, scenario.answers, 'no');
     assert.equal(controller.status, 'result', scenario.expect);
     if (controller.status !== 'result') continue;
     const shown = displayedDirection(controller.stoppingDecision, controller.routingOutcome.specialtyId);
-    assert.equal(shown, scenario.expect, `${scenario.complaintId} -> ${shown}`);
     if (didConverge(controller.stoppingDecision)) {
       assert.equal(shown, SPECIALTY_LABEL[controller.routingOutcome.specialtyId], 'engine/UI mismatch');
+    } else {
+      assert.equal(shown, 'General Medicine', `${scenario.complaintId}: an unconverged lead is never shown`);
     }
-    reached.add(shown);
+    const expectedLeader = LEADER[scenario.expect];
+    if (expectedLeader) {
+      assert.equal(controller.stoppingDecision.topSpecialtyId, expectedLeader, `${scenario.complaintId} lead`);
+      leaders.add(expectedLeader);
+    }
   }
-  assert.equal(reached.size, DIFFERENTIATION.length);
+  assert.equal(leaders.size, 3, 'three different answer patterns lead to three different specialties');
+});
+
+test('correlated digestive answers alone no longer converge the engine on Gastroenterology', () => {
+  /*
+    A meal-related, burning pain with nausea used to end the engine on
+    Gastroenterology by the margin rule alone, with the leader still under
+    half the probability. Under the sufficiency rule both thresholds must hold,
+    so the lead does not converge; Gastroenterology is reached only through its
+    published criteria, which require a frequent or persistent pattern
+    (direction-gate.test and the scripted paths cover that route).
+  */
+  const { controller } = runInterview('upper-abdominal-pain', {
+    'upper-abdominal-pain-meal-relation': 'yes',
+    'upper-abdominal-pain-burning': 'yes',
+    'upper-abdominal-pain-nausea-vomiting': 'yes',
+  }, 'no');
+  assert.equal(controller.status, 'result');
+  if (controller.status !== 'result') return;
+  assert.equal(didConverge(controller.stoppingDecision), false);
+  assert.equal(controller.stoppingDecision.topSpecialtyId, 'gastroenterology', 'the lead is still recorded');
+  assert.equal(displayedDirection(controller.stoppingDecision, controller.routingOutcome.specialtyId), 'General Medicine');
 });
 
 /* --- SOAP handoff ----------------------------------------------------------- */
+
+/** A cardiac breathing pattern that meets the published Cardiology criteria, for the Assessment wording. */
+function convergedSoap() {
+  const walk = walkAssessment(contextFor({ region: 'chest', concern: 'breathing', age: 45, sex: 'male' }), {
+    'intake-history-symptom-character': 'tight',
+    'intake-history-duration': 'under-hour',
+    'shortness-of-breath-ankle-swelling': 'yes',
+    'shortness-of-breath-lying-flat': 'yes',
+    'shortness-of-breath-wheeze': 'no',
+    'shortness-of-breath-palpitations': 'yes',
+    // Respiratory Medicine is asked before Cardiology is concluded (differentiation).
+    'intake-breathing-infections': 'no',
+    'intake-breathing-phlegm': 'no',
+  });
+  assert.equal(walk.route?.registryId, 'cardiology');
+  // The result screen and the trusted server both treat a supported direction as converged for the handoff.
+  const converged = walk.route?.basis !== 'parent-service';
+  assert.equal(converged, true);
+  return buildSoapHandoff({
+    complaintLabel: 'Shortness of breath',
+    complaintSource: 'bridge-resolved',
+    capture: { painLocation: { regionId: 'chest', precision: 'general-area' }, view: 'front' },
+    intakePlan: intakeQuestionsFor(walk.context.complaintId, walk.context),
+    intakeAnswers: [],
+    timeline: walk.steps.map((step) => ({
+      kind: 'routing' as const,
+      questionId: step.questionId,
+      text: step.text,
+      label: step.answerLabel,
+      answeredAt: '',
+      changeable: true,
+    })),
+    converged,
+    directionLabel: walk.route!.label,
+  });
+}
 
 function soapFor(complaintSource: 'bridge-resolved' | 'patient-stated') {
   const { state, controller } = runInterview(
@@ -425,10 +499,10 @@ test('SOAP Objective contains only kiosk-captured facts and no fabricated measur
 });
 
 test('SOAP Assessment is a routing assessment and never a diagnosis', () => {
-  const assessment = soapFor('bridge-resolved').find((section) => section.key === 'A');
+  const assessment = convergedSoap().find((section) => section.key === 'A');
   assert.ok(assessment);
   const text = assessment.lines.map((line) => line.value).join(' ');
-  assert.match(text, /most strongly supports Gastroenterology as the next clinical direction/);
+  assert.match(text, /most strongly supports Cardiology as the next clinical direction/);
   assert.equal(text.toLowerCase().match(/diagnos/g)?.length, 1, 'only the "not a diagnosis" disclaimer');
   assert.match(text, /not a diagnosis/);
 });

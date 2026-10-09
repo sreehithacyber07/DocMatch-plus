@@ -26,30 +26,50 @@ function createSlot(): Slot {
 }
 
 /**
+ * Optional hand-off of a live session across a remount of the same patient.
+ * `take` returns a session kept earlier for this patient, if any; `release`
+ * receives the session when the hook lets go of it and decides whether to keep
+ * it (see trust/patient-memory.ts) or dispose it.
+ */
+export interface PersistenceRetention {
+  take: () => AssessmentPersistence | null;
+  release: (persistence: AssessmentPersistence) => void;
+}
+
+/**
  * One persistence session per confirmed patient concern.
  *
  * The session is created after the confirmation commits and disposed when
  * `start` changes or the screen unmounts, which is exactly the patient reset
  * boundary. Starting is deferred by a microtask so a development double-mount
  * disposes the first session before it signs anyone in.
+ *
+ * With `retention`, an unmount hands the session over instead of disposing it,
+ * and a remount for the same patient takes the same session back, so the
+ * assessment continues rather than being ended and started again. A reset
+ * still ends it: the retention disposes anything handed over for a patient who
+ * is no longer current.
  */
 export function usePatientPersistence(
   start: AssessmentStart | null,
   create: () => AssessmentPersistence,
+  retention: PersistenceRetention | null = null,
 ): AssessmentPersistence | null {
   const [slot] = useState(createSlot);
   const current = useSyncExternalStore(slot.subscribe, slot.get, slot.get);
 
   useEffect(() => {
     if (!start) return undefined;
-    const persistence = create();
+    const kept = retention?.take() ?? null;
+    const persistence = kept ?? create();
     slot.set(persistence);
-    queueMicrotask(() => persistence.begin(start));
+    if (!kept) queueMicrotask(() => persistence.begin(start));
     return () => {
       if (slot.get() === persistence) slot.set(null);
-      void persistence.dispose();
+      if (retention) retention.release(persistence);
+      else void persistence.dispose();
     };
-  }, [start, create, slot]);
+  }, [start, create, slot, retention]);
 
   return current;
 }

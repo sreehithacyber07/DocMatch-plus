@@ -55,8 +55,9 @@ export function SoapDocument({ sections, status, reduced }: SoapDocumentProps) {
                 <span className="soap-document__role"> · {ROLE[section.key]}</span>
               </p>
               <dl className="soap__lines">
-                {section.lines.map((line) => (
-                  <div className="soap__line" key={`${section.key}-${line.label}`}>
+                {section.lines.map((line, index) => (
+                  // A label can repeat (two referral priority notes, two partly met sets).
+                  <div className="soap__line" key={`${section.key}-${index}-${line.label}`}>
                     <dt className="type-caption">{line.label}</dt>
                     <dd className="type-body-small">{line.value}</dd>
                   </div>

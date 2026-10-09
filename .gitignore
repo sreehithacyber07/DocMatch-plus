@@ -1,4 +1,4 @@
-# Dependencies and build output
+﻿# Dependencies and build output
 node_modules/
 dist/
 dist-ssr/
@@ -28,3 +28,9 @@ Thumbs.db
 scratch/
 _manus_reference/
 scripts/audit/shots/
+
+# Private tooling and internal working material (never published)
+.mcp.json
+.claude/
+.qa-tmp/
+scripts/tmp/

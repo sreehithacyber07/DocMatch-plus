@@ -1,6 +1,6 @@
 # Security policy
 
-DocMatch+ is a research / engineering prototype, not a clinically validated service. Do not submit real patient information to a test deployment.
+DocMatch+ is a research / engineering prototype, not a clinically validated service. The public demonstration runs with persistence disabled; do not submit real patient information to it or to any test deployment.
 
 ## Report privately
 

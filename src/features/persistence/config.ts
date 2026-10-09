@@ -32,7 +32,32 @@ import { DEPLOYMENT_MODES, type DeploymentMode } from '../trust/deployment.ts';
 export type PersistenceDisabledReason =
   | 'not-configured'
   | 'unsafe-key'
-  | 'requires-trusted-admission';
+  | 'requires-trusted-admission'
+  | 'preview-isolated'
+  | 'demo-mode';
+
+/**
+ * Whether a build is the public research-prototype demonstration. vite.config.ts
+ * bakes VITE_DEMO_MODE into every build as 'research-prototype' unless the build
+ * environment sets it to 'off', so a demonstration is the default and a real
+ * clinical release has to opt out deliberately. A demonstration never persists
+ * and never opens the clinical workspace: visitors cannot send personal or
+ * medical details to the database, whatever variables the build has.
+ */
+export function isDemoBuild(demoMode: unknown): boolean {
+  return typeof demoMode === 'string' && demoMode.trim().length > 0 && demoMode.trim().toLowerCase() !== 'off';
+}
+
+/**
+ * Whether a build is a Vercel preview. Preview builds are for QA and review:
+ * they must never write to the production patient database, so persistence
+ * is refused in code and does not rely on the preview environment having no
+ * database variables, or on Edge Function CORS (REST writes do not pass
+ * through CORS).
+ */
+export function isPreviewBuild(buildTarget: unknown): boolean {
+  return typeof buildTarget === 'string' && buildTarget.trim().toLowerCase() === 'preview';
+}
 
 /** How a persisting assessment is admitted: by the patient, or by trusted staff. */
 export type AdmissionPath = 'self' | 'staff';
@@ -98,11 +123,17 @@ export function resolvePersistenceConfig(input: {
   url: unknown;
   publishableKey: unknown;
   deploymentMode: DeploymentMode;
+  /** The Vercel environment of the build; 'preview' disables persistence. */
+  buildTarget?: unknown;
+  /** VITE_DEMO_MODE; any value but 'off' disables persistence. */
+  demoMode?: unknown;
 }): PersistenceConfig {
   const { deploymentMode } = input;
   if (!DEPLOYMENT_MODES.includes(deploymentMode)) {
     return { enabled: false, reason: 'requires-trusted-admission', deploymentMode: 'hospital-kiosk' };
   }
+  if (isDemoBuild(input.demoMode)) return { enabled: false, reason: 'demo-mode', deploymentMode };
+  if (isPreviewBuild(input.buildTarget)) return { enabled: false, reason: 'preview-isolated', deploymentMode };
   if (!isNonEmptyString(input.url) || !isNonEmptyString(input.publishableKey) || !isHttpsOrLocalUrl(input.url)) {
     return { enabled: false, reason: 'not-configured', deploymentMode };
   }

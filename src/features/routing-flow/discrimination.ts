@@ -170,6 +170,25 @@ export function shouldContinueDiscrimination(state: DiscriminationState): Discri
     return { ...base, shouldContinue: false, stopCondition: 'HARD_STOP', fallbackReason: null };
   }
   if (gate.status === 'supported') {
+    /*
+      Criteria met, but not yet differentiated: an exclusion of the supported
+      direction, or the criteria of a competing narrower service, can still be
+      asked. Ask them while the discrimination allowance lasts. When it is
+      spent, the supported direction stands: its own criteria were met, and the
+      handoff carries the remaining uncertainty (PENDING CLINICAL REVIEW).
+    */
+    const differentiate = new Set(gate.differentiationQuestionIds);
+    const pending = state.eligibleQuestions
+      .filter((question) => !answered.has(question.id) && differentiate.has(question.id))
+      .toSorted(
+        (left, right) =>
+          (left.informationGainRank ?? Number.MAX_SAFE_INTEGER) -
+          (right.informationGainRank ?? Number.MAX_SAFE_INTEGER),
+      )
+      .map((question) => question.id);
+    if (pending.length > 0 && state.budget.discriminationQuestionCount < MAX_DISCRIMINATION_EXTENSION) {
+      return { ...base, remainingDiscriminatorIds: pending, shouldContinue: true, stopCondition: null, fallbackReason: null };
+    }
     return { ...base, shouldContinue: false, stopCondition: 'SPECIALTY_SUFFICIENT', fallbackReason: null };
   }
   if (remainingDiscriminatorIds.length === 0) {

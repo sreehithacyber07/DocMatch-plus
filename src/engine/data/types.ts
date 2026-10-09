@@ -78,7 +78,16 @@ export interface KnowledgeQuestion {
   applicability: ApplicabilityRule;
   provenanceIds: readonly string[];
   knowledgeVersion: string;
+  /**
+   * The clinical dimension the question measures. Correlated questions share
+   * one, so they count once towards the evidence-sufficiency rule. Structural
+   * metadata only: it never changes a likelihood.
+   */
+  evidenceDimension?: EvidenceDimension;
 }
+
+/** Clinical dimensions of an approved routing question. */
+export type EvidenceDimension = 'trigger' | 'character' | 'location' | 'associated' | 'timing' | 'mechanism' | 'function' | 'sign';
 
 export interface PresentingComplaint {
   id: string;

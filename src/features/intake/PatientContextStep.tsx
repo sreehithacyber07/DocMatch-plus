@@ -2,6 +2,7 @@ import { Button } from '../../components/primitives/Button.tsx';
 import { CheckboxChoiceGroup, RadioChoiceGroup } from '../../components/primitives/ChoiceGroup.tsx';
 import { DateField } from '../../components/primitives/DateField.tsx';
 import { OptionalPhoneField } from './OptionalPhoneField.tsx';
+import type { PhoneValue } from './phone-country.ts';
 import { ConditionalTextField, TextField } from '../../components/primitives/Field.tsx';
 import { MultiSelectCombobox } from '../../components/primitives/MultiSelectCombobox.tsx';
 import {
@@ -44,6 +45,9 @@ export interface PatientContextStepProps {
   onChange: (update: Partial<PatientContextDraft>) => void;
   /** Marks an answer as visited once focus leaves it. */
   onLeave: (field: string) => void;
+  /** The optional contact, held by the intake in page memory; never part of the patient context. */
+  phone: PhoneValue;
+  onPhoneChange: (phone: PhoneValue) => void;
 }
 
 /*
@@ -56,7 +60,7 @@ const PRIVATE_TEXT = { autoComplete: 'off', spellCheck: false } as const;
 const EARLIEST_BIRTH = { year: EARLIEST_BIRTH_YEAR, month: 1, day: 1 };
 
 /** One of the three context steps. Field ids are stable so validation can focus them. */
-export function PatientContextStep({ step, draft, voice, errors, onChange, onLeave }: PatientContextStepProps) {
+export function PatientContextStep({ step, draft, voice, errors, onChange, onLeave, phone, onPhoneChange }: PatientContextStepProps) {
   if (step === 'basics') {
     const today = localToday();
     const dob = validateDateOfBirth(draft.dateOfBirthParts, today);
@@ -173,7 +177,7 @@ export function PatientContextStep({ step, draft, voice, errors, onChange, onLea
               <span className="about-you__row-label-tag">Optional</span>
             </div>
             <div className="about-you__row-control about-you__phone-inline">
-              <OptionalPhoneField />
+              <OptionalPhoneField value={phone} onChange={onPhoneChange} />
             </div>
           </div>
         </div>

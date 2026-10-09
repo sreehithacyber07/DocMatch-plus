@@ -314,9 +314,11 @@ test('nose B: an isolated injury asks mechanism, not a second "was there an inju
   const associated = optionIdsFor(context, INTAKE_QUESTION_IDS.nosebleedAssociated);
   assert.ok(associated.includes('head-injury'));
   assert.ok(!associated.includes('facial-pressure'));
+  // Phase 3: an adult nose injury is also a head injury (NHS Head injury and
+  // concussion; NHS Broken nose), so those checks come first.
   assert.deepEqual(
     safetyQuestionIdsForClinicalContext(context, []),
-    ['safety-nosebleed-prolonged-or-excessive'],
+    ['safety-head-injury-signs', 'safety-head-injury-mechanism', 'safety-head-injury-urgent', 'safety-nose-injury-emergency', 'safety-nosebleed-prolonged-or-excessive'],
   );
 });
 

@@ -5,6 +5,8 @@ import './index.css';
 import { EntryScreen } from './screens/entry/EntryScreen';
 import { RouteErrorScreen } from './screens/not-found/RouteErrorScreen.tsx';
 import { loadRouteScreen } from './screens/route/load-route-screen.ts';
+import { DemoBanner } from './components/demo/DemoBanner.tsx';
+import { isDemoBuild } from './features/persistence/config.ts';
 
 const root = document.getElementById('root');
 if (!root) throw new Error('Root element was not found.');
@@ -47,6 +49,8 @@ const router = createBrowserRouter([
 
 createRoot(root).render(
   <StrictMode>
+    {/* Every route of a demonstration build carries the research-prototype notice. */}
+    {isDemoBuild(import.meta.env.VITE_DEMO_MODE) ? <DemoBanner /> : null}
     <RouterProvider router={router} />
   </StrictMode>,
 );

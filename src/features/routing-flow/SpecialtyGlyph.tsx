@@ -72,6 +72,39 @@ function glyphFor(specialty: string) {
           <path d="M7 25.3h18" />
         </>
       );
+    case 'dentistry':
+      return (
+        <>
+          <path d="M10.2 6.5c-3 0-4.9 2.5-4.4 5.9.4 2.6 1.6 4.2 2.2 6.6.7 2.9 1 7.5 3.1 7.5 2.2 0 2-5.6 4.9-5.6s2.7 5.6 4.9 5.6c2.1 0 2.4-4.6 3.1-7.5.6-2.4 1.8-4 2.2-6.6.5-3.4-1.4-5.9-4.4-5.9-2.4 0-3.6 1.4-5.8 1.4s-3.4-1.4-5.8-1.4Z" />
+        </>
+      );
+    case 'clinical-immunology-rheumatology':
+      return (
+        <>
+          <path d="M11 27V17.5M15 27V15M19 27v-9.5M23 27v-6" />
+          <circle cx="11" cy="14" r="2.2" />
+          <circle cx="15" cy="11.5" r="2.2" />
+          <circle cx="19" cy="14" r="2.2" />
+          <circle cx="23" cy="17.5" r="2.2" />
+          <path d="M8 27h18" />
+        </>
+      );
+    case 'general-surgery':
+      return (
+        <>
+          <path d="M7 25 21.5 10.5a3 3 0 0 1 4.2 4.2L11.2 29" />
+          <path d="M7 25l4.2 4" />
+          <path d="M18.5 13.5l4.2 4.2" />
+        </>
+      );
+    case 'vascular-surgery':
+      return (
+        <>
+          <path d="M11 4c0 6 4 7 4 12s-4 6-4 12" />
+          <path d="M21 4c0 6-4 7-4 12s4 6 4 12" />
+          <path d="M15 16h2" />
+        </>
+      );
     case 'general-medicine':
     default:
       return (

@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '../../components/primitives/Button.tsx';
 import { Brandmark } from '../hero/Brandmark.tsx';
 import { PremiumTerms } from './PremiumTerms.tsx';
@@ -19,17 +19,34 @@ import {
 } from './patient-context.ts';
 import { byVoice, isUnder18, questionVoiceFor, type QuestionVoice } from './question-voice.ts';
 import { UnderEighteenAcknowledgement } from './UnderEighteenAcknowledgement.tsx';
+import { EMPTY_PHONE, type PhoneValue } from './phone-country.ts';
 import '../../components/primitives/primitives.css';
 import './intake.css';
+
+type Phase = 'terms' | IntakeStep;
+
+/**
+ * Where the patient is in the intake and what they have entered, so the route
+ * screen can keep it in page memory (never browser storage) and restore it if
+ * the intake is remounted for the same patient.
+ */
+export interface IntakeSnapshot {
+  phase: Phase;
+  termsAccepted: boolean;
+  draft: PatientContextDraft;
+  phone: PhoneValue;
+}
 
 export interface PatientIntakeProps {
   deploymentLabel: string;
   sessionNotice: { label: string; notice: string };
   onComplete: (context: PatientContext) => void;
   onExit: () => void;
+  /** The same patient's earlier intake state, when the intake is remounted. */
+  snapshot?: IntakeSnapshot;
+  /** Receives the intake state whenever it changes. */
+  onSnapshot?: (snapshot: IntakeSnapshot) => void;
 }
-
-type Phase = 'terms' | IntakeStep;
 
 /** Where focus goes for each unanswered field. */
 const FIELD_TARGET: Record<string, string> = {
@@ -86,6 +103,9 @@ function focusField(key: string) {
  * All of it is React state in this component. RouteScreen mounts it keyed to
  * the patient-session epoch, so a new patient, kiosk inactivity or a restored
  * page discards the terms acceptance and every answer with the component.
+ * Going Back and Continue between the steps keeps every answer, the optional
+ * contact included. RouteScreen may also hold a snapshot in page memory so a
+ * remount for the same patient resumes where they were (see patient-memory.ts).
  * Nothing here is written to browser storage. A persisting deployment sends
  * only the minimal non-identifying clinical replay context after confirmation;
  * name, phone and DOB stay in the patient-session memory.
@@ -97,12 +117,17 @@ function focusField(key: string) {
  * An answer is judged only after the patient tries to continue or leaves it
  * unfinished, so no step opens with its fields marked wrong.
  */
-export function PatientIntake({ deploymentLabel, sessionNotice, onComplete, onExit }: PatientIntakeProps) {
+export function PatientIntake({ deploymentLabel, sessionNotice, onComplete, onExit, snapshot, onSnapshot }: PatientIntakeProps) {
   const reduced = Boolean(useReducedMotion());
-  const [phase, setPhase] = useState<Phase>('terms');
+  const [phase, setPhase] = useState<Phase>(() => snapshot?.phase ?? 'terms');
   const [direction, setDirection] = useState(1);
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [draft, setDraft] = useState<PatientContextDraft>(emptyPatientContext);
+  const [termsAccepted, setTermsAccepted] = useState(() => snapshot?.termsAccepted ?? false);
+  const [draft, setDraft] = useState<PatientContextDraft>(() => snapshot?.draft ?? emptyPatientContext());
+  const [phone, setPhone] = useState<PhoneValue>(() => snapshot?.phone ?? EMPTY_PHONE);
+
+  useEffect(() => {
+    onSnapshot?.({ phase, termsAccepted, draft, phone });
+  }, [onSnapshot, phase, termsAccepted, draft, phone]);
   const [attempted, setAttempted] = useState<Partial<Record<IntakeStep, boolean>>>({});
   const [touched, setTouched] = useState<ReadonlySet<string>>(() => new Set());
   const [announcement, setAnnouncement] = useState('');
@@ -266,6 +291,8 @@ export function PatientIntake({ deploymentLabel, sessionNotice, onComplete, onEx
                             : { ...current, ...update };
                         })}
                       onLeave={markLeft}
+                      phone={phone}
+                      onPhoneChange={setPhone}
                     />
                   </motion.div>
                 </AnimatePresence>

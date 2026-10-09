@@ -383,6 +383,25 @@
   font-weight: var(--font-weight-medium);
 }
 
+/* Referral priority (phase 2): quieter than the urgent notice; it is not an R3 outcome. */
+.handoff__priority {
+  padding: var(--spacing-3) var(--spacing-4);
+  border: 1px solid rgba(110, 190, 220, 0.38);
+  border-left-width: 3px;
+  background: rgba(7, 16, 29, 0.72);
+  color: var(--color-on-surface-canvas);
+}
+
+.handoff__priority-label {
+  display: block;
+  margin-block-end: var(--spacing-1);
+  color: #9bd0e4;
+}
+
+.handoff__priority-text {
+  margin: 0;
+}
+
 .handoff__qualification {
   margin: 0;
   color: #9bb0bd;

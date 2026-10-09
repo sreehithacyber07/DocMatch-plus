@@ -54,6 +54,10 @@ export type DirectionId =
   | 'cardiology'
   | 'respiratory-medicine'
   | 'neurology'
+  | 'dentistry'
+  | 'clinical-immunology-rheumatology'
+  | 'general-surgery'
+  | 'vascular-surgery'
   | 'paediatrics';
 
 /**
@@ -183,6 +187,11 @@ const isUnderFive = (context: RegionAssessmentContext) =>
 const isThroat = (context: RegionAssessmentContext) => context.complaintId === 'throat-concern';
 const MUSCULOSKELETAL_REGION = /(shoulder|arm|elbow|forearm|wrist|hand|hip|thigh|knee|leg|ankle|foot|back)/;
 const isMusculoskeletal = (context: RegionAssessmentContext) => MUSCULOSKELETAL_REGION.test(context.bodyRegionId);
+const ORAL_FACE_REGIONS = new Set<string>(['mouth', 'patient-right-jaw', 'patient-left-jaw', 'chin']);
+const isOral = (context: RegionAssessmentContext) =>
+  context.bodyRegionId === 'face' && ORAL_FACE_REGIONS.has(context.faceSubregionId ?? '');
+const isLowerLimbVascular = (context: RegionAssessmentContext) =>
+  /(thigh|knee|lower-leg|ankle|foot)/.test(context.bodyRegionId) && ['swelling-lump', 'skin-change', 'pain'].includes(context.concernId);
 const isAbdominal = (context: RegionAssessmentContext) =>
   isLowerAbdominal(context) || context.bodyRegionId === 'upper-abdomen';
 
@@ -830,6 +839,459 @@ export const DIRECTION_CRITERIA_SETS: readonly DirectionCriteriaSet[] = [
         optionIds: ['growing'],
         sourceIds: [COVERAGE_SOURCE_IDS.nhsLumps],
         sourceCriterion: 'NHS Lumps: see a GP if your lump gets bigger.',
+      },
+    ],
+    excluding: [
+      {
+        id: 'ortho-not-one-calf-clot',
+        label: 'Throbbing pain and swelling in one calf',
+        questionId: INTAKE_QUESTION_IDS.mskSiteFeatures,
+        optionIds: ['one-calf'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsDvt],
+        sourceCriterion: 'NHS DVT: throbbing pain and swelling in 1 leg needs an urgent GP appointment or 111, not an elective referral; the R3 clot check owns it (phase 3, PENDING CLINICAL REVIEW).',
+      },
+      {
+        /*
+          PENDING CLINICAL REVIEW. Joint pain and swelling in more than one
+          joint without an injury is the pattern NICE NG100 sends to a
+          rheumatology opinion, not a mechanical, orthopaedic one. The
+          distribution question is asked only in the adult weighted joint run.
+        */
+        id: 'ortho-not-polyarticular',
+        label: 'More than one joint affected',
+        questionId: INTAKE_QUESTION_IDS.jointPattern,
+        optionIds: ['several'],
+        sourceIds: [COVERAGE_SOURCE_IDS.niceRheumatoidArthritis],
+        sourceCriterion: 'NICE NG100 1.1.1: refer suspected persistent synovitis for a specialist opinion, urgently if more than one joint is affected.',
+      },
+    ],
+  },
+
+  /* --- Clinical Immunology and Rheumatology (PENDING CLINICAL REVIEW) ----- */
+  {
+    directionId: 'clinical-immunology-rheumatology',
+    appliesWhen: (context) => context.complaintId === 'joint-musculoskeletal-pain',
+    pediatricPolicy: 'adult-only',
+    minimumSupporting: 2,
+    // A swollen joint AND a distribution or stiffness feature: swelling that
+    // persists is not on its own separable from a mechanical joint problem.
+    requiredQuestionIds: ['joint-musculoskeletal-pain-swelling-bruising', INTAKE_QUESTION_IDS.jointPattern],
+    rationale:
+      'NICE NG100 1.1.1 refers any adult with suspected persistent synovitis of undetermined cause for a specialist opinion, urgently when the small joints of the hands or feet or more than one joint are affected, or after 3 months or longer. A kiosk cannot examine for synovitis, so this needs a reported swollen joint that did not follow an injury AND a distribution or stiffness feature that NICE NG100 or NHS Rheumatoid arthritis names; persistence alone does not separate it from a mechanical joint problem. PENDING CLINICAL REVIEW: the registry previously recorded these patterns as not separable at a kiosk.',
+    supporting: [
+      {
+        id: 'rheum-swelling',
+        label: 'A swollen joint',
+        questionId: 'joint-musculoskeletal-pain-swelling-bruising',
+        optionIds: ['yes'],
+        sourceIds: [COVERAGE_SOURCE_IDS.niceRheumatoidArthritis, COVERAGE_SOURCE_IDS.nhsRheumatoidArthritis],
+        sourceCriterion: 'NICE NG100 1.1.1: suspected persistent synovitis; NHS Rheumatoid arthritis: affected joints swell and become hot and tender.',
+      },
+      {
+        id: 'rheum-several-joints',
+        label: 'More than one joint affected',
+        questionId: INTAKE_QUESTION_IDS.jointPattern,
+        optionIds: ['several'],
+        sourceIds: [COVERAGE_SOURCE_IDS.niceRheumatoidArthritis],
+        sourceCriterion: 'NICE NG100 1.1.1: refer urgently if more than one joint is affected.',
+      },
+      {
+        id: 'rheum-small-joints',
+        label: 'The small joints of the hands or feet',
+        questionId: INTAKE_QUESTION_IDS.jointPattern,
+        optionIds: ['small-joints'],
+        sourceIds: [COVERAGE_SOURCE_IDS.niceRheumatoidArthritis, COVERAGE_SOURCE_IDS.nhsRheumatoidArthritis],
+        sourceCriterion: 'NICE NG100 1.1.1: refer urgently if the small joints of the hands or feet are affected.',
+      },
+      {
+        id: 'rheum-both-sides',
+        label: 'The same joints on both sides',
+        questionId: INTAKE_QUESTION_IDS.jointPattern,
+        optionIds: ['both-sides'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsRheumatoidArthritis],
+        sourceCriterion: 'NHS Rheumatoid arthritis: it usually affects joints on both sides of the body.',
+      },
+      {
+        id: 'rheum-morning-stiffness',
+        label: 'Morning stiffness longer than 30 minutes',
+        questionId: INTAKE_QUESTION_IDS.jointPattern,
+        optionIds: ['morning-stiffness'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsRheumatoidArthritis],
+        sourceCriterion: 'NHS Rheumatoid arthritis: morning stiffness usually lasts longer than 30 minutes.',
+      },
+      {
+        id: 'rheum-persistent',
+        label: 'Lasting more than 6 weeks or recurring',
+        questionId: INTAKE_QUESTION_IDS.mskDuration,
+        optionIds: ['over-six-weeks', 'recurring'],
+        sourceIds: [COVERAGE_SOURCE_IDS.niceRheumatoidArthritis],
+        sourceCriterion: 'NICE NG100 1.1.1: persistent synovitis; a delay of 3 months or longer makes the referral urgent. The six-week band is the nearest the kiosk asks (PENDING CLINICAL REVIEW).',
+      },
+    ],
+    excluding: [
+      {
+        id: 'rheum-not-one-calf-clot',
+        label: 'Throbbing pain and swelling in one calf',
+        questionId: INTAKE_QUESTION_IDS.mskSiteFeatures,
+        optionIds: ['one-calf'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsDvt],
+        sourceCriterion: 'NHS DVT: throbbing pain and swelling in 1 leg needs an urgent GP appointment or 111, not an elective referral; the R3 clot check owns it (phase 3, PENDING CLINICAL REVIEW).',
+      },
+      {
+        id: 'rheum-after-injury',
+        label: 'It began after an injury',
+        questionId: 'joint-musculoskeletal-pain-injury',
+        optionIds: ['yes'],
+        sourceIds: [COVERAGE_SOURCE_IDS.niceRheumatoidArthritis],
+        sourceCriterion: 'NICE NG100 1.1.1 is about synovitis of undetermined cause; swelling after an injury has a determined cause.',
+      },
+    ],
+  },
+
+/* --- Vascular Surgery (NICE CG168, PENDING CLINICAL REVIEW) --------------- */
+  {
+    directionId: 'vascular-surgery',
+    appliesWhen: (context) => isLowerLimbVascular(context),
+    pediatricPolicy: 'adult-only',
+    minimumSupporting: 2,
+    rationale: 'NICE CG168 1.2.2 refers symptomatic varicose veins (with troublesome symptoms, typically pain, aching, discomfort, swelling, heaviness and itching) to a vascular service. Both the veins and a symptom are needed. PENDING CLINICAL REVIEW.',
+    supporting: [
+      {
+        id: 'vasc-veins',
+        label: 'Swollen, twisted or bulging veins',
+        questionId: INTAKE_QUESTION_IDS.legVeinFeatures,
+        optionIds: ['bulging'],
+        alternates: [{ questionId: INTAKE_QUESTION_IDS.mskSiteFeatures, optionIds: ['veins'] }],
+        sourceIds: [COVERAGE_SOURCE_IDS.niceVaricoseVeins, COVERAGE_SOURCE_IDS.nhsVaricoseVeins],
+        sourceCriterion: 'NICE CG168 1.2.2: symptomatic primary or recurrent varicose veins.',
+      },
+      {
+        id: 'vasc-symptoms',
+        label: 'Aching, heaviness or itching in the leg',
+        questionId: INTAKE_QUESTION_IDS.legVeinFeatures,
+        optionIds: ['aching-heavy', 'skin-change'],
+        alternates: [{ questionId: INTAKE_QUESTION_IDS.mskSiteFeatures, optionIds: ['heavy-aching'] }],
+        sourceIds: [COVERAGE_SOURCE_IDS.niceVaricoseVeins],
+        sourceCriterion: 'NICE CG168 1.2.2: symptomatic veins come with troublesome lower limb symptoms, typically pain, aching, discomfort, swelling, heaviness and itching.',
+      },
+    ],
+    excluding: [
+      {
+        id: 'vasc-not-one-leg-clot',
+        label: 'Throbbing pain and swelling in one leg',
+        questionId: INTAKE_QUESTION_IDS.legVeinFeatures,
+        optionIds: ['one-leg'],
+        alternates: [{ questionId: INTAKE_QUESTION_IDS.mskSiteFeatures, optionIds: ['one-calf'] }],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsDvt],
+        sourceCriterion: 'NHS DVT: pain and swelling in 1 leg is an urgent GP or 111 matter, not an elective vascular referral; the R3 clot check owns it.',
+      },
+    ],
+  },
+  {
+    directionId: 'vascular-surgery',
+    appliesWhen: (context) => isLowerLimbVascular(context),
+    pediatricPolicy: 'adult-only',
+    minimumSupporting: 2,
+    rationale: 'NICE CG168 1.2.1 refers bleeding varicose veins to a vascular service immediately, and 1.2.2 refers a venous leg ulcer (a break in the skin below the knee not healed within 2 weeks). One answer is never a referral here, so each needs a venous feature beside it (the veins themselves, or aching, heaviness or skin change); a bleeding vein is screened by the urgent R3 check on its own. PENDING CLINICAL REVIEW.',
+    supporting: [
+      {
+        id: 'vasc-bleeding',
+        label: 'A bleeding vein on the leg',
+        questionId: INTAKE_QUESTION_IDS.legVeinFeatures,
+        optionIds: ['bleeding-vein'],
+        sourceIds: [COVERAGE_SOURCE_IDS.niceVaricoseVeins, COVERAGE_SOURCE_IDS.nhsVaricoseVeins],
+        sourceCriterion: 'NICE CG168 1.2.1: refer people with bleeding varicose veins to a vascular service immediately.',
+      },
+      {
+        id: 'vasc-ulcer',
+        label: 'A sore on the leg not healed after 2 weeks',
+        questionId: INTAKE_QUESTION_IDS.legVeinFeatures,
+        optionIds: ['sore'],
+        sourceIds: [COVERAGE_SOURCE_IDS.niceVaricoseVeins, COVERAGE_SOURCE_IDS.nhsVaricoseVeins],
+        sourceCriterion: 'NICE CG168 1.2.2: a venous leg ulcer, a break in the skin below the knee that has not healed within 2 weeks.',
+      },
+      {
+        id: 'vasc-venous-feature',
+        label: 'Visible varicose veins, or aching, heaviness or skin change',
+        questionId: INTAKE_QUESTION_IDS.legVeinFeatures,
+        optionIds: ['bulging', 'aching-heavy', 'skin-change'],
+        alternates: [{ questionId: INTAKE_QUESTION_IDS.mskSiteFeatures, optionIds: ['veins', 'heavy-aching'] }],
+        sourceIds: [COVERAGE_SOURCE_IDS.niceVaricoseVeins, COVERAGE_SOURCE_IDS.nhsVaricoseVeins],
+        sourceCriterion: 'NICE CG168 1.2.2: varicose veins and the lower limb symptoms and skin changes of chronic venous insufficiency.',
+      },
+    ],
+    excluding: [
+      {
+        id: 'vasc-not-one-leg-clot',
+        label: 'Throbbing pain and swelling in one leg',
+        questionId: INTAKE_QUESTION_IDS.legVeinFeatures,
+        optionIds: ['one-leg'],
+        alternates: [{ questionId: INTAKE_QUESTION_IDS.mskSiteFeatures, optionIds: ['one-calf'] }],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsDvt],
+        sourceCriterion: 'NHS DVT: pain and swelling in 1 leg is an urgent GP or 111 matter, not an elective vascular referral; the R3 clot check owns it.',
+      },
+    ],
+  },
+  {
+    directionId: 'vascular-surgery',
+    appliesWhen: (context) => isLowerLimbVascular(context),
+    pediatricPolicy: 'adult-only',
+    minimumSupporting: 2,
+    rationale: 'NICE CG168 1.2.2 refers superficial vein thrombosis (hard, painful veins) with suspected venous incompetence. The hard vein and visible varicose veins are both needed. PENDING CLINICAL REVIEW.',
+    supporting: [
+      {
+        id: 'vasc-hard-vein',
+        label: 'A hard, painful vein',
+        questionId: INTAKE_QUESTION_IDS.legVeinFeatures,
+        optionIds: ['hard-vein'],
+        sourceIds: [COVERAGE_SOURCE_IDS.niceVaricoseVeins],
+        sourceCriterion: 'NICE CG168 1.2.2: superficial vein thrombosis (characterised by the appearance of hard, painful veins) and suspected venous incompetence.',
+      },
+      {
+        id: 'vasc-hard-vein-veins',
+        label: 'Swollen, twisted or bulging veins',
+        questionId: INTAKE_QUESTION_IDS.legVeinFeatures,
+        optionIds: ['bulging'],
+        alternates: [{ questionId: INTAKE_QUESTION_IDS.mskSiteFeatures, optionIds: ['veins'] }],
+        sourceIds: [COVERAGE_SOURCE_IDS.niceVaricoseVeins],
+        sourceCriterion: 'NICE CG168 1.2.2: suspected venous incompetence alongside the hard vein.',
+      },
+    ],
+    excluding: [
+      {
+        id: 'vasc-not-one-leg-clot',
+        label: 'Throbbing pain and swelling in one leg',
+        questionId: INTAKE_QUESTION_IDS.legVeinFeatures,
+        optionIds: ['one-leg'],
+        alternates: [{ questionId: INTAKE_QUESTION_IDS.mskSiteFeatures, optionIds: ['one-calf'] }],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsDvt],
+        sourceCriterion: 'NHS DVT: pain and swelling in 1 leg is an urgent GP or 111 matter, not an elective vascular referral; the R3 clot check owns it.',
+      },
+    ],
+  },
+
+  /* --- General Surgery: hernia (NHS Hernia, PENDING CLINICAL REVIEW) --------- */
+  {
+    directionId: 'general-surgery',
+    appliesWhen: (context) => isAbdominal(context) && context.concernId === 'swelling-lump',
+    // A child's hernia is assessed by Paediatrics first.
+    pediatricPolicy: 'adult-only',
+    minimumSupporting: 2,
+    rationale: 'NHS Hernia describes a lump that gets bigger on coughing or straining and smaller lying down, with tight skin over it or a dragging feeling; a GP refers for treatment, which for a hernia is surgical repair (NHS Inguinal hernia repair). Two of these features are needed. Pain, sickness or a bloated tummy with the lump is the urgent R3 hernia check. PENDING CLINICAL REVIEW.',
+    supporting: [
+      {
+        id: 'gs-hernia-cough',
+        label: 'Bigger on coughing or straining',
+        questionId: INTAKE_QUESTION_IDS.herniaFeatures,
+        optionIds: ['bigger-cough'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsHernia],
+        sourceCriterion: 'NHS Hernia: a lump that may get bigger when you cough, sneeze or cry.',
+      },
+      {
+        id: 'gs-hernia-lying',
+        label: 'Smaller or gone when lying down',
+        questionId: INTAKE_QUESTION_IDS.herniaFeatures,
+        optionIds: ['smaller-lying'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsHernia],
+        sourceCriterion: 'NHS Hernia: a lump that may get smaller when you lie down.',
+      },
+      {
+        id: 'gs-hernia-skin',
+        label: 'Tight, stretched skin over the lump',
+        questionId: INTAKE_QUESTION_IDS.herniaFeatures,
+        optionIds: ['tight-skin'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsHernia],
+        sourceCriterion: 'NHS Hernia: the skin over the lump seeming tight and stretched.',
+      },
+      {
+        id: 'gs-hernia-dragging',
+        label: 'A heavy, dragging feeling',
+        questionId: INTAKE_QUESTION_IDS.herniaFeatures,
+        optionIds: ['dragging'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsHernia],
+        sourceCriterion: 'NHS Hernia: a heavy, dragging feeling.',
+      },
+    ],
+    excluding: [],
+  },
+
+  /* --- General Surgery: breast (NHS Breast lumps, NICE NG12 1.4) ------------- */
+  {
+    directionId: 'general-surgery',
+    appliesWhen: (context) => context.bodyRegionId === 'chest' && context.concernId === 'swelling-lump',
+    pediatricPolicy: 'adult-only',
+    minimumSupporting: 2,
+    rationale: 'NHS Breast lumps sends a lump in the breast or armpit, a nipple turning in, dimpled skin or bloodstained nipple discharge to a GP, who refers to a breast clinic if the cause is unclear; NICE NG12 1.4.1 to 1.4.3 refers these. One answer is never a referral to a narrower service here, so two changes route to General Surgery; a single change goes to General Medicine, as NHS describes, and the NG12 referral priority is added to the handoff either way. PENDING CLINICAL REVIEW.',
+    supporting: [
+      {
+        id: 'gs-breast-lump',
+        label: 'A lump in the breast',
+        questionId: INTAKE_QUESTION_IDS.breastFeatures,
+        optionIds: ['breast-lump'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsBreastLump, COVERAGE_SOURCE_IDS.niceSuspectedCancer],
+        sourceCriterion: 'NHS Breast lumps: see a GP if you notice a lump in your breast; NICE NG12 1.4.1 and 1.4.3.',
+      },
+      {
+        id: 'gs-breast-armpit',
+        label: 'A lump in the armpit',
+        questionId: INTAKE_QUESTION_IDS.breastFeatures,
+        optionIds: ['armpit-lump'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsBreastLump, COVERAGE_SOURCE_IDS.niceSuspectedCancer],
+        sourceCriterion: 'NHS Breast lumps: a lump in your armpit; NICE NG12 1.4.2.',
+      },
+      {
+        id: 'gs-breast-nipple',
+        label: 'A nipple that has turned inwards',
+        questionId: INTAKE_QUESTION_IDS.breastFeatures,
+        optionIds: ['nipple-inward'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsBreastLump, COVERAGE_SOURCE_IDS.niceSuspectedCancer],
+        sourceCriterion: 'NHS Breast lumps: the nipple turning inwards; NICE NG12 1.4.1 (retraction).',
+      },
+      {
+        id: 'gs-breast-skin',
+        label: 'Dimpled skin on the breast',
+        questionId: INTAKE_QUESTION_IDS.breastFeatures,
+        optionIds: ['dimpled'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsBreastLump, COVERAGE_SOURCE_IDS.niceSuspectedCancer],
+        sourceCriterion: 'NHS Breast lumps: dimpled skin; NICE NG12 1.4.2 (skin changes).',
+      },
+      {
+        id: 'gs-breast-discharge',
+        label: 'Discharge from one nipple',
+        questionId: INTAKE_QUESTION_IDS.breastFeatures,
+        optionIds: ['nipple-discharge'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsBreastLump, COVERAGE_SOURCE_IDS.niceSuspectedCancer],
+        sourceCriterion: 'NHS Breast lumps: bloodstained nipple discharge; NICE NG12 1.4.1 (discharge in 1 nipple only).',
+      },
+    ],
+    excluding: [],
+  },
+
+  /* --- Dentistry: an oral lump or patch (NICE NG12 1.8.3) -------------------- */
+  {
+    directionId: 'dentistry',
+    appliesWhen: (context) => isOral(context) && context.concernId === 'mouth-change',
+    pediatricPolicy: 'shared-service',
+    minimumSupporting: 2,
+    requiredQuestionIds: [INTAKE_QUESTION_IDS.mouthDetail],
+    rationale: 'NICE NG12 1.8.3: consider an urgent referral for assessment by a dentist for a lump on the lip or in the oral cavity, or a red or red and white patch. NHS Mouth cancer sends these to a GP or dentist. One answer is never a referral here, so the lesion and how long it has been there (more than a week, or coming back) are both needed; the NG12 priority is added to the handoff either way. PENDING CLINICAL REVIEW.',
+    supporting: [
+      {
+        id: 'dental-oral-patch',
+        label: 'A red or white patch in the mouth',
+        questionId: INTAKE_QUESTION_IDS.mouthDetail,
+        optionIds: ['patch'],
+        sourceIds: [COVERAGE_SOURCE_IDS.niceSuspectedCancer, COVERAGE_SOURCE_IDS.nhsMouthCancer],
+        sourceCriterion: 'NICE NG12 1.8.3: a red or red and white patch in the oral cavity; urgent assessment by a dentist.',
+      },
+      {
+        id: 'dental-oral-lump',
+        label: 'A lump in the mouth or on the lip',
+        questionId: INTAKE_QUESTION_IDS.mouthDetail,
+        optionIds: ['lump'],
+        sourceIds: [COVERAGE_SOURCE_IDS.niceSuspectedCancer, COVERAGE_SOURCE_IDS.nhsMouthCancer],
+        sourceCriterion: 'NICE NG12 1.8.3: a lump on the lip or in the oral cavity; urgent assessment by a dentist.',
+      },
+      {
+        id: 'dental-oral-lesion-lasting',
+        label: 'Present for more than a week, or coming back',
+        questionId: INTAKE_QUESTION_IDS.mouthDuration,
+        optionIds: ['one-to-three-weeks', 'over-three-weeks', 'keeps-returning'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsMouthCancer, COVERAGE_SOURCE_IDS.nhsMouthUlcers],
+        sourceCriterion: 'NHS Mouth cancer and Mouth ulcers: a mouth change that is not going away is seen by a GP or dentist; a lesion present for more than a week is not a passing one.',
+      },
+    ],
+    excluding: [],
+  },
+
+  /* --- Dentistry (PENDING CLINICAL REVIEW) --------------------------------- */
+  {
+    directionId: 'dentistry',
+    appliesWhen: (context, answers) =>
+      (isOral(context) && ['mouth-change', 'bleeding-discharge', 'pain'].includes(context.concernId))
+      // Phase 3 (PENDING CLINICAL REVIEW): a mouth or jaw lump near a tooth, or a facial pain that comes from a tooth.
+      || (isOral(context) && context.concernId === 'swelling-lump' && answerIncludes(answers, INTAKE_QUESTION_IDS.oralSwellingSite, ['tooth-gum']))
+      || (context.complaintId === 'face-general-concern' && context.concernId === 'pain' && answerIncludes(answers, INTAKE_QUESTION_IDS.facePainPattern, ['tooth'])),
+    // NHS Gum disease names children's sore, bleeding gums for the dentist too.
+    pediatricPolicy: 'shared-service',
+    minimumSupporting: 2,
+    requiredQuestionIds: [INTAKE_QUESTION_IDS.toothFeatures],
+    rationale:
+      'NHS Toothache, Dental abscess and Gum disease send tooth and gum problems to a dentist, not a GP surgery, when the pain lasts more than 2 days or does not settle with painkillers, or with pain on biting, hot or cold sensitivity, gum change, a swollen cheek or jaw, a bad taste, a loose tooth or a high temperature. Two of these are required, after the problem has been placed in a tooth or the gum. Swelling around the eye or neck, or a mouth that will not open, is screened first by the R3 dental emergency check.',
+    supporting: [
+      {
+        id: 'dental-lasting',
+        label: 'Tooth or gum pain lasting more than 2 days',
+        // Read from the duration the branch already asked, in its own bands, so it is never asked twice.
+        questionId: INTAKE_QUESTION_IDS.mouthDuration,
+        optionIds: ['one-to-three-weeks', 'over-three-weeks', 'keeps-returning'],
+        alternates: [{ questionId: INTAKE_QUESTION_IDS.duration, optionIds: ['several-days', 'longer'] }],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsToothache],
+        sourceCriterion: 'NHS Toothache: see a dentist if you have toothache that lasts more than 2 days.',
+      },
+      {
+        id: 'dental-painkillers',
+        label: 'Painkillers are not helping',
+        questionId: INTAKE_QUESTION_IDS.toothFeatures,
+        optionIds: ['painkillers'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsToothache],
+        sourceCriterion: 'NHS Toothache: see a dentist if it does not go away when you take painkillers.',
+      },
+      {
+        id: 'dental-bite',
+        label: 'Pain on biting or chewing',
+        questionId: INTAKE_QUESTION_IDS.toothFeatures,
+        optionIds: ['bite'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsToothache],
+        sourceCriterion: 'NHS Toothache: see a dentist if you have pain when you bite.',
+      },
+      {
+        id: 'dental-hot-cold',
+        label: 'Sensitive to hot or cold',
+        questionId: INTAKE_QUESTION_IDS.toothFeatures,
+        optionIds: ['hot-cold'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsDentalAbscess],
+        sourceCriterion: 'NHS Dental abscess lists sensitivity to hot or cold food and drink; ask for an urgent dentist appointment.',
+      },
+      {
+        id: 'dental-gums',
+        label: 'Red, swollen, sore or bleeding gums',
+        questionId: INTAKE_QUESTION_IDS.toothFeatures,
+        optionIds: ['gums'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsToothache, COVERAGE_SOURCE_IDS.nhsGumDisease],
+        sourceCriterion: 'NHS Toothache: red gums; NHS Gum disease: see a dentist if your gums bleed or are painful and swollen.',
+      },
+      {
+        id: 'dental-swelling',
+        label: 'A swollen cheek or jaw',
+        questionId: INTAKE_QUESTION_IDS.toothFeatures,
+        optionIds: ['swelling'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsToothache, COVERAGE_SOURCE_IDS.nhsDentalAbscess],
+        sourceCriterion: 'NHS Toothache: see a dentist if your cheek or jaw is swollen.',
+      },
+      {
+        id: 'dental-taste',
+        label: 'A bad taste in the mouth',
+        questionId: INTAKE_QUESTION_IDS.toothFeatures,
+        optionIds: ['taste'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsToothache, COVERAGE_SOURCE_IDS.nhsDentalAbscess],
+        sourceCriterion: 'NHS Toothache: see a dentist if you have a bad taste in your mouth.',
+      },
+      {
+        id: 'dental-loose',
+        label: 'A loose tooth',
+        questionId: INTAKE_QUESTION_IDS.toothFeatures,
+        optionIds: ['loose'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsGumDisease],
+        sourceCriterion: 'NHS Gum disease: get an urgent dental appointment if teeth become loose.',
+      },
+      {
+        id: 'dental-temperature',
+        label: 'A high temperature with the tooth or gum problem',
+        questionId: INTAKE_QUESTION_IDS.toothFeatures,
+        optionIds: ['temperature'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsToothache, COVERAGE_SOURCE_IDS.nhsDentalAbscess],
+        sourceCriterion: 'NHS Toothache: see a dentist if you have a high temperature with the toothache.',
       },
     ],
     excluding: [],
@@ -1506,6 +1968,12 @@ export interface DirectionAssessment {
   minimumSupporting: number;
   /** Supporting criteria whose question is unanswered and can still be asked in this run. */
   unansweredCriteria: readonly DirectionCriterion[];
+  /**
+   * Excluding criteria whose question is unanswered and can still be asked.
+   * A direction is not concluded while one of these could still point away
+   * from it (evidence sufficiency, PENDING CLINICAL REVIEW).
+   */
+  unansweredExclusions: readonly DirectionCriterion[];
   rationale: string;
   /** The published criteria are satisfied, before any facility question. */
   criteriaMet: boolean;
@@ -1529,6 +1997,14 @@ export interface DirectionGateResult {
   assessments: readonly DirectionAssessment[];
   /** Unanswered question ids that could still change the outcome. */
   openDiscriminatorQuestionIds: readonly string[];
+  /**
+   * For a supported direction: questions still worth asking before it is
+   * concluded. Its own unanswered exclusions, then the unanswered criteria of
+   * any DIFFERENT narrower service that is still reachable. Answering them
+   * either confirms the direction or reveals genuine ambiguity. Empty when
+   * nothing is supported.
+   */
+  differentiationQuestionIds: readonly string[];
   /** Why a parent service would be used right now. Null when a direction is supported. */
   fallbackReason: FallbackReason | null;
 }
@@ -1632,6 +2108,9 @@ function assess(
   const unansweredCriteria = set.supporting.filter(
     (criterion) => criterionUnanswered(criterion, answers) && askable.has(criterion.questionId),
   );
+  const unansweredExclusions = set.excluding.filter(
+    (criterion) => criterionUnanswered(criterion, answers) && askable.has(criterion.questionId),
+  );
   const unansweredQuestions = new Set(unansweredCriteria.map((criterion) => criterion.questionId));
   const required = set.requiredQuestionIds ?? [];
   const requiredMet = required.every((questionId) => satisfiedQuestions.has(questionId));
@@ -1653,6 +2132,7 @@ function assess(
     excluded,
     minimumSupporting: set.minimumSupporting,
     unansweredCriteria,
+    unansweredExclusions,
     rationale: set.rationale,
     criteriaMet,
     supported: criteriaMet && !pediatricBlocked,
@@ -1707,6 +2187,7 @@ export function evaluateDirectionGate(
       assessments: [],
       openDiscriminatorQuestionIds: [],
       fallbackReason: 'NO_VALIDATED_NARROW_ROUTE',
+      differentiationQuestionIds: [],
     };
   }
 
@@ -1723,6 +2204,7 @@ export function evaluateDirectionGate(
       assessments: [],
       openDiscriminatorQuestionIds: [],
       fallbackReason: 'NO_VALIDATED_NARROW_ROUTE',
+      differentiationQuestionIds: [],
     };
   }
 
@@ -1746,12 +2228,27 @@ export function evaluateDirectionGate(
   if (distinctSupported.length === 1) {
     // Prefer the assessment with the most satisfied criteria among sets sharing a direction.
     const best = supportedNarrower.toSorted((left, right) => right.satisfied.length - left.satisfied.length)[0];
+    /*
+      Evidence sufficiency (PENDING CLINICAL REVIEW). The criteria are met,
+      but the direction is not yet differentiated while (a) one of its own
+      exclusions can still be asked, or (b) a DIFFERENT narrower service is
+      still reachable. Those questions are offered first; the interview asks
+      them within its discrimination allowance, then concludes. If the
+      competitor is met too, the result is genuine ambiguity, not a winner.
+    */
+    const exclusions = supportedNarrower
+      .filter((assessment) => assessment.directionId === best.directionId)
+      .flatMap((assessment) => assessment.unansweredExclusions.map((criterion) => criterion.questionId));
+    const competitors = narrower
+      .filter((assessment) => assessment.directionId !== best.directionId && assessment.reachable && !assessment.supported)
+      .flatMap((assessment) => assessment.unansweredCriteria.map((criterion) => criterion.questionId));
     return {
       status: 'supported',
       direction: best,
       assessments,
       openDiscriminatorQuestionIds: openQuestionIds,
       fallbackReason: null,
+      differentiationQuestionIds: [...new Set([...exclusions, ...competitors])],
     };
   }
   if (distinctSupported.length > 1) {
@@ -1761,6 +2258,7 @@ export function evaluateDirectionGate(
       assessments,
       openDiscriminatorQuestionIds: openQuestionIds,
       fallbackReason: 'TRUE_MULTISYSTEM_AMBIGUITY',
+      differentiationQuestionIds: [],
     };
   }
   if (narrowerOpen.length > 0) {
@@ -1770,6 +2268,7 @@ export function evaluateDirectionGate(
       assessments,
       openDiscriminatorQuestionIds: openQuestionIds,
       fallbackReason: null,
+      differentiationQuestionIds: [],
     };
   }
 
@@ -1783,6 +2282,7 @@ export function evaluateDirectionGate(
       assessments,
       openDiscriminatorQuestionIds: [],
       fallbackReason: null,
+      differentiationQuestionIds: [],
     };
   }
   const parentOpen = openFor(parent);
@@ -1793,6 +2293,7 @@ export function evaluateDirectionGate(
       assessments,
       openDiscriminatorQuestionIds: parentOpen,
       fallbackReason: null,
+      differentiationQuestionIds: [],
     };
   }
 
@@ -1808,6 +2309,7 @@ export function evaluateDirectionGate(
       assessments,
       openDiscriminatorQuestionIds: [],
       fallbackReason: 'FACILITY_ROUTE_UNAVAILABLE',
+      differentiationQuestionIds: [],
     };
   }
 
@@ -1818,6 +2320,7 @@ export function evaluateDirectionGate(
     assessments,
     openDiscriminatorQuestionIds: [],
     fallbackReason: anyExcluded ? 'EXCLUDED_BY_COMPETING_PATTERN' : 'INSUFFICIENT_SUPPORTED_EVIDENCE',
+    differentiationQuestionIds: [],
   };
 }
 

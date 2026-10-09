@@ -9,9 +9,9 @@
  * client, so a misconfigured build fails closed instead of shipping a
  * privileged credential to a browser.
  */
-import { isBrowserSafeKey } from '../persistence/config.ts';
+import { isBrowserSafeKey, isDemoBuild, isPreviewBuild } from '../persistence/config.ts';
 
-export type StaffWorkspaceDisabledReason = 'not-configured' | 'unsafe-key';
+export type StaffWorkspaceDisabledReason = 'not-configured' | 'unsafe-key' | 'preview-isolated' | 'demo-mode';
 
 export type StaffConfig =
   | { enabled: true; url: string; publishableKey: string }
@@ -30,7 +30,11 @@ function isHttpsOrLocalUrl(value: string): boolean {
   }
 }
 
-export function resolveStaffConfig(input: { url: unknown; publishableKey: unknown }): StaffConfig {
+export function resolveStaffConfig(input: { url: unknown; publishableKey: unknown; buildTarget?: unknown; demoMode?: unknown }): StaffConfig {
+  // The public demonstration has no clinical workspace at all.
+  if (isDemoBuild(input.demoMode)) return { enabled: false, reason: 'demo-mode' };
+  // A preview build never connects the clinical workspace to the production database.
+  if (isPreviewBuild(input.buildTarget)) return { enabled: false, reason: 'preview-isolated' };
   if (!isNonEmpty(input.url) || !isNonEmpty(input.publishableKey) || !isHttpsOrLocalUrl(input.url)) {
     return { enabled: false, reason: 'not-configured' };
   }

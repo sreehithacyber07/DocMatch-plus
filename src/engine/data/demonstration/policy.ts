@@ -1,6 +1,6 @@
 import { SPECIALTY_IDS, type SpecialtyId } from '../../specialties.ts';
 import type { Belief, EngineConfig } from '../../types.ts';
-import type { ApplicabilityRule, KnowledgeAnswerOption, KnowledgeQuestion, PriorParameter } from '../types.ts';
+import type { ApplicabilityRule, EvidenceDimension, KnowledgeAnswerOption, KnowledgeQuestion, PriorParameter } from '../types.ts';
 import { KNOWLEDGE_VERSION } from '../version.ts';
 import { DEMONSTRATION_POLICY_SOURCE_ID } from './sources.ts';
 
@@ -20,11 +20,33 @@ export const DEMONSTRATION_PRIOR_WEIGHT: Readonly<Record<PriorTier, number>> = {
   baseline: 1,
 };
 
+/*
+  The thresholds are unchanged. What changed is when they may end the
+  interview (PENDING CLINICAL REVIEW, see docs/clinical-expansion):
+
+    - Both thresholds must hold. A margin alone stopped runs whose leader was
+      still under the probability threshold.
+    - The lead must rest on at least three answered findings that are
+      characteristic of it, across at least two clinical dimensions. Two
+      correlated answers (a meal-related and a burning pain) used to end an
+      interview after two questions; published diagnostic criteria combine
+      several features across dimensions (ICHD-3 migraine criteria, for
+      example, need pain characteristics and an associated symptom).
+    - The question limit is the whole approved six-question set, so no
+      approved discriminator is cut off by a count. A lead that never becomes
+      sufficient ends without a convergence and goes to the source-backed
+      criteria and, failing those, a guarded parent service.
+*/
 export const DEMONSTRATION_ENGINE_CONFIG: EngineConfig = {
   posteriorFloor: 0.02,
   topProbabilityThreshold: 0.72,
   marginThreshold: 0.35,
-  maxQuestions: 5,
+  maxQuestions: 6,
+  sufficiency: {
+    requireAllConditions: true,
+    minimumSupportingFindings: 3,
+    minimumIndependentDimensions: 2,
+  },
 };
 
 function beliefFromValues(values: Readonly<Record<SpecialtyId, number>>): Belief {
@@ -63,6 +85,7 @@ interface BinaryQuestionDefinition {
   yesStrengths: Readonly<Record<SpecialtyId, RelationshipStrength>>;
   noStrengths?: Readonly<Record<SpecialtyId, RelationshipStrength>>;
   applicability?: ApplicabilityRule;
+  evidenceDimension?: EvidenceDimension;
 }
 
 export function demonstrationBinaryQuestion(definition: BinaryQuestionDefinition): KnowledgeQuestion {
@@ -103,5 +126,6 @@ export function demonstrationBinaryQuestion(definition: BinaryQuestionDefinition
     applicability: definition.applicability ?? { kind: 'always' },
     provenanceIds: definition.evidenceIds,
     knowledgeVersion: KNOWLEDGE_VERSION,
+    ...(definition.evidenceDimension ? { evidenceDimension: definition.evidenceDimension } : {}),
   };
 }

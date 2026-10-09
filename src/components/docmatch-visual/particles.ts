@@ -7,6 +7,8 @@ export interface Particle {
   size: number;
   depth: number;
   phase: number;
+  /** Precomputed fill, so no colour string is built per particle per frame. */
+  fill: string;
 }
 
 /**
@@ -23,6 +25,9 @@ export function buildParticles(width: number, height: number, scale: number): Pa
     size: 0.45 + ((index * 13) % 8) / 11,
     depth: 0.24 + ((index * 19) % 100) / 130,
     phase: ((index * 23) % 100) / 10,
+  })).map((particle) => ({
+    ...particle,
+    fill: `rgba(${config.rgb}, ${config.baseAlpha + particle.depth * config.depthAlpha})`,
   }));
 }
 
@@ -34,7 +39,7 @@ export function drawParticles(scene: Scene, particles: readonly Particle[]) {
   for (const particle of particles) {
     const x = particle.x * width + Math.sin(time * config.speedX + particle.phase) * config.driftX;
     const y = particle.y * height + Math.cos(time * config.speedY + particle.phase) * config.driftY;
-    ctx.fillStyle = `rgba(${config.rgb}, ${config.baseAlpha + particle.depth * config.depthAlpha})`;
+    ctx.fillStyle = particle.fill;
     ctx.beginPath();
     ctx.arc(x, y, particle.size, 0, Math.PI * 2);
     ctx.fill();

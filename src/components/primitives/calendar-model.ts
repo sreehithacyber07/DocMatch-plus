@@ -50,6 +50,38 @@ export function clampDate(date: CalendarDate, min: CalendarDate, max: CalendarDa
   return date;
 }
 
+/** The years a calendar offers, newest first, from max down to min. */
+export function yearOptions(min: CalendarDate, max: CalendarDate): number[] {
+  const years: number[] = [];
+  for (let year = max.year; year >= min.year; year -= 1) years.push(year);
+  return years;
+}
+
+/** Whether any day of the month falls inside [min, max]. */
+export function monthAvailable(year: number, month: number, min: CalendarDate, max: CalendarDate): boolean {
+  const index = year * 12 + month;
+  return index >= min.year * 12 + min.month && index <= max.year * 12 + max.month;
+}
+
+/**
+ * Where a key moves focus in a chooser laid out as a grid of `columns` over
+ * `count` items. Returns null for keys the chooser does not handle.
+ */
+export function chooserKeyTarget(index: number, key: string, columns: number, count: number, page: number): number | null {
+  const clamp = (value: number) => Math.max(0, Math.min(count - 1, value));
+  switch (key) {
+    case 'ArrowLeft': return clamp(index - 1);
+    case 'ArrowRight': return clamp(index + 1);
+    case 'ArrowUp': return clamp(index - columns);
+    case 'ArrowDown': return clamp(index + columns);
+    case 'PageUp': return clamp(index - page);
+    case 'PageDown': return clamp(index + page);
+    case 'Home': return 0;
+    case 'End': return count - 1;
+    default: return null;
+  }
+}
+
 /** Weeks of the month, Sunday first; days outside the month are null. */
 export function monthGrid(year: number, month: number): (number | null)[][] {
   const lead = new Date(Date.UTC(year, month - 1, 1)).getUTCDay();

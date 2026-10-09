@@ -1,0 +1,49 @@
+/*
+  The research-prototype notice. In the normal flow above the app, so it
+  never overlaps a screen's own header or controls, and above the fixed
+  background field so it is always legible.
+*/
+.demo-banner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.25rem 0.75rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-surface-rail, #07111c);
+  border-bottom: 2px solid var(--color-status-warning, #f2c75c);
+  color: var(--color-on-surface-rail, #f1f6fa);
+  font-family: var(--font-ui, system-ui, sans-serif);
+  text-align: center;
+}
+
+.demo-banner p {
+  margin: 0;
+}
+
+.demo-banner__title {
+  color: var(--color-status-warning, #f2c75c);
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-bold, 700);
+  letter-spacing: 0.01em;
+}
+
+.demo-banner__detail {
+  color: var(--color-on-surface-rail-secondary, #91a6b8);
+  font-size: 0.8125rem;
+}
+
+@media print {
+  .demo-banner {
+    border: 1px solid currentColor;
+    background: none;
+    color: #000;
+  }
+
+  .demo-banner__title,
+  .demo-banner__detail {
+    color: #000;
+  }
+}

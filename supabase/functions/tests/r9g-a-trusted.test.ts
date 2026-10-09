@@ -102,8 +102,10 @@ test('server contract matches the browser persistence contract and frozen versio
   assert.equal(SERVER_NO_MEASUREMENTS_NOTE, NO_MEASUREMENTS_NOTE);
   assert.deepEqual(SERVER_VERSIONS, {
     engineVersion: '1.0.0-r1',
-    knowledgeVersion: '0.2.0-r2b-demonstration',
-    safetyVersion: '0.1.0-r3-safety-demonstration',
+    knowledgeVersion: '0.3.0-r2b-demonstration',
+    // Bumped with the dental spreading-swelling check (PENDING CLINICAL REVIEW).
+    // A Production deploy must redeploy the Edge Functions with the browser.
+    safetyVersion: '0.4.0-r3-safety-demonstration',
   });
 });
 
@@ -220,9 +222,19 @@ function recordInterview(complaintId: string, answers: Readonly<Record<string, s
   return { state, recorder };
 }
 
-test('PARITY: known routing vectors (converged, General Medicine fallback, max-questions stop)', () => {
+test('PARITY: known routing vectors (engine lead, General Medicine fallback, max-questions stop)', () => {
+  /*
+    The retained R9G-A derivation reports a specialty only for a converged,
+    weighted-routable lead. Under the evidence-sufficiency rule (PENDING
+    CLINICAL REVIEW) no demonstration answer pattern converges on a
+    weighted-routable specialty: the joint-injury pattern leads Orthopaedics
+    but is not sufficiently supported on its own, and the one converging
+    headache pattern leads Neurology, which is never weighted-routable. Both
+    sides must still agree exactly; the deployed endpoint uses the shared
+    resolver and its source-backed criteria (clinical-parity.test).
+  */
   const vectors: Array<{ name: string; complaintId: string; answers: Record<string, string>; fallback: 'yes' | 'no' }> = [
-    { name: 'joint injury converges to Orthopaedics', complaintId: 'joint-musculoskeletal-pain', answers: { 'joint-musculoskeletal-pain-injury': 'yes', 'joint-musculoskeletal-pain-swelling-bruising': 'yes', 'joint-musculoskeletal-pain-use-weight': 'yes' }, fallback: 'no' },
+    { name: 'joint injury leads Orthopaedics', complaintId: 'joint-musculoskeletal-pain', answers: { 'joint-musculoskeletal-pain-injury': 'yes', 'joint-musculoskeletal-pain-swelling-bruising': 'yes', 'joint-musculoskeletal-pain-use-weight': 'yes' }, fallback: 'no' },
     { name: 'all-no upper abdominal falls back to General Medicine', complaintId: 'upper-abdominal-pain', answers: {}, fallback: 'no' },
   ];
   for (const complaintId of COMPLAINTS) vectors.push({ name: `${complaintId} all-no`, complaintId, answers: {}, fallback: 'no' });
@@ -251,12 +263,17 @@ test('PARITY: known routing vectors (converged, General Medicine fallback, max-q
     assert.deepEqual(derived.supportingAnswerRecordIds, expectedSupport, vector.name);
   }
   const orthopaedics = recordInterview('joint-musculoskeletal-pain', vectors[0].answers);
-  assert.equal(deriveRoutingResult(serverState('joint-musculoskeletal-pain', orthopaedics.recorder.streams)).selectedSpecialtyRegistryId, 'orthopaedics');
+  const lead = deriveRoutingResult(serverState('joint-musculoskeletal-pain', orthopaedics.recorder.streams));
+  assert.equal(lead.engineTopSpecialtyId, 'orthopedics');
+  assert.equal(lead.converged, false);
+  assert.equal(lead.selectedSpecialtyRegistryId, 'general-medicine');
   const fallback = recordInterview('upper-abdominal-pain', {});
   const fallbackResult = deriveRoutingResult(serverState('upper-abdominal-pain', fallback.recorder.streams));
   assert.equal(fallbackResult.selectedSpecialtyRegistryId, 'general-medicine');
-  assert.equal(fallbackResult.stopReason, 'max_questions');
-  assert.ok(seen.has('converged') && seen.has('fallback') && seen.has('max_questions'), [...seen].join(','));
+  // The question limit is the whole approved set now, so an all-no interview
+  // ends by exhausting its applicable questions rather than by the count.
+  assert.equal(fallbackResult.stopReason, 'question_pool_exhausted');
+  assert.ok(!seen.has('converged') && seen.has('fallback') && (seen.has('max_questions') || seen.has('question_pool_exhausted')), [...seen].join(','));
 });
 
 test('PARITY: 1,200 random interviews with corrections replay bit-for-bit from persisted events', () => {
@@ -302,6 +319,8 @@ test('SAFETY: every R3 rule is independently reached by the server, with the rig
     const complaintId = rule.applicableComplaintIds[0];
     const yes = Object.fromEntries(rule.requiredQuestionIds.map((id) => [id, 'yes']));
     if (rule.id.startsWith('joint-injury')) yes['joint-musculoskeletal-pain-injury'] = 'yes';
+    // The joint clot checks are live only when the painful area is swollen.
+    if (rule.id.startsWith('joint-dvt')) yes['joint-musculoskeletal-pain-swelling-bruising'] = 'yes';
     const { state, recorder } = recordInterview(complaintId, yes);
     const browser = controllerFor(state);
     const server = serverState(complaintId, recorder.streams);
@@ -533,7 +552,9 @@ test('handlers: the store only ever receives server-derived safety and routing v
   const routed = await handleRoutingFinalize(quietStore.store, patient, op);
   assert.deepEqual(routed, { outcome: 'applied', status: 'routing_complete', routingResultId: 'result-1' });
   const args = quietStore.calls.finalize[0];
-  assert.equal(args.selectedSpecialtyRegistryId, 'orthopaedics');
+  // The engine lead is Orthopaedics but not sufficiently supported, so the
+  // retained derivation stores the parent service (PENDING CLINICAL REVIEW).
+  assert.equal(args.selectedSpecialtyRegistryId, 'general-medicine');
   assert.deepEqual(args.belief, quiet.state.session.belief);
   assert.equal(args.supportingAnswerIds.length, quiet.state.session.answers.length);
   assert.ok(args.supportingAnswerIds.every((id) => quiet.recorder.streams.routing.some((row) => row.id === id)));

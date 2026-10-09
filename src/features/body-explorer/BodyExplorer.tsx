@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { bodyRegionById, type BodyRegionId, type BodyView, type NormalizedPoint, type PainLocation } from '../../body/index.ts';
+import {
+  bodyRegionById,
+  type BodyRegionId,
+  type BodySelectionState,
+  type BodyView,
+  type NormalizedPoint,
+  type PainLocation,
+} from '../../body/index.ts';
 import { Pictogram } from '../../components/pictograms';
 import type { PatientContext } from '../intake/patient-context.ts';
 import { AnatomyStage } from './AnatomyStage.tsx';
@@ -19,18 +26,39 @@ import {
 import { RegionSelector } from './RegionSelector.tsx';
 import { LayerSwitcher, ViewControls } from './StageControls.tsx';
 import type { ComplaintSource } from './unmapped-regions.ts';
-import { lateralityLabel, useBodyExplorer } from './useBodyExplorer.ts';
+import { lateralityLabel, useBodyExplorer, type ZoomLevel } from './useBodyExplorer.ts';
 import type { BodyVariantId } from './artwork/hitmap-geometry.ts';
 import type { FaceRegionId } from './faceHitMap.ts';
 import type { RegionAssessmentContext } from './clinical-coverage.ts';
 import { RegionConcernEntry } from './RegionConcernEntry.tsx';
 import './body-explorer.css';
 
+/**
+ * The patient's place on the body map, so the route screen can keep it in page
+ * memory (never browser storage) and restore it if the explorer is remounted
+ * for the same patient. Presentation state only.
+ */
+export interface BodySnapshot {
+  explicitVariant: BodyVariantId | null;
+  variant: BodyVariantId;
+  selection: BodySelectionState;
+  zoom: ZoomLevel;
+  faceSubregionId: FaceRegionId | null;
+  facePrecision: 'general-area' | 'exact-point';
+  facePoint: NormalizedPoint | null;
+  returnView: BodyView;
+  concernEntryOpen: boolean;
+}
+
 export interface BodyExplorerProps {
   presentationVariant: BodyVariantId | null;
   deploymentLabel: string;
   patientContext: PatientContext;
   onNewPatient: () => void;
+  /** The same patient's earlier place on the body map, when remounted. */
+  snapshot?: BodySnapshot;
+  /** Receives the explorer's place whenever it changes. */
+  onSnapshot?: (snapshot: BodySnapshot) => void;
   /**
    * The body never selects a specialty. It resolves a complaint through the
    * frozen bridge, or carries a complaint the patient stated at a region the
@@ -48,8 +76,8 @@ export interface BodyExplorerProps {
   ) => void;
 }
 
-export function BodyExplorer({ presentationVariant, deploymentLabel, patientContext, onNewPatient, onComplaintConfirmed }: BodyExplorerProps) {
-  const [explicitVariant, setExplicitVariant] = useState<BodyVariantId | null>(null);
+export function BodyExplorer({ presentationVariant, deploymentLabel, patientContext, onNewPatient, onComplaintConfirmed, snapshot, onSnapshot }: BodyExplorerProps) {
+  const [explicitVariant, setExplicitVariant] = useState<BodyVariantId | null>(() => snapshot?.explicitVariant ?? null);
   const chosenVariant = presentationVariant ?? explicitVariant;
   if (!chosenVariant) {
     return (
@@ -68,20 +96,45 @@ export function BodyExplorer({ presentationVariant, deploymentLabel, patientCont
       </div>
     );
   }
-  return <BodyExplorerStage key={chosenVariant} variant={chosenVariant} deploymentLabel={deploymentLabel} patientContext={patientContext} onNewPatient={onNewPatient} onComplaintConfirmed={onComplaintConfirmed} />;
+  return (
+    <BodyExplorerStage
+      key={chosenVariant}
+      variant={chosenVariant}
+      deploymentLabel={deploymentLabel}
+      patientContext={patientContext}
+      onNewPatient={onNewPatient}
+      onComplaintConfirmed={onComplaintConfirmed}
+      explicitVariant={explicitVariant}
+      snapshot={snapshot?.variant === chosenVariant ? snapshot : undefined}
+      onSnapshot={onSnapshot}
+    />
+  );
 }
 
-function BodyExplorerStage({ variant, deploymentLabel, patientContext, onNewPatient, onComplaintConfirmed }: Omit<BodyExplorerProps, 'presentationVariant'> & { variant: BodyVariantId }) {
-  const explorer = useBodyExplorer(variant);
-  const { selection, selectedRegion } = explorer;
-  const [faceSubregionId, setFaceSubregionId] = useState<FaceRegionId | null>(null);
+function BodyExplorerStage({
+  variant,
+  deploymentLabel,
+  patientContext,
+  onNewPatient,
+  onComplaintConfirmed,
+  explicitVariant,
+  snapshot,
+  onSnapshot,
+}: Omit<BodyExplorerProps, 'presentationVariant'> & { variant: BodyVariantId; explicitVariant: BodyVariantId | null }) {
+  const explorer = useBodyExplorer(variant, snapshot);
+  const { selection, selectedRegion, zoom } = explorer;
+  const [faceSubregionId, setFaceSubregionId] = useState<FaceRegionId | null>(() => snapshot?.faceSubregionId ?? null);
   const [hoveredFaceSubregionId, setHoveredFaceSubregionId] = useState<FaceRegionId | null>(null);
-  const [facePrecision, setFacePrecision] = useState<'general-area' | 'exact-point'>('general-area');
-  const [facePoint, setFacePoint] = useState<NormalizedPoint | null>(null);
-  const [returnView, setReturnView] = useState<BodyView>('front');
-  const [concernEntryOpen, setConcernEntryOpen] = useState(false);
+  const [facePrecision, setFacePrecision] = useState<'general-area' | 'exact-point'>(() => snapshot?.facePrecision ?? 'general-area');
+  const [facePoint, setFacePoint] = useState<NormalizedPoint | null>(() => snapshot?.facePoint ?? null);
+  const [returnView, setReturnView] = useState<BodyView>(() => snapshot?.returnView ?? 'front');
+  const [concernEntryOpen, setConcernEntryOpen] = useState(() => snapshot?.concernEntryOpen ?? false);
   const transitionTimer = useRef<number | null>(null);
   const isFace = selection.selectedRegionId === 'face';
+
+  useEffect(() => {
+    onSnapshot?.({ explicitVariant, variant, selection, zoom, faceSubregionId, facePrecision, facePoint, returnView, concernEntryOpen });
+  }, [onSnapshot, explicitVariant, variant, selection, zoom, faceSubregionId, facePrecision, facePoint, returnView, concernEntryOpen]);
 
   useEffect(() => () => {
     if (transitionTimer.current !== null) window.clearTimeout(transitionTimer.current);

@@ -765,27 +765,144 @@
   cursor: not-allowed;
 }
 
-.dm-calendar__select {
+/*
+  Month and year choosers. These are DocMatch+ buttons and listboxes, not
+  native selects: a native select opens a browser- or OS-drawn menu that CSS
+  cannot reliably theme, which showed as a white year list on several
+  platforms. Everything below stays on the navy surface with a restrained cyan
+  edge for focus and the chosen option.
+*/
+.dm-calendar__pick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-1);
   min-width: 0;
   height: 40px;
-  padding: 0 var(--spacing-2);
-  border: 1px solid var(--color-border-structural);
+  padding: 0 var(--spacing-2) 0 var(--spacing-3);
+  border: 1px solid rgba(110, 160, 190, 0.38);
   border-radius: var(--radius-sm);
-  background: var(--control-surface);
-  color: var(--color-on-surface-plane);
+  background: linear-gradient(180deg, #04101d, #020713);
+  color: #eef8fa;
   font-family: var(--font-ui);
   font-size: var(--text-label);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
   cursor: pointer;
 }
 
-.dm-calendar__select:hover {
-  border-color: var(--edge-luminous);
+.dm-calendar__pick span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dm-calendar__pick svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.75;
+  transition: transform var(--motion-duration-control, 120ms) ease;
+}
+
+.dm-calendar__pick:hover,
+.dm-calendar__pick[aria-expanded='true'] {
+  border-color: #77d8e9;
+  background: #071628;
+}
+
+.dm-calendar__pick[aria-expanded='true'] svg {
+  transform: rotate(180deg);
 }
 
 .dm-calendar__nav:focus-visible,
-.dm-calendar__select:focus-visible {
+.dm-calendar__pick:focus-visible {
   outline: var(--focus-ring-width) solid var(--color-focus-ring);
   outline-offset: 1px;
+}
+
+/* The day grid keeps its size while a chooser covers it, so the popover never
+   grows, moves or runs off a small screen when a chooser opens. */
+.dm-calendar__body {
+  position: relative;
+}
+
+.dm-calendar__grid[data-covered] {
+  visibility: hidden;
+}
+
+.dm-calendar__chooser {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  padding: 2px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(180deg, #04101d, #020713);
+  color: #e7f3f7;
+  scrollbar-color: rgba(121, 170, 193, 0.5) transparent;
+  scrollbar-width: thin;
+  scroll-padding-block: 8px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.dm-calendar__chooser--years {
+  grid-template-columns: repeat(auto-fill, minmax(4.1rem, 1fr));
+}
+
+.dm-calendar__chooser--months {
+  grid-template-columns: repeat(auto-fill, minmax(4.6rem, 1fr));
+  grid-auto-rows: minmax(44px, 1fr);
+  align-content: stretch;
+}
+
+.dm-calendar__option {
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 var(--spacing-1);
+  border: 1px solid rgba(110, 160, 190, 0.2);
+  border-radius: 0.45rem;
+  background: #04101d;
+  color: #e7f3f7;
+  font-family: var(--font-ui);
+  font-size: var(--text-label);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.dm-calendar__option:hover:not([aria-disabled='true']) {
+  border-color: rgba(119, 216, 233, 0.6);
+  background: #071628;
+}
+
+.dm-calendar__option[data-current]:not([aria-selected='true']) {
+  border-color: rgba(121, 170, 193, 0.48);
+}
+
+/* Chosen, not filled: the same thin cyan edge the selected day uses. */
+.dm-calendar__option[aria-selected='true'] {
+  border-color: #82e2f1;
+  background: linear-gradient(180deg, #071628, #020713);
+  color: #fff;
+  font-weight: var(--font-weight-semibold);
+  box-shadow: inset 0 0 0 1px rgba(144, 232, 245, 0.16), 0 0 11px rgba(79, 200, 224, 0.12);
+}
+
+.dm-calendar__option[aria-disabled='true'] {
+  color: #708d9b;
+  cursor: not-allowed;
+}
+
+.dm-calendar__option:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: -1px;
 }
 
 .dm-calendar__grid {

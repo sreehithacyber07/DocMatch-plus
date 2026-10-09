@@ -98,8 +98,14 @@ test('rule, safety-question, payload, and source ids are unique', () => {
   // new branch: palpitations (NHS), rapidly progressive weakness (NICE NG127)
   // and the back 999 features (NHS Back pain, Sciatica; NICE NG127). The final
   // upper-abdomen injury branch adds one exact broken-rib/serious-accident stop.
-  assert.equal(R3_RED_FLAG_RULES.length, 49);
-  assert.equal(R3_SAFETY_QUESTIONS.length, 52);
+  // 50: the dental spreading-swelling check (questionnaire intelligence pass, PENDING CLINICAL REVIEW).
+  // 58: phase 2 added the DVT (urgent and emergency), hernia, giant cell
+  // arteritis, back, cellulitis (urgent and emergency) and bleeding varicose
+  // vein checks (questionnaire expansion phase 2, PENDING CLINICAL REVIEW).
+  // Phase 3 (PENDING CLINICAL REVIEW): +3 joint-specific clot and back checks,
+  // +5 head, face, nose and neck injury checks.
+  assert.equal(R3_RED_FLAG_RULES.length, 58 + 3 + 5);
+  assert.equal(R3_SAFETY_QUESTIONS.length, 61 + 3 + 5);
 });
 
 test('all enabled rules, questions, and payloads resolve authoritative provenance', () => {
@@ -130,7 +136,7 @@ test('routing safety references resolve without duplicating R2 question content'
 
 test('all safety-owned questions use explicit deterministic Yes and No options', () => {
   const owned = R3_SAFETY_QUESTIONS.filter((question) => question.kind === 'safety_owned');
-  assert.equal(owned.length, 48);
+  assert.equal(owned.length, 65);
   for (const question of owned) assert.deepEqual(question.options.map((option) => option.id), ['yes', 'no']);
 });
 
@@ -157,7 +163,11 @@ test('safety priority is severity, dependency rank, then stable id', () => {
     'joint-musculoskeletal-pain-injury',
     'safety-joint-injury-severe-or-displaced',
     'safety-joint-injury-sensation-circulation',
+    // Phase 3 joint-specific screens (PENDING CLINICAL REVIEW); each depends on an earlier answer.
+    'safety-joint-dvt-one-leg',
+    'safety-joint-dvt-breathless',
     'safety-joint-sudden-hot-swollen',
+    'safety-joint-back-urgent',
   ]);
 });
 
@@ -407,6 +417,7 @@ test('controller evaluation is deterministic and does not mutate inputs', () => 
       id: question.id,
       text: question.text,
       options: structuredClone(question.options),
+      ...(question.evidenceDimension ? { evidenceDimension: question.evidenceDimension } : {}),
       appliesWhen: question.appliesWhen,
     })),
   };
@@ -438,8 +449,9 @@ test('all required safety regressions are deterministic and reach expected outco
 
 test('versions remain independent and frozen R1/R2 values are unchanged', () => {
   assert.equal(ENGINE_VERSION, '1.0.0-r1');
-  assert.equal(KNOWLEDGE_VERSION, '0.2.0-r2b-demonstration');
-  assert.equal(SAFETY_VERSION, '0.1.0-r3-safety-demonstration');
+  assert.equal(KNOWLEDGE_VERSION, '0.3.0-r2b-demonstration');
+  // Bumped with the dental spreading-swelling check (questionnaire intelligence pass, PENDING CLINICAL REVIEW).
+  assert.equal(SAFETY_VERSION, '0.4.0-r3-safety-demonstration');
   assert.notEqual(SAFETY_VERSION, ENGINE_VERSION);
   assert.notEqual(SAFETY_VERSION, KNOWLEDGE_VERSION);
 });

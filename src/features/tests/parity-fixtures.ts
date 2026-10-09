@@ -338,6 +338,9 @@ export const TRACES: readonly NamedTrace[] = [
       'shortness-of-breath-palpitations': 'no',
       'shortness-of-breath-lying-flat': 'yes',
       'shortness-of-breath-wheeze': 'no',
+      // Respiratory Medicine is asked before Cardiology is concluded (differentiation).
+      'intake-breathing-infections': 'no',
+      'intake-breathing-phlegm': 'no',
     },
   },
   {
@@ -451,7 +454,11 @@ export const BASE_EXPECTED: Readonly<Record<string, { status: 'route' | 'hard-st
   '10-adult-ear': { status: 'route', specialtyId: 'otorhinolaryngology', routeType: 'direction-gate' },
   '11-adult-nose-persistent-one-sided': { status: 'route', specialtyId: 'otorhinolaryngology', routeType: 'direction-gate' },
   '12-adult-eye': { status: 'route', specialtyId: 'ophthalmology', routeType: 'direction-gate' },
-  '13-adult-stomach': { status: 'route', specialtyId: 'medical-gastroenterology', routeType: 'weighted-demonstration' },
+  // A first episode (intake-upper-gi-frequency: first). It used to reach
+  // Gastroenterology by the engine's margin rule alone, contradicting the
+  // published criteria the gate encodes ("a first or occasional episode never
+  // reaches Gastroenterology"). PENDING CLINICAL REVIEW: docs/clinical-expansion.
+  '13-adult-stomach': { status: 'route', specialtyId: 'general-medicine', routeType: 'parent-fallback' },
   '14-urgent-continues': { status: 'route', specialtyId: 'otorhinolaryngology', routeType: 'direction-gate', urgency: 'urgent' },
   '15-hard-stop': { status: 'hard-stop' },
   '16-adult-constipation-recent': { status: 'route', specialtyId: 'general-medicine', routeType: 'parent-fallback' },
@@ -865,7 +872,8 @@ export const RECONCILIATION_TRACES: readonly (NamedTrace & { expect: { surface: 
     title: 'T1. Adult knee, pain (the weighted joint pain interview)',
     spec: { region: 'left-knee', concern: 'pain', age: 34, sex: 'male' },
     ui: { dob: '15/01/1992', sex: 'Male', region: 'Left knee', concern: 'Pain or discomfort' },
-    script: { 'intake-history-symptom-character': 'aching', 'intake-msk-duration': 'over-six-weeks', 'joint-musculoskeletal-pain-use-weight': 'yes' },
+    // A single joint: the distribution question is asked before Orthopaedics is concluded.
+    script: { 'intake-history-symptom-character': 'aching', 'intake-msk-duration': 'over-six-weeks', 'joint-musculoskeletal-pain-use-weight': 'yes', 'intake-joint-pattern': 'none' },
     expect: { surface: 'result', specialtyId: 'orthopaedics' },
   },
   {

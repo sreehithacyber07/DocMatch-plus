@@ -39,7 +39,7 @@ import {
   type StopCondition,
 } from './discrimination.ts';
 import { didConverge } from './handoff-presentation.ts';
-import { intakePlanFor, questionIsEligible, type IntakeAnswer } from './intake-questions.ts';
+import { clarifiedContext, intakePlanFor, questionIsEligible, type IntakeAnswer } from './intake-questions.ts';
 import {
   GENERAL_MEDICINE,
   isWeightedRoutable,
@@ -145,7 +145,8 @@ export function resolveRouteOutcome(input: RouteOutcomeInput): RouteOutcome {
 
   /* 1. The calibrated path, when it converged on an enabled, presentable route. */
   const engineRecord = specialtyForEngineId(input.engineSpecialtyId);
-  const eligibility = eligibleRouteDirections(input.clinicalContext, input.complaintId);
+  // A clarified "Something else" is presented as the family it was clarified to (phase 2).
+  const eligibility = eligibleRouteDirections(input.clinicalContext ? clarifiedContext(input.clinicalContext, input.intakeAnswers) : input.clinicalContext, input.complaintId);
 
   if (weightedRouteSelected(input)) {
     return {

@@ -1,4 +1,12 @@
-import { getCountries, getCountryCallingCode } from 'libphonenumber-js/min';
+import { getCountries, getCountryCallingCode, type CountryCode } from 'libphonenumber-js/min';
+
+/** The optional contact as typed: a calling-code country and the digits. */
+export interface PhoneValue {
+  country: CountryCode;
+  number: string;
+}
+
+export const EMPTY_PHONE: PhoneValue = { country: 'IN', number: '' };
 
 const names = new Intl.DisplayNames(['en'], { type: 'region' });
 

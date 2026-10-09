@@ -18,6 +18,7 @@ import { SoapDocument } from './SoapDocument.tsx';
 import './result-visuals.css';
 import { summarizePatientContext, type PatientContext } from '../intake/patient-context.ts';
 import type { UrgentReviewState } from '../../engine/safety/index.ts';
+import { PATIENT_PRIORITY_TEXT, type ReferralPriorityNote } from './referral-priority.ts';
 
 export interface RoutingResultProps {
   specialtyId: SpecialtyId;
@@ -46,6 +47,8 @@ export interface RoutingResultProps {
    */
   routeOutcome: RouteOutcome;
   urgentReview?: UrgentReviewState;
+  /** Referral priority notes from the answers (PENDING CLINICAL REVIEW). Display and handoff only. */
+  referralNotes?: readonly ReferralPriorityNote[];
 }
 
 /**
@@ -83,6 +86,7 @@ export function RoutingResult({
   patientContext = null,
   routeOutcome,
   urgentReview,
+  referralNotes = [],
 }: RoutingResultProps) {
   const preference = Boolean(useReducedMotion());
   const reduced = reduceMotion || preference;
@@ -125,6 +129,8 @@ export function RoutingResult({
     converged,
     directionLabel: direction,
     urgentReview: Boolean(urgentReview),
+    referralPriority: referralNotes.map((note) => note.clinicianText),
+    route: routeOutcome,
   });
 
   /* The collapsed handoff has to be useful closed: the concern and the first
@@ -174,6 +180,13 @@ export function RoutingResult({
                 <span className="handoff__urgent-review-guidance">{urgentReview.payload.guidance}</span>
               </p>
             </div>
+          </motion.aside>
+        ) : null}
+
+        {referralNotes.length > 0 ? (
+          <motion.aside className="handoff__priority" aria-label="Referral priority" {...fadeLift(reduced, 0.09)}>
+            <span className="type-label handoff__priority-label">Referral priority</span>
+            <p className="type-body-small handoff__priority-text">{PATIENT_PRIORITY_TEXT}</p>
           </motion.aside>
         ) : null}
 

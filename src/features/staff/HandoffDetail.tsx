@@ -112,8 +112,9 @@ export function HandoffDetail({ detail, acknowledging, onAcknowledge, notice }: 
                 <section className="staff-soap__section" key={key}>
                   <h4 className="type-label staff-soap__title">{SOAP_TITLE[key]}</h4>
                   <dl className="staff-answers">
-                    {detail.soap?.[key].map((line) => (
-                      <div className="staff-answers__row" key={`${key}-${line.label}`}>
+                    {detail.soap?.[key].map((line, index) => (
+                      // A label can repeat (two referral priority notes, two partly met sets).
+                      <div className="staff-answers__row" key={`${key}-${index}-${line.label}`}>
                         <dt className="type-caption">{line.label}</dt>
                         <dd className="type-body-small">{line.value}</dd>
                       </div>

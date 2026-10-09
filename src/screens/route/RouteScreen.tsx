@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { BodyVariantId } from '../../features/body-explorer/artwork/hitmap-geometry.ts';
 import { useNavigate } from 'react-router-dom';
-import { BodyExplorer } from '../../features/body-explorer/BodyExplorer.tsx';
-import type { ComplaintSource } from '../../features/body-explorer/unmapped-regions.ts';
-import { RoutingFlow, type RoutingSurface } from '../../features/routing-flow/RoutingFlow.tsx';
+import { BodyExplorer, type BodySnapshot } from '../../features/body-explorer/BodyExplorer.tsx';
+import { RoutingFlow, type RoutingSnapshot, type RoutingSurface } from '../../features/routing-flow/RoutingFlow.tsx';
 import { DocMatchEnvironment } from '../../components/docmatch-visual/DocMatchEnvironment.tsx';
 import type { EnvironmentIntensity } from '../../components/docmatch-visual/config.ts';
-import { bodyRegionById, type BodyView, type PainLocation } from '../../body/index.ts';
+import { bodyRegionById, type PainLocation } from '../../body/index.ts';
 import { lateralityLabel } from '../../features/body-explorer/laterality.ts';
 import { KioskPrivacyBoundary } from '../../features/trust/KioskPrivacyBoundary.tsx';
 import { DEPLOYMENT_MODE, DEPLOYMENT_PROFILE, KIOSK_IDLE_POLICY } from '../../features/trust/runtime-config.ts';
@@ -22,24 +21,19 @@ import {
   checkCareTeamOnTablet,
   createRuntimePersistence,
 } from '../../features/persistence/runtime.ts';
-import { usePatientPersistence, usePersistenceSnapshot } from '../../features/persistence/usePatientPersistence.ts';
+import {
+  usePatientPersistence,
+  usePersistenceSnapshot,
+  type PersistenceRetention,
+} from '../../features/persistence/usePatientPersistence.ts';
+import type { AssessmentPersistence } from '../../features/persistence/assessment-persistence.ts';
 import { useCareTeamGate } from '../../features/persistence/useCareTeamGate.ts';
 import { CareTeamGate } from './CareTeamGate.tsx';
-import { PatientIntake } from '../../features/intake/PatientIntake.tsx';
+import { PatientIntake, type IntakeSnapshot } from '../../features/intake/PatientIntake.tsx';
 import type { PatientContext } from '../../features/intake/patient-context.ts';
 import { resolveArtwork } from '../../features/body-explorer/artwork/registry.ts';
 import { SESSION_NOTICE } from '../../features/persistence/runtime.ts';
-import type { RegionAssessmentContext } from '../../features/body-explorer/clinical-coverage.ts';
-
-interface Confirmed {
-  complaintId: string;
-  painLocation: PainLocation | null;
-  source: ComplaintSource;
-  view: BodyView;
-  clinicalContext: RegionAssessmentContext;
-  /** When the patient confirmed the concern; the location was fixed at that moment. */
-  confirmedAt: string;
-}
+import { routeMemory, type Confirmed } from './route-memory.ts';
 
 function describeLocation(painLocation: PainLocation | null): string | null {
   if (!painLocation) return null;
@@ -51,11 +45,34 @@ function describeLocation(painLocation: PainLocation | null): string | null {
 }
 
 export function RouteScreen() {
-  const [patientSession, setPatientSession] = useState(() => createPatientSessionBoundary<Confirmed>());
+  /*
+    Page-memory resume. If this patient left /route a moment ago (a browser
+    Back, or Back from the terms to the introduction) and this is a
+    web/self-service build, their screens come back exactly as they were. The
+    memory is JavaScript only, never browser storage; a refresh, New Patient,
+    kiosk inactivity or a restored page clears it. See route-memory.ts.
+  */
+  const [resumed] = useState(() => {
+    const { epoch } = routeMemory.resume();
+    return { epoch, route: routeMemory.read(epoch, 'route') };
+  });
+  const [patientSession, setPatientSession] = useState(
+    () => resumed.route?.patientSession ?? { ...createPatientSessionBoundary<Confirmed>(), epoch: resumed.epoch },
+  );
   const confirmed = patientSession.patient;
+  const epoch = patientSession.epoch;
 
+  useEffect(() => {
+    routeMemory.attach();
+    return () => routeMemory.leave();
+  }, []);
+
+  // The memory moves to the next epoch before React commits the reset, so
+  // nothing that belonged to the previous patient can be written back or kept.
   const clearPatientSession = useCallback((reason: PatientResetReason) => {
-    setPatientSession((current) => resetPatientSession(current, reason));
+    const next = routeMemory.epoch() + 1;
+    routeMemory.reset(next);
+    setPatientSession((current) => ({ ...resetPatientSession(current, reason), epoch: next }));
   }, []);
 
   const confirmConcern = useCallback((next: Confirmed) => {
@@ -68,7 +85,7 @@ export function RouteScreen() {
   // React state only and is never handed to persistence. Age selects the adult
   // or pediatric questionnaire family; the retained background fields remain
   // display-only and never alter specialty likelihoods.
-  const [intake, setIntake] = useState<{ epoch: number; context: PatientContext } | null>(null);
+  const [intake, setIntake] = useState<{ epoch: number; context: PatientContext } | null>(() => resumed.route?.intake ?? null);
   const patientContext = intake?.epoch === patientSession.epoch ? intake.context : null;
   const presentationVariant = patientContext?.sexForAssessment === 'female' ? 'female'
     : patientContext?.sexForAssessment === 'male' ? 'male' : null;
@@ -76,17 +93,29 @@ export function RouteScreen() {
   // Presentation only: which routing surface is showing, for the environment.
   const [surface, setSurface] = useState<RoutingSurface>('interview');
   // The artwork shown on the body map, for the associated location step. Presentation only.
-  const [artworkVariant, setArtworkVariant] = useState<BodyVariantId | null>(null);
+  const [artworkVariant, setArtworkVariant] = useState<BodyVariantId | null>(() => resumed.route?.artworkVariant ?? null);
 
   // Changing the location is the same patient starting the body map again, so
-  // their context moves into the next epoch with them. New Patient, inactivity
-  // and a restored page do not do this: they leave it behind.
+  // their context moves into the next epoch with them. The body map starts
+  // afresh and the answers, which belonged to the previous concern, do not
+  // carry. New Patient, inactivity and a restored page carry nothing: they
+  // leave the patient behind.
   const changeLocation = useCallback(() => {
-    setIntake((current) =>
-      current && current.epoch === patientSession.epoch ? { ...current, epoch: current.epoch + 1 } : null,
-    );
-    clearPatientSession('manual');
-  }, [clearPatientSession, patientSession.epoch]);
+    const next = routeMemory.epoch() + 1;
+    const carriedIntake = intake && intake.epoch === epoch ? { ...intake, epoch: next } : null;
+    routeMemory.reset(next);
+    setIntake(carriedIntake);
+    setPatientSession((current) => ({ ...resetPatientSession(current, 'manual'), epoch: next }));
+  }, [epoch, intake]);
+
+  // Each screen reports its state to the page memory, tagged with the epoch
+  // that produced it; a stale epoch's write is ignored.
+  useEffect(() => {
+    routeMemory.write(epoch, 'route', { patientSession, intake, artworkVariant });
+  }, [epoch, patientSession, intake, artworkVariant]);
+  const rememberIntake = useCallback((snapshot: IntakeSnapshot) => routeMemory.write(epoch, 'intake', snapshot), [epoch]);
+  const rememberBody = useCallback((snapshot: BodySnapshot) => routeMemory.write(epoch, 'body', snapshot), [epoch]);
+  const rememberRouting = useCallback((snapshot: RoutingSnapshot) => routeMemory.write(epoch, 'routing', snapshot), [epoch]);
 
   // Moving between the body and the interview replaces the whole surface, so
   // the viewport returns to the top rather than keeping the previous offset.
@@ -133,7 +162,21 @@ export function RouteScreen() {
         : null,
     };
   }, [confirmed]);
-  const persistence = usePatientPersistence(assessmentStart, createRuntimePersistence);
+  // While this patient is away from /route, their backend session is held
+  // rather than ended, so returning continues the same assessment. Any reset
+  // ends it (routeMemory disposes a session for a stale epoch).
+  const retentionKey = confirmed?.confirmedAt ?? null;
+  const persistenceRetention = useMemo<PersistenceRetention | null>(
+    () =>
+      retentionKey
+        ? {
+            take: () => routeMemory.unpark<AssessmentPersistence>(epoch, retentionKey),
+            release: (session) => routeMemory.park(epoch, retentionKey, session),
+          }
+        : null,
+    [epoch, retentionKey],
+  );
+  const persistence = usePatientPersistence(assessmentStart, createRuntimePersistence, persistenceRetention);
   const persistenceState = usePersistenceSnapshot(persistence).state;
   // R9G-B staffed tablet: each patient is admitted through the care-team
   // session on this tablet, so a patient begins only while one is signed in.
@@ -158,6 +201,8 @@ export function RouteScreen() {
           key={`intake-${patientSession.epoch}`}
           deploymentLabel={DEPLOYMENT_PROFILE.label}
           sessionNotice={SESSION_NOTICE}
+          snapshot={routeMemory.read(epoch, 'intake')}
+          onSnapshot={rememberIntake}
           onComplete={async (context) => {
             const variant = context.sexForAssessment === 'female' ? 'female'
               : context.sexForAssessment === 'male' ? 'male' : null;
@@ -184,6 +229,8 @@ export function RouteScreen() {
           presentationVariant={presentationVariant}
           deploymentLabel={DEPLOYMENT_PROFILE.label}
           patientContext={patientContext}
+          snapshot={routeMemory.read(epoch, 'body')}
+          onSnapshot={rememberBody}
           onNewPatient={() => clearPatientSession('manual')}
           onComplaintConfirmed={(complaintId, painLocation, source, view, clinicalContext, variantId) => {
             setArtworkVariant(variantId);
@@ -222,6 +269,8 @@ export function RouteScreen() {
         clinicalContext={confirmed.clinicalContext}
         bodyVariant={artworkVariant ?? presentationVariant}
         onSurfaceChange={setSurface}
+        snapshot={routeMemory.read(epoch, 'routing')}
+        onSnapshot={rememberRouting}
       />
     </main>
   );

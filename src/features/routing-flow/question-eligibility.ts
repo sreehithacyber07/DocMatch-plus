@@ -19,7 +19,7 @@
  */
 import type { RegionAssessmentContext, RegionConcernId } from '../body-explorer/clinical-coverage.ts';
 import { DIRECTION_CRITERIA_SETS } from './direction-gate.ts';
-import { INTAKE_QUESTION_IDS as Q } from './intake-questions.ts';
+import { INTAKE_QUESTION_IDS as Q, otherClarifierFamilies } from './intake-questions.ts';
 
 type Area =
   | 'any' | 'head' | 'neck' | 'chest' | 'upper-abdomen' | 'abdomen' | 'lower-abdomen' | 'limb' | 'lower-back'
@@ -166,13 +166,33 @@ export const CONCEPT_SCOPE: Readonly<Record<string, ConceptScope>> = {
   [Q.neurologicCourse]: scope(['any'], ['numbness-tingling', 'weakness-drooping']),
   [Q.neurologicWaking]: scope(['any'], ['numbness-tingling']),
   [Q.injuryDetail]: scope(['any'], ['injury']),
-  [Q.abdomenInjuryTiming]: scope(['upper-abdomen'], ['injury', 'other']),
-  [Q.abdomenInjuryMovement]: scope(['upper-abdomen'], ['injury', 'other']),
-  [Q.abdomenInjuryFeatures]: scope(['upper-abdomen'], ['injury', 'other']),
-  [Q.otherClarifier]: scope(['upper-abdomen'], ['other']),
+  [Q.abdomenInjuryTiming]: scope(['upper-abdomen', 'chest'], ['injury', 'other']),
+  [Q.abdomenInjuryMovement]: scope(['upper-abdomen', 'chest'], ['injury', 'other']),
+  [Q.abdomenInjuryFeatures]: scope(['upper-abdomen', 'chest'], ['injury', 'other']),
+  // Phase 2: every region whose "Something else" is clarified (otherClarifierFamilies decides which).
+  [Q.otherClarifier]: scope(['any'], ['other']),
   [Q.injuryFunction]: scope(['limb'], ['pain', 'injury', 'movement-function']),
   [Q.mskMechanical]: scope(['limb'], ['pain', 'injury', 'movement-function']),
   [Q.mskDuration]: scope(['limb'], ['pain', 'injury', 'movement-function']),
+  // Questionnaire intelligence pass (PENDING CLINICAL REVIEW).
+  // Phase 3: also a cheek or facial pain from a tooth, and a mouth or jaw lump near a tooth.
+  [Q.toothFeatures]: scope(['face-oral', 'face-general'], ['mouth-change', 'bleeding-discharge', 'pain', 'swelling-lump']),
+  [Q.jointPattern]: scope(['limb'], ['pain'], 'adult'),
+  [Q.injuryFeatures]: scope(['limb'], ['injury']),
+  // Questionnaire expansion phase 2 (PENDING CLINICAL REVIEW).
+  [Q.mskSiteFeatures]: scope(['limb'], ['pain', 'movement-function']),
+  [Q.mskWorseWhen]: scope(['limb'], ['pain', 'movement-function']),
+  [Q.mskHomeTreatment]: scope(['limb', 'neck'], ['pain', 'injury', 'movement-function']),
+  [Q.neuroDistribution]: scope(['limb', 'neck'], ['numbness-tingling']),
+  [Q.legVeinFeatures]: scope(['limb'], ['swelling-lump', 'skin-change'], 'adult'),
+  [Q.herniaFeatures]: scope(['abdomen'], ['swelling-lump']),
+  [Q.breastFeatures]: scope(['chest'], ['swelling-lump'], 'adult'),
+  [Q.templeFeatures]: scope(['face-general'], ['pain'], 'adult'),
+  [Q.urinaryFeatures]: scope(['abdomen'], ['urinary-change'], 'adult'),
+  [Q.noseInjuryFeatures]: scope(['face-nose'], ['injury']),
+  [Q.neckInjuryFeatures]: scope(['neck'], ['injury']),
+  [Q.oralSwellingSite]: scope(['face-oral'], ['swelling-lump']),
+  [Q.palpitationTriggers]: scope(['chest'], ['palpitations']),
   [Q.movementDetail]: scope(['limb'], ['movement-function', 'weakness-drooping']),
   [Q.backLegSymptoms]: scope(['lower-back'], ['pain']),
   [Q.associatedLocation]: scope(['chest', 'neck', 'lower-back', 'lower-abdomen'], ['pain']),
@@ -205,6 +225,7 @@ const UPPER_ABDOMEN_OTHER_BRANCH_CONCEPTS: ReadonlySet<string> = new Set([
   Q.urinaryPattern,
   Q.swellingDetail,
   Q.swellingDuration,
+  Q.herniaFeatures,
   Q.skinDetail,
   Q.skinDuration,
   Q.skinTreatment,
@@ -216,9 +237,12 @@ export function conceptEligible(questionId: string, context: RegionAssessmentCon
   const declared = CONCEPT_SCOPE[questionId];
   if (!declared) return { ok: false, reason: 'no declared scope' };
   if (!declared.areas.some((area) => inArea(area, context))) return { ok: false, reason: `outside ${declared.areas.join('/')}` };
-  const clarifiedUpperAbdomenOther = context.bodyRegionId === 'upper-abdomen'
+  // "Something else" opens the branch of the family the clarifier names (phase 2, every clarified region).
+  const clarifiedFamilies = otherClarifierFamilies(context).map(([, family]) => family);
+  const clarifiedUpperAbdomenOther = (context.bodyRegionId === 'upper-abdomen'
     && context.concernId === 'other'
-    && UPPER_ABDOMEN_OTHER_BRANCH_CONCEPTS.has(questionId);
+    && UPPER_ABDOMEN_OTHER_BRANCH_CONCEPTS.has(questionId))
+    || (declared.concerns !== 'any' && declared.concerns.some((family) => clarifiedFamilies.includes(family)));
   if (declared.concerns !== 'any' && !declared.concerns.includes(context.concernId) && !clarifiedUpperAbdomenOther) {
     return { ok: false, reason: `concern ${context.concernId} not in scope` };
   }

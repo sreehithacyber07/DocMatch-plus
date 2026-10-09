@@ -499,7 +499,16 @@ test('safety answers never consume the routing or discrimination budget', () => 
 test('no evidence threshold, routing budget or posterior floor was changed', () => {
   assert.equal(DEMONSTRATION_ENGINE_CONFIG.topProbabilityThreshold, 0.72);
   assert.equal(DEMONSTRATION_ENGINE_CONFIG.marginThreshold, 0.35);
-  assert.equal(DEMONSTRATION_ENGINE_CONFIG.maxQuestions, 5);
+  // The thresholds are unchanged. The question limit is now the whole approved
+  // six-question set, and a numerical lead must also be sufficiently supported
+  // before it ends the interview (docs/clinical-expansion, PENDING CLINICAL
+  // REVIEW). Any further change here needs the same review.
+  assert.equal(DEMONSTRATION_ENGINE_CONFIG.maxQuestions, 6);
+  assert.deepEqual(DEMONSTRATION_ENGINE_CONFIG.sufficiency, {
+    requireAllConditions: true,
+    minimumSupportingFindings: 3,
+    minimumIndependentDimensions: 2,
+  });
   assert.equal(DEMONSTRATION_ENGINE_CONFIG.posteriorFloor, 0.02);
   // The discrimination extension is a question-count allowance on a separate
   // counter. It is not, and must not become, an evidence threshold.

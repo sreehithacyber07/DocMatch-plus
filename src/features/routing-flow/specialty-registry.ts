@@ -377,22 +377,96 @@ export const SPECIALTY_REGISTRY: readonly SpecialtyRecord[] = [
     evidenceStatus: 'rule-gated-referral-criteria',
     source: BROAD,
   },
+  {
+    /*
+      PENDING CLINICAL REVIEW. The one record outside the NBEMS medical
+      taxonomy: dentistry is regulated by the Dental Council of India (BDS
+      and MDS), not NBEMS. It is registered because NHS Toothache, Dental
+      abscess and Gum disease send tooth and gum problems to a dentist and say
+      a GP surgery cannot provide dental care, so a medical parent service is
+      the wrong destination for them. Whether the hospital has a dental
+      department is facility dependent.
+    */
+    id: 'dentistry',
+    registryStates: ['ROUTABLE_SOURCE_BACKED', 'SHARED_SERVICE', 'FACILITY_DEPENDENT', 'NEEDS_CLINICAL_EVIDENCE'],
+    canonicalName: 'Dentistry (Dental Council of India)',
+    patientFacingName: 'Dental care',
+    category: 'broad',
+    routingEnabled: true,
+    directionGated: true,
+    supportedComplaints: ['face-oral-jaw-concern'],
+    evidenceStatus: 'rule-gated-referral-criteria',
+    source: 'https://dciindia.gov.in/',
+  },
+  {
+    /*
+      PENDING CLINICAL REVIEW. Previously registry-only ("inflammatory joint
+      patterns need examination and tests"). Now reachable only through the
+      NICE NG100 criteria in direction-gate.ts: a reported swollen joint not
+      after an injury plus a further NG100 or NHS feature. It is never a
+      Bayesian candidate.
+    */
+    id: 'clinical-immunology-rheumatology',
+    registryStates: ['ROUTABLE_SOURCE_BACKED', 'NEEDS_CLINICAL_EVIDENCE'],
+    canonicalName: 'Clinical Immunology and Rheumatology',
+    patientFacingName: 'Rheumatology',
+    category: 'super',
+    routingEnabled: true,
+    directionGated: true,
+    supportedComplaints: ['joint-musculoskeletal-pain'],
+    evidenceStatus: 'rule-gated-referral-criteria',
+    source: SUPER,
+  },
+  {
+    /*
+      PENDING CLINICAL REVIEW. Previously registry-only ("an acute surgical
+      abdomen is an R3 escalation; no elective criteria"). The acute abdomen
+      stays with R3. Elective routes now exist through two sourced gates: a
+      hernia (NHS Hernia) and a breast change (NHS Breast lumps, NICE NG12
+      1.4). Adults only; a child's lump goes to Paediatrics.
+    */
+    id: 'general-surgery',
+    registryStates: ['ROUTABLE_SOURCE_BACKED', 'NEEDS_CLINICAL_EVIDENCE'],
+    canonicalName: 'General Surgery',
+    patientFacingName: 'General Surgery',
+    category: 'broad',
+    routingEnabled: true,
+    directionGated: true,
+    supportedComplaints: ['general-region-concern', 'lower-abdominal-pelvic-concern', 'upper-abdominal-concern', 'chest-concern'],
+    evidenceStatus: 'rule-gated-referral-criteria',
+    source: BROAD,
+  },
+  {
+    /*
+      PENDING CLINICAL REVIEW. Previously registry-only. Reachable only
+      through the NICE CG168 1.2 criteria: symptomatic varicose veins, a
+      bleeding varicose vein, a leg ulcer not healed in 2 weeks, or a hard
+      painful vein with varicose veins. A one-leg clot pattern is excluded and
+      handled by the urgent R3 check. Adults only.
+    */
+    id: 'vascular-surgery',
+    registryStates: ['ROUTABLE_SOURCE_BACKED', 'NEEDS_CLINICAL_EVIDENCE', 'FACILITY_DEPENDENT'],
+    canonicalName: 'Vascular Surgery',
+    patientFacingName: 'Vascular Surgery',
+    category: 'super',
+    routingEnabled: true,
+    directionGated: true,
+    supportedComplaints: ['joint-musculoskeletal-pain', 'musculoskeletal-concern', 'regional-skin-concern', 'general-region-concern'],
+    evidenceStatus: 'rule-gated-referral-criteria',
+    source: SUPER,
+  },
 
   /* --- Registered, not routable ------------------------------------------- */
   disabled('family-medicine', 'Family Medicine', 'Family Medicine', 'broad', 'not-modelled',
     'Overlaps the General Medicine parent service in this kiosk; no separate criteria.', ['REGISTRY_ONLY', 'FACILITY_DEPENDENT']),
   disabled('emergency-medicine', 'Emergency Medicine', 'Emergency Medicine', 'broad', 'not-modelled',
     'Emergencies are handled by the R3 safety escalation, never by ordinary specialty routing.', ['DISABLED']),
-  disabled('general-surgery', 'General Surgery', 'General Surgery', 'broad', 'proposed-needs-review',
-    'An acute surgical abdomen is an R3 escalation; no symptom-led elective criteria are modelled.', ['NEEDS_CLINICAL_EVIDENCE']),
   disabled('psychiatry', 'Psychiatry', 'Psychiatry', 'broad'),
   disabled('physical-medicine-rehabilitation', 'Physical Medicine and Rehabilitation', 'Physical Medicine and Rehabilitation', 'broad'),
   disabled('geriatric-medicine', 'Geriatric Medicine', 'Geriatric Medicine', 'broad', 'not-modelled',
     'Age-defined service; no symptom-led criteria are modelled.', ['REGISTRY_ONLY', 'FACILITY_DEPENDENT']),
   disabled('nephrology', 'Nephrology', 'Nephrology', 'super', 'proposed-needs-review',
     'No symptom-led kiosk criterion separates a renal referral; upper urinary features stay with the parent service.', ['NEEDS_CLINICAL_EVIDENCE']),
-  disabled('clinical-immunology-rheumatology', 'Clinical Immunology and Rheumatology', 'Rheumatology', 'super', 'proposed-needs-review',
-    'Inflammatory joint patterns need examination and tests; not separable at a kiosk.', ['NEEDS_CLINICAL_EVIDENCE']),
   disabled('critical-care-medicine', 'Critical Care Medicine', 'Critical Care Medicine', 'super', 'not-modelled',
     'Reached through emergency escalation, never ordinary routing.', ['DISABLED']),
   disabled('endocrinology', 'Endocrinology', 'Endocrinology', 'super', 'not-modelled',
@@ -401,7 +475,6 @@ export const SPECIALTY_REGISTRY: readonly SpecialtyRecord[] = [
   disabled('surgical-gastroenterology', 'Surgical Gastroenterology', 'Surgical Gastroenterology', 'super'),
   disabled('cardiovascular-thoracic-surgery', 'Cardio Vascular & Thoracic Surgery', 'Cardiothoracic Surgery', 'super'),
   disabled('clinical-haematology', 'Clinical Haematology', 'Haematology', 'super'),
-  disabled('vascular-surgery', 'Vascular Surgery', 'Vascular Surgery', 'super'),
   /*
     NBEMS paediatric super-specialties. NBEMS establishes that they exist; it
     does not establish symptom X to specialty Y. No symptom-led referral

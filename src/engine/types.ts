@@ -15,6 +15,29 @@ export interface Question {
   text: string;
   options: AnswerOption[];
   appliesWhen?: (belief: ReadonlyBelief, askedQuestionIds: readonly string[]) => boolean;
+  /**
+   * The clinical dimension the question measures (trigger, character,
+   * location, associated symptom...). Answers in the same dimension are
+   * correlated, so they count once towards independent support. A question
+   * without one is its own dimension.
+   */
+  evidenceDimension?: string;
+}
+
+/**
+ * When a numerical convergence is allowed to end the interview.
+ *
+ * A leading specialty is not, by itself, a reason to stop. The belief can lead
+ * after two correlated answers; these rules ask that the lead also rest on
+ * enough separate, positively supporting findings.
+ */
+export interface ConvergenceSufficiency {
+  /** Both the probability and the margin threshold must hold, not either. */
+  requireAllConditions: boolean;
+  /** Answered findings that are characteristic of the leading specialty. */
+  minimumSupportingFindings: number;
+  /** Distinct clinical dimensions those findings must span. */
+  minimumIndependentDimensions: number;
 }
 
 export interface EngineConfig {
@@ -22,6 +45,14 @@ export interface EngineConfig {
   topProbabilityThreshold: number;
   marginThreshold: number;
   maxQuestions: number;
+  /** Optional evidence-sufficiency rules; without them convergence alone stops. */
+  sufficiency?: ConvergenceSufficiency;
+}
+
+/** How much separate, positive evidence the leading specialty has. */
+export interface EvidenceSupport {
+  supportingFindings: number;
+  independentDimensions: number;
 }
 
 export interface QuestionSelection {
@@ -44,6 +75,10 @@ export interface StoppingDecision {
   secondProbability: number;
   margin: number;
   askedCount: number;
+  /** Present when sufficiency rules were evaluated. */
+  evidence?: EvidenceSupport;
+  /** The belief met its numerical thresholds but the evidence behind it was not yet sufficient. */
+  convergedWithoutSufficientEvidence?: boolean;
 }
 
 export interface RecordedAnswer {

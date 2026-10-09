@@ -74,6 +74,15 @@ jobs:
             echo "Local path or deployment identifier committed."; exit 1
           fi
 
+      - name: Public configuration names no backend project
+        run: |
+          # The published snapshot is the research-prototype demonstration, which
+          # contacts no backend. A Supabase project origin belongs only in a
+          # deployment owner's own configuration.
+          if git grep -nE 'https://[a-z0-9]{20}\.supabase\.co' -- vercel.json index.html .env.example vite.config.ts; then
+            echo "A Supabase project origin is in public configuration."; exit 1
+          fi
+
       - name: Migration ordering
         run: |
           ls supabase/migrations/*.sql | xargs -n1 basename > /tmp/migrations.txt

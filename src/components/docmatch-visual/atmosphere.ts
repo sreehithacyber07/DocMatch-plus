@@ -3,9 +3,10 @@ import type { Scene } from './scene.ts';
 
 /**
  * Atmospheric lighting (Manus): a wide radial aura to the right of centre and
- * three slow bezier currents across the page.
+ * three slow bezier currents across the page. Nothing here moves, so it is
+ * painted once per resize onto its own canvas, beneath the animated one.
  */
-export function drawAtmosphere(scene: Scene, alpha: number) {
+export function drawAtmosphere(scene: Pick<Scene, 'ctx' | 'width' | 'height'>, alpha: number) {
   const { ctx, width, height } = scene;
   if (alpha <= 0) return;
   ctx.save();

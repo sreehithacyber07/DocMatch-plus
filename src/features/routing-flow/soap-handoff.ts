@@ -32,6 +32,8 @@ import type { ComplaintSource } from '../body-explorer/unmapped-regions.ts';
 import { patientRelativeSide } from '../body-explorer/laterality.ts';
 import { intakeOptionLabel, type IntakeAnswer, type IntakeQuestion } from './intake-questions.ts';
 import type { TimelineEntry } from './timeline-types.ts';
+import type { RouteOutcome } from './route-outcome.ts';
+import { SPECIALTY_REGISTRY } from './specialty-registry.ts';
 import { CLINICAL_BOUNDARY } from '../trust/copy.ts';
 
 export interface SoapLine {
@@ -65,6 +67,57 @@ export interface SoapInput {
    * warning sign was found.
    */
   urgentReview?: boolean;
+  /**
+   * Clinician-facing referral priority notes (referral-priority.ts). They cite
+   * a recommendation and never name a condition. PENDING CLINICAL REVIEW.
+   */
+  referralPriority?: readonly string[];
+  /**
+   * The route the run concluded (phase 3). Adds why that direction was chosen
+   * and, for a parent service, what stayed uncertain. The browser passes its
+   * RouteOutcome and the server the replayed one, so both write the same lines.
+   */
+  route?: SoapRoute;
+}
+
+export type SoapRoute = Pick<RouteOutcome, 'basis' | 'supportingSignals' | 'fallbackExplanation' | 'gate'>;
+
+const serviceName = (id: string) => SPECIALTY_REGISTRY.find((record) => record.id === id)?.patientFacingName ?? id;
+
+/**
+ * Routing rationale and uncertainty for the Assessment section. Criterion
+ * labels and counts only: never a condition, a probability or a confidence.
+ */
+export function routingRationaleLines(route: SoapRoute): SoapLine[] {
+  if (route.basis === 'source-backed-criteria') {
+    const labels = route.supportingSignals.map((signal) => signal.label);
+    return [{
+      label: 'Routing basis',
+      value: `Published referral criteria met (${labels.length}): ${labels.join('; ')}. The criteria are pending clinical review.`,
+    }];
+  }
+  if (route.basis === 'bayesian-convergence') {
+    return [{
+      label: 'Routing basis',
+      value: 'Answer pattern from the weighted demonstration model, which is not clinically calibrated.',
+    }];
+  }
+  const lines: SoapLine[] = [];
+  if (route.fallbackExplanation) lines.push({ label: 'Uncertainty', value: route.fallbackExplanation });
+  for (const assessment of route.gate?.assessments ?? []) {
+    if (assessment.parentService) continue;
+    if (assessment.excluded.length > 0) {
+      lines.push({ label: 'Not referred', value: `${serviceName(assessment.directionId)}: ${assessment.excluded.map((criterion) => criterion.label).join('; ')}.` });
+    } else if (assessment.satisfied.length > 0 && !assessment.supported) {
+      lines.push({
+        label: 'Partly met',
+        value: assessment.pediatricBlocked
+          ? `${serviceName(assessment.directionId)} criteria were met, but that service sees adults.`
+          : `${serviceName(assessment.directionId)}: ${assessment.satisfied.length} of ${assessment.minimumSupporting} required features reported.`,
+      });
+    }
+  }
+  return lines;
 }
 
 export const NO_MEASUREMENTS_NOTE =
@@ -122,6 +175,7 @@ export function buildSoapHandoff(input: SoapInput): readonly SoapSection[] {
         ? `Response pattern most strongly supports ${input.directionLabel} as the next clinical direction.`
         : 'No single specialty direction separated from the others. The response pattern is nonspecific.',
     },
+    ...(input.route ? routingRationaleLines(input.route) : []),
     {
       label: 'Safety screening',
       value: input.urgentReview
@@ -134,6 +188,7 @@ export function buildSoapHandoff(input: SoapInput): readonly SoapSection[] {
   /* --- P ------------------------------------------------------------------ */
   const plan: SoapLine[] = [
     { label: 'Next step', value: `Proceed to ${input.directionLabel} for clinical evaluation.` },
+    ...(input.referralPriority ?? []).map((value) => ({ label: 'Referral priority', value: `${value} PENDING CLINICAL REVIEW.` })),
     { label: 'Handoff', value: `${HANDOFF_STATUS}. Clinical decisions remain with the care team.` },
   ];
 

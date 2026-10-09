@@ -70,8 +70,11 @@ export const signalConfig = {
   pulseRgb: '141, 230, 220',
   pulseBaseAlpha: 0.14,
   pulsePeakAlpha: 0.26,
-  pulseGlow: 'rgba(83, 213, 245, 0.22)',
-  pulseGlowBlur: 8,
+  // Manus drew the glow as an 8px shadow of rgba(83, 213, 245, 0.22); it is
+  // now a wide faint stroke of the same colour (see drawSignalWaves).
+  pulseGlowRgb: '83, 213, 245',
+  pulseGlowAlpha: 0.11,
+  pulseGlowWidth: 6,
   pulseWidth: 1.1,
   // added: an irregular rest between pulses, in seconds.
   restMin: 1.6,

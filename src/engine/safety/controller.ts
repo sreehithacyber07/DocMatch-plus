@@ -198,6 +198,8 @@ export function evaluateSafetyController(input: SafetyControllerInput): SafetyCo
     input.session.belief,
     input.session.askedQuestionIds.length,
     input.engineConfig,
+    // The answers are judged for sufficiency only when the config asks for it.
+    { answers: input.session.answers, questions: input.complaint.questions },
   );
   if (stoppingDecision.shouldStop) {
     return {

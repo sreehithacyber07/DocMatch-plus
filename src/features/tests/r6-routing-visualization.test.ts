@@ -209,21 +209,37 @@ test('emergency interruption suppresses every normal routing direction', () => {
 });
 
 test('converged patient directions equal the active engine-selected specialty', () => {
+  // The mapping itself: a converged, enabled engine specialty is shown as that specialty.
+  for (const specialtyId of ['cardiology', 'pulmonology', 'gastroenterology', 'orthopedics'] as const) {
+    const decision: StoppingDecision = {
+      shouldStop: true,
+      reason: 'top_probability',
+      triggeredConditions: ['top_probability', 'margin'],
+      topSpecialtyId: specialtyId,
+      topProbability: 0.8,
+      secondSpecialtyId: specialtyId === 'cardiology' ? 'pulmonology' : 'cardiology',
+      secondProbability: 0.1,
+      margin: 0.7,
+      askedCount: 4,
+    };
+    assert.equal(hasPresentableRoute(decision, specialtyId), true);
+    assert.equal(displayedDirection(decision, specialtyId), specialtyForEngineId(specialtyId).patientFacingName);
+  }
+});
+
+test('an unconverged engine lead is never shown as a direction', () => {
+  // With the demonstration likelihoods these strong patterns lead but do not
+  // meet both thresholds with sufficient support (PENDING CLINICAL REVIEW).
   const scenarios = [
-    ['upper-abdominal-pain', { 'upper-abdominal-pain-meal-relation': 'yes', 'upper-abdominal-pain-burning': 'yes', 'upper-abdominal-pain-nausea-vomiting': 'yes' }],
     ['shortness-of-breath', { 'shortness-of-breath-ankle-swelling': 'yes', 'shortness-of-breath-lying-flat': 'yes', 'shortness-of-breath-palpitations': 'yes' }],
     ['joint-musculoskeletal-pain', { 'joint-musculoskeletal-pain-injury': 'yes', 'joint-musculoskeletal-pain-swelling-bruising': 'yes', 'joint-musculoskeletal-pain-use-weight': 'yes' }],
   ] as const;
-
   for (const [complaintId, answers] of scenarios) {
     const { controller } = runInterview(complaintId, answers, 'no');
     assert.equal(controller.status, 'result');
     if (controller.status !== 'result') continue;
-    assert.equal(hasPresentableRoute(controller.stoppingDecision, controller.routingOutcome.specialtyId), true);
-    assert.equal(
-      displayedDirection(controller.stoppingDecision, controller.routingOutcome.specialtyId),
-      specialtyForEngineId(controller.routingOutcome.specialtyId).patientFacingName,
-    );
+    assert.equal(hasPresentableRoute(controller.stoppingDecision, controller.routingOutcome.specialtyId), false);
+    assert.equal(displayedDirection(controller.stoppingDecision, controller.routingOutcome.specialtyId), 'General Medicine');
   }
 });
 

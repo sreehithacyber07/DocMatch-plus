@@ -45,7 +45,7 @@ export interface CoverageSource {
   title: string;
   url: string;
   scope: string;
-  accessedAt: '2026-09-21' | '2026-09-22' | '2026-09-23' | '2026-09-24' | '2026-09-25' | '2026-09-26';
+  accessedAt: '2026-09-21' | '2026-09-22' | '2026-09-23' | '2026-09-24' | '2026-09-25' | '2026-09-26' | '2026-10-08' | '2026-10-09';
   clinicalReviewStatus: 'source-backed-prototype-pending-clinical-review';
 }
 
@@ -121,12 +121,42 @@ export const COVERAGE_SOURCE_IDS = {
   nhsCough: 'coverage-nhs-cough',
   nhsBrokenRibs: 'coverage-nhs-broken-or-bruised-ribs',
   nhsStomachAche: 'coverage-nhs-stomach-ache',
+  /* Added by the questionnaire intelligence pass, accessed 2026-10-08. PENDING CLINICAL REVIEW. */
+  nhsToothache: 'coverage-nhs-toothache',
+  nhsDentalAbscess: 'coverage-nhs-dental-abscess',
+  nhsGumDisease: 'coverage-nhs-gum-disease',
+  niceRheumatoidArthritis: 'coverage-nice-ng100-rheumatoid-arthritis',
+  nhsRheumatoidArthritis: 'coverage-nhs-rheumatoid-arthritis-symptoms',
+  /* Questionnaire expansion phase 2, accessed 2026-10-08, each page read directly. PENDING CLINICAL REVIEW. */
+  nhsShoulderPain: 'coverage-nhs-shoulder-pain',
+  nhsHipPain: 'coverage-nhs-hip-pain',
+  nhsElbowArmPain: 'coverage-nhs-elbow-arm-pain',
+  nhsWristPain: 'coverage-nhs-wrist-pain',
+  nhsHeelPain: 'coverage-nhs-heel-pain',
+  nhsAnklePain: 'coverage-nhs-ankle-pain',
+  nhsDvt: 'coverage-nhs-dvt',
+  nhsVaricoseVeins: 'coverage-nhs-varicose-veins',
+  niceVaricoseVeins: 'coverage-nice-cg168-varicose-veins',
+  nhsHernia: 'coverage-nhs-hernia',
+  nhsBreastLump: 'coverage-nhs-breast-lump',
+  nhsGiantCellArteritis: 'coverage-nhs-giant-cell-arteritis',
+  nhsMouthCancer: 'coverage-nhs-mouth-cancer-symptoms',
+  nhsCarpalTunnel: 'coverage-nhs-carpal-tunnel',
+  nhsPeripheralNeuropathy: 'coverage-nhs-peripheral-neuropathy',
+  nhsCellulitis: 'coverage-nhs-cellulitis',
+  nhsProstateEnlargement: 'coverage-nhs-prostate-enlargement',
+  /* Phase 3, accessed 2026-10-09, each page read directly. PENDING CLINICAL REVIEW. */
+  nhsHeadInjury: 'coverage-nhs-head-injury',
+  nhsBrokenNose: 'coverage-nhs-broken-nose',
+  nhsWhiplash: 'coverage-nhs-whiplash',
 } as const;
 
 const REBUILD_ACCESSED = '2026-09-23' as const;
 const NORMALIZATION_ACCESSED = '2026-09-24' as const;
 const RECONCILIATION_ACCESSED = '2026-09-25' as const;
 const BLOCKER_PASS_ACCESSED = '2026-09-26' as const;
+const INTELLIGENCE_PASS_ACCESSED = '2026-10-08' as const;
+const PHASE3_ACCESSED = '2026-10-09' as const;
 const PENDING = 'source-backed-prototype-pending-clinical-review' as const;
 
 export const CLINICAL_COVERAGE_SOURCES: readonly CoverageSource[] = [
@@ -427,7 +457,7 @@ export const CLINICAL_COVERAGE_SOURCES: readonly CoverageSource[] = [
     organization: 'National Institute for Health and Care Excellence',
     title: 'Suspected cancer: recognition and referral (NG12)',
     url: 'https://www.nice.org.uk/guidance/ng12/chapter/Recommendations-organised-by-site-of-cancer',
-    scope: 'Persistent unexplained hoarseness or an unexplained neck lump (age 45 and over) and a pigmented skin lesion that changes in size, shape or colour are recognised referral features. Used only as a persistence and change criterion; nothing here suggests or names a cancer.',
+    scope: 'Persistent unexplained hoarseness or an unexplained neck lump (age 45 and over) and a pigmented skin lesion that changes in size, shape or colour are recognised referral features. Read directly on 2026-10-08: 1.4.1 refer a breast lump at 30 and over on a suspected cancer pathway, 1.4.2 consider it for breast skin changes or an armpit lump at 30 and over, 1.4.3 non-urgent referral under 30; 1.8.2 consider a suspected cancer pathway for oral ulceration lasting more than 3 weeks or a persistent unexplained neck lump; 1.8.3 urgent dentist assessment for a lump on the lip or in the mouth or a red or white patch; 1.8.5 an unexplained thyroid lump; 1.11.4 urgent direct-access ultrasound for an unexplained lump increasing in size in an adult. Used only as persistence, change and referral-priority criteria; nothing here suggests or names a cancer.',
     accessedAt: REBUILD_ACCESSED,
     clinicalReviewStatus: PENDING,
   },
@@ -490,8 +520,233 @@ export const CLINICAL_COVERAGE_SOURCES: readonly CoverageSource[] = [
     organization: 'National Health Service',
     title: 'Knee pain',
     url: 'https://www.nhs.uk/symptoms/knee-pain/',
-    scope: 'A knee that locks, gives way or painfully clicks, cannot bear weight or is badly swollen needs urgent advice; pain not improving within a few weeks is seen and may be referred for a scan or specialist treatment.',
+    scope: 'A knee that locks, gives way or painfully clicks, cannot bear weight or is badly swollen needs urgent advice; pain not improving within a few weeks is seen and may be referred for a scan or specialist treatment. An unstable knee after an injury, with a popping sound at the time, is listed with ligament, tendon, meniscus or cartilage damage.',
     accessedAt: REBUILD_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsShoulderPain,
+    organization: 'National Health Service',
+    title: 'Shoulder pain',
+    url: 'https://www.nhs.uk/symptoms/shoulder-pain/',
+    scope: 'Lists pain and stiffness that does not go away over months, pain worse while using the arm or shoulder, a tingling, numb or weak arm with a clicking or locking shoulder, and pain on top of the shoulder where the collarbone meets it. See a GP if it is getting worse or does not improve after 2 weeks; urgent if sudden or very bad pain, cannot move the arm, changed shape or badly swollen, pins and needles, numbness or a high temperature.',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsHipPain,
+    organization: 'National Health Service',
+    title: 'Hip pain in adults',
+    url: 'https://www.nhs.uk/symptoms/hip-pain/',
+    scope: 'Lists pain worse when walking with stiffness after moving, pain and stiffness worse after not moving, pain spreading to the thigh worse lying on it, and a hot swollen hip with a high temperature. See a GP if it stops normal activities or sleep, is getting worse or keeps coming back, has not improved after 2 weeks of home treatment, or stiffness lasts more than 30 minutes after waking; urgent if a hot swollen hip, changed skin colour or feeling unwell with a high temperature.',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsElbowArmPain,
+    organization: 'National Health Service',
+    title: 'Elbow and arm pain',
+    url: 'https://www.nhs.uk/symptoms/elbow-and-arm-pain/',
+    scope: 'Lists pain on the outside of the elbow with difficulty fully straightening the arm, joint pain with stiffness and swelling, pain and stiffness coming down from the shoulder, and a swollen joint with a high temperature. See a GP if it does not go away after a few weeks; 111 if the arm hurts on exercise and eases with rest, or is swollen with a very high temperature; A&E if it tingles or feels numb.',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsWristPain,
+    organization: 'National Health Service',
+    title: 'Wrist pain',
+    url: 'https://www.nhs.uk/symptoms/hand-pain/wrist-pain/',
+    scope: 'Lists aching worse at night with tingling, numbness or pins and needles, pain, swelling and stiffness at the base of the thumb that lasts a long time, a smooth lump on top of the wrist, and difficulty moving the wrist or gripping. See a GP if it stops normal activities, gets worse, has not improved after 2 weeks of home treatment, or comes with tingling or loss of sensation.',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsHeelPain,
+    organization: 'National Health Service',
+    title: 'Heel pain',
+    url: 'https://www.nhs.uk/symptoms/foot-pain/heel-pain/',
+    scope: 'Lists sharp pain between the arch and heel that is worse on starting to walk and better with rest, pain at the back of the heel and in the ankle and calf, and redness and swelling with a dull ache. See a GP if severe or stopping normal activities, getting worse or coming back, not improved after 2 weeks of home treatment, with tingling or loss of sensation in the foot, or with diabetes.',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsAnklePain,
+    organization: 'National Health Service',
+    title: 'Ankle pain',
+    url: 'https://www.nhs.uk/symptoms/foot-pain/ankle-pain/',
+    scope: 'Lists pain, swelling and bruising after exercise, pain in the ankle and heel with calf pain on tiptoe, and redness and swelling with a dull ache. See a GP if it stops normal activities, has not improved after 2 weeks of home treatment, or comes with tingling or numbness; 111 for severe pain, an ankle at an odd angle or not being able to walk.',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsDvt,
+    organization: 'National Health Service',
+    title: 'Deep vein thrombosis (DVT)',
+    url: 'https://www.nhs.uk/conditions/deep-vein-thrombosis-dvt/',
+    scope: 'Symptoms are throbbing pain and swelling in 1 leg (rarely both), usually in the calf or thigh, with red, blue or darkened skin around the painful area. Ask for an urgent GP appointment or get help from 111 if you think you have DVT; call 999 or go to A&E with DVT symptoms and shortness of breath or chest pain.',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsVaricoseVeins,
+    organization: 'National Health Service',
+    title: 'Varicose veins',
+    url: 'https://www.nhs.uk/conditions/varicose-veins/',
+    scope: 'Symptoms include pain, aching or heaviness, skin changes such as itching, colour change or dry scaly skin, and swollen ankles or legs. See a GP for pain, itching or swelling in the legs or a sore on the leg not healed after 2 weeks; urgent GP or 111 for varicose veins that are bleeding.',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.niceVaricoseVeins,
+    organization: 'National Institute for Health and Care Excellence',
+    title: 'Varicose veins: diagnosis and management (CG168), recommendations 1.2.1 and 1.2.2',
+    url: 'https://www.nice.org.uk/guidance/cg168/chapter/Recommendations',
+    scope: '1.2.1 Refer people with bleeding varicose veins to a vascular service immediately. 1.2.2 Refer to a vascular service: symptomatic primary or recurrent varicose veins (with troublesome symptoms, typically pain, aching, discomfort, swelling, heaviness and itching); lower-limb skin changes such as pigmentation or eczema thought to be caused by chronic venous insufficiency; superficial vein thrombosis (hard, painful veins); a venous leg ulcer (a break in the skin below the knee not healed within 2 weeks); a healed venous leg ulcer.',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsHernia,
+    organization: 'National Health Service',
+    title: 'Hernia',
+    url: 'https://www.nhs.uk/conditions/hernia/',
+    scope: 'Symptoms include a bulge or lump that may get bigger when you cough, sneeze or cry and smaller when you lie down, tight and stretched skin over it, a heavy dragging feeling, and pain in or around it. See a GP if you think you have a hernia; they can refer for tests or treatment. Get help from 111 with a hernia and pain in or around it, a bloated tummy, feeling or being sick, vomiting blood, constipation, a high temperature or sudden confusion.',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsBreastLump,
+    organization: 'National Health Service',
+    title: 'Breast lumps',
+    url: 'https://www.nhs.uk/conditions/breast-lump/',
+    scope: 'See a GP (non-urgent) for a lump in the breast or armpit, or other unusual changes such as a nipple turning inwards, dimpled skin or bloodstained nipple discharge; if the cause is unclear they refer to a hospital or breast clinic for tests.',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsGiantCellArteritis,
+    organization: 'National Health Service',
+    title: 'Giant cell arteritis (temporal arteritis)',
+    url: 'https://www.nhs.uk/conditions/giant-cell-arteritis/',
+    scope: 'Main symptoms are frequent severe headaches, pain or tenderness at the temples or on the scalp, jaw pain while eating or talking, and vision problems such as double vision or loss of vision. Ask for an urgent GP appointment or get help from 111 if you think you might have it; it can lead to stroke and blindness if not treated quickly.',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsMouthCancer,
+    organization: 'National Health Service',
+    title: 'Mouth cancer: symptoms',
+    url: 'https://www.nhs.uk/conditions/mouth-cancer/symptoms/',
+    scope: 'See a GP or dentist for a mouth ulcer that has lasted more than 3 weeks, a lump in the mouth, on the lip, on the neck or in the throat, a red or white patch in the mouth, mouth pain that is not going away, difficulty swallowing or speaking, or a hoarse voice that does not go away.',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsCarpalTunnel,
+    organization: 'National Health Service',
+    title: 'Carpal tunnel syndrome',
+    url: 'https://www.nhs.uk/conditions/carpal-tunnel-syndrome/',
+    scope: 'An ache or pain in the fingers, hand or arm with tingling or pins and needles, usually worse at night. See a GP if symptoms are getting worse or not going away, or home treatment is not working; a specialist is seen if it is getting worse and other treatments have not worked.',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsPeripheralNeuropathy,
+    organization: 'National Health Service',
+    title: 'Peripheral neuropathy',
+    url: 'https://www.nhs.uk/conditions/peripheral-neuropathy/',
+    scope: 'Numbness and tingling in the feet or hands, burning, stabbing or shooting pain, loss of balance and weakness. See a GP for pain, tingling or loss of sensation in the feet, or loss of balance or weakness; people with diabetes have regular checks.',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsCellulitis,
+    organization: 'National Health Service',
+    title: 'Cellulitis',
+    url: 'https://www.nhs.uk/conditions/cellulitis/',
+    scope: 'Skin that is painful, hot and swollen, usually red. Ask for an urgent GP appointment or get help from 111 if your skin is painful, hot and swollen; call 999 or go to A&E with a very high temperature or feeling hot, cold or shivery, a fast heartbeat or fast breathing, purple patches, feeling dizzy or faint, confusion, or cold, clammy or pale skin.',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsHeadInjury,
+    organization: 'National Health Service',
+    title: 'Head injury and concussion',
+    url: 'https://www.nhs.uk/conditions/head-injury-and-concussion/',
+    scope: 'Call 999 after a head injury if knocked out and not woken, cannot stay awake, a fit, a fall from more than 1 metre or 5 stairs, vision or hearing problems, a black eye without hitting the eye, clear fluid from the ears or nose, bleeding from the ears or bruising behind them, new numbness or weakness, problems walking, balancing, understanding, speaking or writing, a high-speed injury, a dent or something in a head wound, a bruise, swelling or large cut on the head under 1 year old, or a change in behaviour. Get help from 111 if being sick, dizzy, taking a blood thinner, or drinking alcohol or taking drugs at the time.',
+    accessedAt: PHASE3_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsBrokenNose,
+    organization: 'National Health Service',
+    title: 'Broken nose',
+    url: 'https://www.nhs.uk/conditions/broken-nose/',
+    scope: 'Symptoms: pain, swelling and bruising, a crunching or crackling sound when touched, difficulty breathing through the nose, the nose changing shape. 111 if the nose is crooked after the injury or the swelling has not started to go down after 3 days. A&E for a nosebleed that will not stop, clear watery fluid from the nose, a severe headache with blurred or double vision, or a purple swelling inside the nose.',
+    accessedAt: PHASE3_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsWhiplash,
+    organization: 'National Health Service',
+    title: 'Whiplash',
+    url: 'https://www.nhs.uk/conditions/whiplash/',
+    scope: 'Symptoms: neck pain, stiffness and difficulty moving the head, headaches, pain and spasms in the shoulders and arms. GP if not improved after 1 week or painkillers have not worked. Urgent GP or 111 for severe pain despite painkillers, tingling or pins and needles on one or both sides of the body, problems walking or sitting upright, a sudden electric-shock feeling in the neck and back, or weak hands, arms or legs.',
+    accessedAt: PHASE3_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsProstateEnlargement,
+    organization: 'National Health Service',
+    title: 'Enlarged prostate',
+    url: 'https://www.nhs.uk/conditions/prostate-enlargement/',
+    scope: 'Difficulty starting to pee or having to strain, a weak or stop-start flow, feeling the bladder has not fully emptied, dribbling afterwards, and needing to pee more often or urgently, including at night. See a GP for difficulty peeing or needing to pee more often; urgent for blood in the pee, pain when peeing or not being able to pee.',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsToothache,
+    organization: 'National Health Service',
+    title: 'Toothache',
+    url: 'https://www.nhs.uk/conditions/toothache/',
+    scope: 'See a dentist for toothache that lasts more than 2 days or does not go away with painkillers, or with a high temperature, pain when biting, red gums, a bad taste, or a swollen cheek or jaw. Swelling around the eye or neck, or swelling making it hard to breathe, swallow or speak, is an A&E or 999 emergency.',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsDentalAbscess,
+    organization: 'National Health Service',
+    title: 'Dental abscess',
+    url: 'https://www.nhs.uk/conditions/dental-abscess/',
+    scope: 'Lists intense tooth or gum pain, sensitivity to hot or cold, a bad taste, a swollen face or jaw and a high temperature; ask for an urgent dentist appointment. A swollen or painful eye, a lot of swelling in the mouth, or being hard to breathe, speak, swallow or open the mouth is a 999 or A&E emergency. A GP surgery cannot provide dental care.',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsGumDisease,
+    organization: 'National Health Service',
+    title: 'Gum disease',
+    url: 'https://www.nhs.uk/conditions/gum-disease/',
+    scope: 'See a dentist for gums that bleed when brushing or are painful and swollen; urgently for very sore and swollen gums or teeth becoming loose.',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.niceRheumatoidArthritis,
+    organization: 'National Institute for Health and Care Excellence',
+    title: 'Rheumatoid arthritis in adults: management (NG100), recommendation 1.1.1',
+    url: 'https://www.nice.org.uk/guidance/ng100/chapter/Recommendations',
+    scope: 'Refer any adult with suspected persistent synovitis of undetermined cause for specialist opinion; refer urgently if the small joints of the hands or feet are affected, more than one joint is affected, or there has been a delay of 3 months or longer between onset and seeking advice.',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsRheumatoidArthritis,
+    organization: 'National Health Service',
+    title: 'Rheumatoid arthritis: symptoms',
+    url: 'https://www.nhs.uk/conditions/rheumatoid-arthritis/symptoms/',
+    scope: 'Affected joints swell and become hot and tender; stiffness is worse in the morning and usually lasts longer than 30 minutes; the small joints of the hands and feet are often affected first, usually on both sides.',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED,
     clinicalReviewStatus: PENDING,
   },
   {
@@ -845,6 +1100,12 @@ const CHEST_OPTIONS = [
   option('voice-swallow', 'Burning or swallowing concern', 'Burning after eating, reflux-like discomfort or difficulty swallowing.'),
   INJURY,
   SKIN,
+  /*
+    Phase 2 (PENDING CLINICAL REVIEW): NHS Breast lumps sends a lump in the
+    breast or armpit, or a nipple or breast skin change, to a GP and on to a
+    breast clinic. The chest had no lump entry, so these had no path.
+  */
+  option('swelling-lump', 'Lump, swelling or breast change', 'A lump in the chest, breast or armpit, or a change in the breast or nipple.'),
   OTHER,
 ] as const;
 
@@ -1105,15 +1366,15 @@ export interface BodyRegionCoverageRow {
 }
 
 function destinationFamilies(regionId: BodyRegionId): readonly string[] {
-  if (regionId === 'face') return ['General Medicine', 'Eye care', 'ENT', 'Neurology', 'Oral and Maxillofacial Surgery'];
+  if (regionId === 'face') return ['General Medicine', 'Eye care', 'ENT', 'Neurology', 'Dental care', 'Dermatology'];
   if (regionId === 'lower-abdomen' || regionId === 'pelvis') {
     return ['General Medicine', 'Medical Gastroenterology', 'Urology', 'Obstetrics and Gynaecology', 'General Surgery'];
   }
-  if (regionId === 'chest') return ['General Medicine', 'Cardiology', 'Respiratory Medicine', 'Medical Gastroenterology'];
+  if (regionId === 'chest') return ['General Medicine', 'Cardiology', 'Respiratory Medicine', 'Medical Gastroenterology', 'General Surgery'];
   if (regionId === 'neck') return ['General Medicine', 'ENT', 'Neurology', 'Orthopaedics', 'Endocrinology'];
   if (regionId === 'head') return ['General Medicine', 'Neurology', 'ENT', 'Eye care'];
   if (regionId === 'upper-abdomen') return ['General Medicine', 'Medical Gastroenterology', 'Cardiology', 'General Surgery'];
-  return ['General Medicine', 'Orthopaedics', 'Neurology', 'Dermatology', 'Physical Medicine and Rehabilitation'];
+  return ['General Medicine', 'Orthopaedics', 'Rheumatology', 'Vascular Surgery', 'Neurology', 'Dermatology'];
 }
 
 function safetyRuleIds(regionId: BodyRegionId): readonly string[] {
@@ -1182,6 +1443,15 @@ export const BODY_REGION_COVERAGE_MATRIX: readonly BodyRegionCoverageRow[] = BOD
 export const COVERAGE_SAFETY_SAME_PUBLICATION: Readonly<Record<string, string>> = {
   [COVERAGE_SOURCE_IDS.niceHeadache]: 'r3-nice-cg150-headache-2025',
   [COVERAGE_SOURCE_IDS.nhsBrokenRibs]: 'r3-nhs-broken-or-bruised-ribs',
+  [COVERAGE_SOURCE_IDS.nhsDentalAbscess]: 'r3-nhs-dental-abscess',
+  [COVERAGE_SOURCE_IDS.nhsDvt]: 'r3-nhs-dvt',
+  [COVERAGE_SOURCE_IDS.nhsHernia]: 'r3-nhs-hernia',
+  [COVERAGE_SOURCE_IDS.nhsGiantCellArteritis]: 'r3-nhs-giant-cell-arteritis',
+  [COVERAGE_SOURCE_IDS.nhsCellulitis]: 'r3-nhs-cellulitis',
+  [COVERAGE_SOURCE_IDS.nhsVaricoseVeins]: 'r3-nhs-varicose-veins',
+  [COVERAGE_SOURCE_IDS.nhsHeadInjury]: 'r3-nhs-head-injury',
+  [COVERAGE_SOURCE_IDS.nhsBrokenNose]: 'r3-nhs-broken-nose',
+  [COVERAGE_SOURCE_IDS.nhsWhiplash]: 'r3-nhs-whiplash',
   [COVERAGE_SOURCE_IDS.nhsPelvicPain]: 'r3-nhs-pelvic-pain-2026',
   [COVERAGE_SOURCE_IDS.nhsEyePain]: 'r3-nhs-eye-pain-2025',
   [COVERAGE_SOURCE_IDS.nhsEarInfections]: 'r3-nhs-ear-infections',

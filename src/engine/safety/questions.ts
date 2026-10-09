@@ -36,6 +36,15 @@ import {
   NHS_BACK_PAIN_SAFETY_SOURCE_ID,
   NHS_SCIATICA_SAFETY_SOURCE_ID,
   NHS_BROKEN_RIBS_SAFETY_SOURCE_ID,
+  NHS_HEAD_INJURY_SAFETY_SOURCE_ID,
+  NHS_BROKEN_NOSE_SAFETY_SOURCE_ID,
+  NHS_WHIPLASH_SAFETY_SOURCE_ID,
+  NHS_DVT_SAFETY_SOURCE_ID,
+  NHS_HERNIA_SAFETY_SOURCE_ID,
+  NHS_GCA_SAFETY_SOURCE_ID,
+  NHS_CELLULITIS_SAFETY_SOURCE_ID,
+  NHS_VARICOSE_VEINS_SAFETY_SOURCE_ID,
+  NHS_DENTAL_ABSCESS_SAFETY_SOURCE_ID,
 } from './sources.ts';
 
 const ALWAYS: SafetyCondition = { kind: 'always' };
@@ -396,6 +405,175 @@ const PEDIATRIC_SAFETY_QUESTIONS: readonly SafetyQuestion[] = [
     provenanceIds: [NHM_IMNCI_SICK_CHILD_SAFETY_SOURCE_ID],
   }),
   ownedQuestion({
+    /*
+      PENDING CLINICAL REVIEW. NHS Dental abscess and Toothache send these to
+      999 or A&E. Breathing, speaking and swallowing difficulty is already the
+      airway check, so it is not repeated here.
+    */
+    id: 'safety-dental-spreading-swelling',
+    text: 'Is there swelling around your eye or in your neck, a lot of swelling inside your mouth, or is it hard to open your mouth?',
+    caregiverText:
+      'Is there swelling around your child’s eye or in their neck, a lot of swelling inside their mouth, or is it hard for them to open their mouth?',
+    applicableComplaintIds: ['face-oral-jaw-concern', 'face-general-concern'],
+    liveWhen: ALWAYS,
+    priority: { severity: 'emergency', dependencyRank: 35 },
+    provenanceIds: [NHS_DENTAL_ABSCESS_SAFETY_SOURCE_ID],
+  }),
+  /* --- Questionnaire expansion phase 2 (PENDING CLINICAL REVIEW) ----------- */
+  ownedQuestion({
+    id: 'safety-dvt-one-leg',
+    text: 'Is there throbbing pain and swelling in one leg, usually in the calf or thigh?',
+    caregiverText: 'Does your child have throbbing pain and swelling in one leg, usually in the calf or thigh?',
+    applicableComplaintIds: ['musculoskeletal-concern', 'regional-skin-concern', 'general-region-concern'],
+    liveWhen: ALWAYS,
+    // Screened at emergency priority because its emergency follow-up depends on it
+    // and a dependency must come first; a yes on its own still fires only the urgent rule.
+    priority: { severity: 'emergency', dependencyRank: 36 },
+    provenanceIds: [NHS_DVT_SAFETY_SOURCE_ID],
+  }),
+  /*
+    Phase 3 candidate fix (PENDING CLINICAL REVIEW). Adult limb pain runs the
+    weighted joint complaint, whose approved checks are left unchanged. These
+    are separate, joint-specific checks. The clot screen is live only after
+    the approved R1 question reports a swollen area (NHS DVT: pain AND
+    swelling); the back screen only when the pain did not follow an injury
+    (an injury has its own approved severity checks). With a clinical
+    context the interview asks them only for the lower limb and the upper back.
+  */
+  /* --- Phase 3: head, face, nose and neck injury (PENDING CLINICAL REVIEW) -- */
+  ownedQuestion({
+    id: 'safety-head-injury-signs',
+    text: 'Since the injury, has there been any of these: being knocked out, a fit, being unable to stay awake, new problems with vision, hearing, walking, balance, speech or understanding, new numbness or weakness, or a change in behaviour?',
+    caregiverText: 'Since the injury, has your child had any of these: being knocked out, a fit, being unable to stay awake, new problems with vision, hearing, walking, balance, speech or understanding, new numbness or weakness, or a change in behaviour?',
+    applicableComplaintIds: ['general-region-concern', 'face-general-concern', 'face-nose-concern', 'face-eye-concern', 'face-ear-concern', 'face-oral-jaw-concern', 'head-concern'],
+    liveWhen: ALWAYS,
+    priority: { severity: 'emergency', dependencyRank: 13 },
+    provenanceIds: [NHS_HEAD_INJURY_SAFETY_SOURCE_ID],
+  }),
+  ownedQuestion({
+    id: 'safety-head-injury-mechanism',
+    text: 'Did it happen in a fall from more than 1 metre or 5 stairs, or at high speed such as a road accident, or is there clear fluid or blood from the ears or nose, bruising behind the ears, a black eye without the eye being hit, or a dent in the head or something in the wound?',
+    caregiverText: 'Did it happen in a fall from more than 1 metre or 5 stairs, or at high speed such as a road accident, or is there clear fluid or blood from your child\'s ears or nose, bruising behind the ears, a black eye without the eye being hit, a dent in the head or something in the wound, or, for a baby under 1, any bruise, swelling or large cut on the head?',
+    applicableComplaintIds: ['general-region-concern', 'face-general-concern', 'face-nose-concern', 'face-eye-concern', 'face-ear-concern', 'face-oral-jaw-concern', 'head-concern'],
+    liveWhen: ALWAYS,
+    priority: { severity: 'emergency', dependencyRank: 14 },
+    provenanceIds: [NHS_HEAD_INJURY_SAFETY_SOURCE_ID],
+  }),
+  ownedQuestion({
+    id: 'safety-head-injury-urgent',
+    text: 'Since the injury, have you been sick or felt dizzy, or do you take a medicine that thins the blood, or had you been drinking alcohol or taking drugs at the time?',
+    caregiverText: 'Since the injury, has your child been sick or seemed dizzy, or does your child take a medicine that thins the blood?',
+    applicableComplaintIds: ['general-region-concern', 'face-general-concern', 'face-nose-concern', 'face-eye-concern', 'face-ear-concern', 'face-oral-jaw-concern', 'head-concern'],
+    liveWhen: ALWAYS,
+    priority: { severity: 'urgent', dependencyRank: 68 },
+    provenanceIds: [NHS_HEAD_INJURY_SAFETY_SOURCE_ID],
+  }),
+  ownedQuestion({
+    id: 'safety-nose-injury-emergency',
+    text: 'Since the nose injury, is there a purple swelling inside the nose, or a severe headache with blurred or double vision?',
+    caregiverText: 'Since the nose injury, does your child have a purple swelling inside the nose, or a severe headache with blurred or double vision?',
+    applicableComplaintIds: ['face-nose-concern'],
+    liveWhen: ALWAYS,
+    priority: { severity: 'emergency', dependencyRank: 15 },
+    provenanceIds: [NHS_BROKEN_NOSE_SAFETY_SOURCE_ID],
+  }),
+  ownedQuestion({
+    id: 'safety-neck-injury-urgent',
+    text: 'Since the neck injury, is there severe pain even with painkillers, tingling or pins and needles on one or both sides of the body, problems walking or sitting upright, a sudden electric-shock feeling in the neck and back, or weakness in the hands, arms or legs?',
+    caregiverText: 'Since the neck injury, does your child have severe pain even with painkillers, tingling or pins and needles on one or both sides of the body, problems walking or sitting upright, a sudden electric-shock feeling in the neck and back, or weakness in the hands, arms or legs?',
+    applicableComplaintIds: ['neck-concern', 'face-general-concern'],
+    liveWhen: ALWAYS,
+    priority: { severity: 'urgent', dependencyRank: 69 },
+    provenanceIds: [NHS_WHIPLASH_SAFETY_SOURCE_ID],
+  }),
+  ownedQuestion({
+    id: 'safety-joint-dvt-one-leg',
+    text: 'Is the pain and swelling in one leg, throbbing, usually in the calf or thigh?',
+    applicableComplaintIds: ['joint-musculoskeletal-pain'],
+    liveWhen: answerEquals('joint-musculoskeletal-pain-swelling-bruising', 'yes'),
+    priority: { severity: 'emergency', dependencyRank: 36 },
+    provenanceIds: [NHS_DVT_SAFETY_SOURCE_ID],
+  }),
+  ownedQuestion({
+    id: 'safety-joint-dvt-breathless',
+    text: 'With the leg pain and swelling, is there any shortness of breath or chest pain?',
+    applicableComplaintIds: ['joint-musculoskeletal-pain'],
+    liveWhen: answerEquals('safety-joint-dvt-one-leg', 'yes'),
+    priority: { severity: 'emergency', dependencyRank: 37 },
+    provenanceIds: [NHS_DVT_SAFETY_SOURCE_ID],
+  }),
+  ownedQuestion({
+    id: 'safety-joint-back-urgent',
+    text: 'Do you feel hot, cold, shivery or generally unwell, or is the back pain severe and started suddenly, or getting worse quickly?',
+    applicableComplaintIds: ['joint-musculoskeletal-pain'],
+    liveWhen: answerEquals('joint-musculoskeletal-pain-injury', 'no'),
+    priority: { severity: 'urgent', dependencyRank: 65 },
+    provenanceIds: [NHS_BACK_PAIN_SAFETY_SOURCE_ID],
+  }),
+  ownedQuestion({
+    id: 'safety-dvt-breathless-chest',
+    text: 'With the leg pain or swelling, is there any shortness of breath or chest pain?',
+    caregiverText: 'With the leg pain or swelling, is your child short of breath, or do they have chest pain?',
+    applicableComplaintIds: ['musculoskeletal-concern', 'regional-skin-concern', 'general-region-concern'],
+    liveWhen: answerEquals('safety-dvt-one-leg', 'yes'),
+    priority: { severity: 'emergency', dependencyRank: 37 },
+    provenanceIds: [NHS_DVT_SAFETY_SOURCE_ID],
+  }),
+  ownedQuestion({
+    id: 'safety-hernia-complication',
+    text: 'With the lump, is there pain in or around it, a bloated tummy, feeling or being sick, constipation, or a high temperature?',
+    caregiverText: 'With the lump, does your child have pain in or around it, a bloated tummy, feeling or being sick, constipation, or a high temperature?',
+    applicableComplaintIds: ['general-region-concern', 'lower-abdominal-pelvic-concern', 'upper-abdominal-concern'],
+    liveWhen: ALWAYS,
+    priority: { severity: 'urgent', dependencyRank: 63 },
+    provenanceIds: [NHS_HERNIA_SAFETY_SOURCE_ID],
+  }),
+  ownedQuestion({
+    id: 'safety-gca-features',
+    text: 'Are your temples or scalp tender, or does your jaw hurt when eating or talking, together with new or severe headaches or any change in your vision?',
+    applicableComplaintIds: ['face-general-concern'],
+    liveWhen: ALWAYS,
+    priority: { severity: 'urgent', dependencyRank: 64 },
+    provenanceIds: [NHS_GCA_SAFETY_SOURCE_ID],
+  }),
+  ownedQuestion({
+    id: 'safety-back-urgent',
+    text: 'Do you feel hot, cold, shivery or generally unwell, or is the back pain severe and started suddenly, or getting worse quickly?',
+    caregiverText: 'Does your child feel hot, cold, shivery or generally unwell, or is the back pain severe and started suddenly, or getting worse quickly?',
+    applicableComplaintIds: ['musculoskeletal-concern'],
+    liveWhen: ALWAYS,
+    priority: { severity: 'urgent', dependencyRank: 65 },
+    provenanceIds: [NHS_BACK_PAIN_SAFETY_SOURCE_ID],
+  }),
+  ownedQuestion({
+    id: 'safety-skin-hot-swollen',
+    text: 'Is the skin painful, hot and swollen?',
+    caregiverText: 'Is your child\'s skin painful, hot and swollen?',
+    applicableComplaintIds: ['regional-skin-concern', 'face-general-concern'],
+    liveWhen: ALWAYS,
+    // Screened at emergency priority because its emergency follow-up depends on it.
+    priority: { severity: 'emergency', dependencyRank: 36 },
+    provenanceIds: [NHS_CELLULITIS_SAFETY_SOURCE_ID],
+  }),
+  ownedQuestion({
+    id: 'safety-skin-infection-emergency',
+    text: 'With the hot, swollen skin, is there a very high temperature or feeling hot, cold or shivery, a fast heartbeat or fast breathing, purple patches, dizziness or faintness, or confusion?',
+    caregiverText: 'With the hot, swollen skin, does your child have a very high temperature or seem hot, cold or shivery, a fast heartbeat or fast breathing, purple patches, seem dizzy or faint, or seem confused?',
+    applicableComplaintIds: ['regional-skin-concern', 'face-general-concern'],
+    liveWhen: answerEquals('safety-skin-hot-swollen', 'yes'),
+    priority: { severity: 'emergency', dependencyRank: 37 },
+    provenanceIds: [NHS_CELLULITIS_SAFETY_SOURCE_ID],
+  }),
+  ownedQuestion({
+    id: 'safety-varicose-bleeding',
+    text: 'Is a vein on your leg bleeding?',
+    caregiverText: 'Is a vein on your child\'s leg bleeding?',
+    applicableComplaintIds: ['musculoskeletal-concern', 'regional-skin-concern', 'general-region-concern'],
+    liveWhen: ALWAYS,
+    priority: { severity: 'urgent', dependencyRank: 67 },
+    provenanceIds: [NHS_VARICOSE_VEINS_SAFETY_SOURCE_ID],
+  }),
+  ownedQuestion({
     id: 'safety-throat-airway',
     text: 'Are you having difficulty breathing, unable to swallow, drooling, or making a high-pitched sound when you breathe in?',
     caregiverText:
@@ -603,7 +781,8 @@ const BRANCH_SAFETY_QUESTIONS: readonly SafetyQuestion[] = [
     id: 'safety-upper-abdomen-injury-emergency',
     text: 'Since the injury, has your breathing or chest pain been getting worse, have you coughed up blood, is there pain in your shoulder, or did it happen in a serious accident such as a car crash?',
     caregiverText: 'Since the injury, has your child’s breathing or chest pain been getting worse, have they coughed up blood, is there pain in their shoulder, or did it happen in a serious accident such as a car crash?',
-    applicableComplaintIds: ['general-region-concern', 'upper-abdominal-concern'],
+    // A chest injury joined in phase 2: NHS Broken or bruised ribs is about the chest wall (PENDING CLINICAL REVIEW).
+    applicableComplaintIds: ['general-region-concern', 'upper-abdominal-concern', 'chest-concern'],
     liveWhen: ALWAYS,
     priority: { severity: 'emergency', dependencyRank: 11 },
     provenanceIds: [NHS_BROKEN_RIBS_SAFETY_SOURCE_ID],

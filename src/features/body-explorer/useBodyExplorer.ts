@@ -52,10 +52,14 @@ export interface BodyExplorerActions {
   stepRegion: (direction: 'next' | 'previous') => BodyRegionId | null;
 }
 
-export function useBodyExplorer(initialVariant: BodyVariantId): BodyExplorerState & BodyExplorerActions {
+export function useBodyExplorer(
+  initialVariant: BodyVariantId,
+  /** The same patient's earlier selection, when the explorer is remounted. */
+  restored?: { selection: BodySelectionState; zoom: ZoomLevel },
+): BodyExplorerState & BodyExplorerActions {
   const [variantId, setVariantId] = useState<BodyVariantId>(initialVariant);
-  const [selection, setSelection] = useState<BodySelectionState>(() => createBodySelectionState('front'));
-  const [zoom, setZoomLevel] = useState<ZoomLevel>('whole-body');
+  const [selection, setSelection] = useState<BodySelectionState>(() => restored?.selection ?? createBodySelectionState('front'));
+  const [zoom, setZoomLevel] = useState<ZoomLevel>(() => restored?.zoom ?? 'whole-body');
   const [hoveredRegionId, setHoveredRegionId] = useState<BodyRegionId | null>(null);
 
   const artwork = useMemo(

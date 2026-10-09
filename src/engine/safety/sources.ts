@@ -37,6 +37,17 @@ export const NICE_NEUROLOGICAL_REFERRAL_SAFETY_SOURCE_ID = 'r3-nice-ng127-neurol
 export const NHS_BACK_PAIN_SAFETY_SOURCE_ID = 'r3-nhs-back-pain';
 export const NHS_SCIATICA_SAFETY_SOURCE_ID = 'r3-nhs-sciatica';
 export const NHS_BROKEN_RIBS_SAFETY_SOURCE_ID = 'r3-nhs-broken-or-bruised-ribs';
+export const NHS_DENTAL_ABSCESS_SAFETY_SOURCE_ID = 'r3-nhs-dental-abscess';
+/* Questionnaire expansion phase 2, accessed 2026-10-08, each page read directly (PENDING CLINICAL REVIEW). */
+export const NHS_DVT_SAFETY_SOURCE_ID = 'r3-nhs-dvt';
+export const NHS_HERNIA_SAFETY_SOURCE_ID = 'r3-nhs-hernia';
+export const NHS_GCA_SAFETY_SOURCE_ID = 'r3-nhs-giant-cell-arteritis';
+export const NHS_CELLULITIS_SAFETY_SOURCE_ID = 'r3-nhs-cellulitis';
+export const NHS_VARICOSE_VEINS_SAFETY_SOURCE_ID = 'r3-nhs-varicose-veins';
+/* Phase 3, accessed 2026-10-09, each page read directly (PENDING CLINICAL REVIEW). */
+export const NHS_HEAD_INJURY_SAFETY_SOURCE_ID = 'r3-nhs-head-injury';
+export const NHS_BROKEN_NOSE_SAFETY_SOURCE_ID = 'r3-nhs-broken-nose';
+export const NHS_WHIPLASH_SAFETY_SOURCE_ID = 'r3-nhs-whiplash';
 
 const ACCESSED_AT = '2026-09-10';
 /** The research pass that added the paediatric, throat and injury checks. */
@@ -47,10 +58,158 @@ const NORMALIZATION_PASS_ACCESSED_AT = '2026-09-24';
 const RECONCILIATION_PASS_ACCESSED_AT = '2026-09-25';
 /** The clinical blocker pass that added the upper tummy injury check. */
 const BLOCKER_PASS_ACCESSED_AT = '2026-09-26';
+/** Phase 3: head, nose and neck injury checks. */
+const PHASE3_ACCESSED_AT = '2026-10-09';
+/** The questionnaire intelligence pass that added the dental spreading-swelling check. */
+const INTELLIGENCE_PASS_ACCESSED_AT = '2026-10-08';
 const PENDING_REVIEW_NOTE =
   'Source-backed prototype pending clinical review. Supports the warning-sign relationship and the stated level of action only; it does not diagnose and does not validate this kiosk.';
 
 export const R3_SAFETY_SOURCES: readonly ProvenanceSource[] = [
+  {
+    id: NHS_HEAD_INJURY_SAFETY_SOURCE_ID,
+    organization: 'National Health Service',
+    title: 'Head injury and concussion',
+    sourceType: 'government_guidance',
+    reference: 'NHS head injury and concussion guidance',
+    url: 'https://www.nhs.uk/conditions/head-injury-and-concussion/',
+    accessedAt: PHASE3_ACCESSED_AT,
+    locator: 'Call 999 if; Get help from NHS 111 if',
+    scope:
+      'After a head injury, 999 for being knocked out, unable to stay awake, a fit, a fall from more than 1 metre or 5 stairs, vision or hearing problems, a black eye without hitting the eye, clear fluid from the ears or nose, bleeding from the ears or bruising behind them, new numbness or weakness, problems walking, balancing, understanding, speaking or writing, a high-speed injury, a dent or something in a head wound, a bruise, swelling or large cut on the head under 1 year old, or a change in behaviour. 111 if being sick, dizzy, taking a blood thinner, or drinking alcohol or taking drugs at the time.',
+    notes: PENDING_REVIEW_NOTE,
+    reviewStatus: 'reviewed',
+    evidenceStatus: 'qualitative_supported',
+    version: 'accessed-2026-10-09',
+  },
+  {
+    id: NHS_BROKEN_NOSE_SAFETY_SOURCE_ID,
+    organization: 'National Health Service',
+    title: 'Broken nose',
+    sourceType: 'government_guidance',
+    reference: 'NHS broken nose guidance',
+    url: 'https://www.nhs.uk/conditions/broken-nose/',
+    accessedAt: PHASE3_ACCESSED_AT,
+    locator: 'Go to A&E',
+    scope:
+      'After a nose injury, A&E for a nosebleed that will not stop, clear watery fluid from the nose, a severe headache with blurred or double vision, or a purple swelling inside the nose.',
+    notes: PENDING_REVIEW_NOTE,
+    reviewStatus: 'reviewed',
+    evidenceStatus: 'qualitative_supported',
+    version: 'accessed-2026-10-09',
+  },
+  {
+    id: NHS_WHIPLASH_SAFETY_SOURCE_ID,
+    organization: 'National Health Service',
+    title: 'Whiplash',
+    sourceType: 'government_guidance',
+    reference: 'NHS whiplash guidance',
+    url: 'https://www.nhs.uk/conditions/whiplash/',
+    accessedAt: PHASE3_ACCESSED_AT,
+    locator: 'Ask for an urgent GP appointment or get help from 111',
+    scope:
+      'After a neck injury, urgent GP or 111 for severe pain despite painkillers, tingling or pins and needles on one or both sides of the body, problems walking or sitting upright, a sudden electric-shock feeling in the neck and back, or weak hands, arms or legs.',
+    notes: PENDING_REVIEW_NOTE,
+    reviewStatus: 'reviewed',
+    evidenceStatus: 'qualitative_supported',
+    version: 'accessed-2026-10-09',
+  },
+  {
+    id: NHS_DVT_SAFETY_SOURCE_ID,
+    organization: 'National Health Service',
+    title: 'Deep vein thrombosis (DVT)',
+    sourceType: 'government_guidance',
+    reference: 'NHS deep vein thrombosis (dvt) guidance',
+    url: 'https://www.nhs.uk/conditions/deep-vein-thrombosis-dvt/',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED_AT,
+    locator: 'Ask for an urgent GP appointment or get help from 111; Call 999 or go to A&E',
+    scope:
+      'Throbbing pain and swelling in 1 leg, usually the calf or thigh, with red, blue or darkened skin: urgent GP or 111. With shortness of breath or chest pain: 999 or A&E.',
+    notes: PENDING_REVIEW_NOTE,
+    reviewStatus: 'reviewed',
+    evidenceStatus: 'qualitative_supported',
+    version: 'accessed-2026-10-08',
+  },
+  {
+    id: NHS_HERNIA_SAFETY_SOURCE_ID,
+    organization: 'National Health Service',
+    title: 'Hernia',
+    sourceType: 'government_guidance',
+    reference: 'NHS hernia guidance',
+    url: 'https://www.nhs.uk/conditions/hernia/',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED_AT,
+    locator: 'Get help from 111',
+    scope:
+      'A hernia with pain in or around it, a bloated tummy, feeling or being sick, vomiting blood, constipation, a high temperature or sudden confusion needs help from 111.',
+    notes: PENDING_REVIEW_NOTE,
+    reviewStatus: 'reviewed',
+    evidenceStatus: 'qualitative_supported',
+    version: 'accessed-2026-10-08',
+  },
+  {
+    id: NHS_GCA_SAFETY_SOURCE_ID,
+    organization: 'National Health Service',
+    title: 'Giant cell arteritis (temporal arteritis)',
+    sourceType: 'government_guidance',
+    reference: 'NHS giant cell arteritis (temporal arteritis) guidance',
+    url: 'https://www.nhs.uk/conditions/giant-cell-arteritis/',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED_AT,
+    locator: 'Ask for an urgent GP appointment or get help from 111',
+    scope:
+      'Frequent severe headaches, pain or tenderness at the temples or on the scalp, jaw pain while eating or talking, and vision problems: urgent GP or 111, because it can lead to stroke and blindness if not treated quickly.',
+    notes: PENDING_REVIEW_NOTE,
+    reviewStatus: 'reviewed',
+    evidenceStatus: 'qualitative_supported',
+    version: 'accessed-2026-10-08',
+  },
+  {
+    id: NHS_CELLULITIS_SAFETY_SOURCE_ID,
+    organization: 'National Health Service',
+    title: 'Cellulitis',
+    sourceType: 'government_guidance',
+    reference: 'NHS cellulitis guidance',
+    url: 'https://www.nhs.uk/conditions/cellulitis/',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED_AT,
+    locator: 'Ask for an urgent GP appointment or get help from 111; Call 999 or go to A&E',
+    scope:
+      'Painful, hot and swollen skin: urgent GP or 111. With a very high temperature or feeling hot, cold or shivery, a fast heartbeat or fast breathing, purple patches, feeling dizzy or faint, confusion, or cold, clammy or pale skin: 999 or A&E.',
+    notes: PENDING_REVIEW_NOTE,
+    reviewStatus: 'reviewed',
+    evidenceStatus: 'qualitative_supported',
+    version: 'accessed-2026-10-08',
+  },
+  {
+    id: NHS_VARICOSE_VEINS_SAFETY_SOURCE_ID,
+    organization: 'National Health Service',
+    title: 'Varicose veins',
+    sourceType: 'government_guidance',
+    reference: 'NHS varicose veins guidance',
+    url: 'https://www.nhs.uk/conditions/varicose-veins/',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED_AT,
+    locator: 'Ask for an urgent GP appointment or get help from 111',
+    scope:
+      'Varicose veins that are bleeding need an urgent GP appointment or help from 111.',
+    notes: PENDING_REVIEW_NOTE,
+    reviewStatus: 'reviewed',
+    evidenceStatus: 'qualitative_supported',
+    version: 'accessed-2026-10-08',
+  },
+  {
+    id: NHS_DENTAL_ABSCESS_SAFETY_SOURCE_ID,
+    organization: 'National Health Service',
+    title: 'Dental abscess; Toothache',
+    sourceType: 'government_guidance',
+    reference: 'NHS dental abscess and toothache guidance',
+    url: 'https://www.nhs.uk/conditions/dental-abscess/',
+    accessedAt: INTELLIGENCE_PASS_ACCESSED_AT,
+    locator: 'Call 999 or go to A&E (Dental abscess); Go to A&E (Toothache)',
+    scope:
+      'With a dental abscess or toothache: a swollen or painful eye or sudden eyesight problems, swelling around the eye or in the neck, a lot of swelling in the mouth, or finding it hard to open the mouth, breathe, speak or swallow needs 999 or A&E.',
+    notes: PENDING_REVIEW_NOTE,
+    reviewStatus: 'reviewed',
+    evidenceStatus: 'qualitative_supported',
+    version: 'accessed-2026-10-08',
+  },
   {
     id: AHA_CHEST_PAIN_SAFETY_SOURCE_ID,
     organization: 'American Heart Association and American College of Cardiology',
@@ -867,7 +1026,7 @@ export const R3_SAFETY_EVIDENCE_REGISTER: readonly SafetyEvidenceRegisterEntry[]
   },
   {
     sourceId: NHS_BACK_PAIN_SAFETY_SOURCE_ID,
-    ruleIds: ['back-cauda-equina-pattern'],
+    ruleIds: ['back-urgent-features', 'joint-back-urgent-features', 'back-cauda-equina-pattern'],
     supports: 'Back pain with symptoms in both legs, numbness around the genitals or anus, or new bladder or bowel change needs 999 or A&E.',
     doesNotSupport: SYSTEM_LIMITATION,
   },
@@ -881,6 +1040,60 @@ export const R3_SAFETY_EVIDENCE_REGISTER: readonly SafetyEvidenceRegisterEntry[]
     sourceId: NHS_BROKEN_RIBS_SAFETY_SOURCE_ID,
     ruleIds: ['upper-abdomen-injury-emergency'],
     supports: 'After an injury to the ribs or upper body, a serious accident, worsening breathlessness or chest pain, shoulder pain or coughing up blood needs 999 or A&E.',
+    doesNotSupport: SYSTEM_LIMITATION,
+  },
+  {
+    sourceId: NHS_HEAD_INJURY_SAFETY_SOURCE_ID,
+    ruleIds: ['head-injury-emergency-signs', 'head-injury-emergency-mechanism', 'head-injury-urgent'],
+    supports: 'The NHS 999 and 111 lists after a head injury, asked of a head or face injury.',
+    doesNotSupport: SYSTEM_LIMITATION,
+  },
+  {
+    sourceId: NHS_BROKEN_NOSE_SAFETY_SOURCE_ID,
+    ruleIds: ['nose-injury-emergency'],
+    supports: 'After a nose injury, a purple swelling inside the nose or a severe headache with blurred or double vision needs A&E.',
+    doesNotSupport: SYSTEM_LIMITATION,
+  },
+  {
+    sourceId: NHS_WHIPLASH_SAFETY_SOURCE_ID,
+    ruleIds: ['neck-injury-urgent'],
+    supports: 'After a neck injury, severe pain despite painkillers, tingling on one or both sides, problems walking or sitting, an electric-shock feeling or weak limbs need an urgent GP appointment or 111.',
+    doesNotSupport: SYSTEM_LIMITATION,
+  },
+  {
+    sourceId: NHS_DVT_SAFETY_SOURCE_ID,
+    ruleIds: ['dvt-suspected-urgent', 'dvt-breathless-or-chest-pain', 'joint-dvt-suspected-urgent', 'joint-dvt-breathless-or-chest-pain'],
+    supports: 'Throbbing pain and swelling in one leg is an urgent GP or 111 matter; with shortness of breath or chest pain it is a 999 emergency.',
+    doesNotSupport: SYSTEM_LIMITATION,
+  },
+  {
+    sourceId: NHS_HERNIA_SAFETY_SOURCE_ID,
+    ruleIds: ['hernia-complication-urgent'],
+    supports: 'A hernia with pain, a bloated tummy, sickness, constipation or a high temperature needs help from 111.',
+    doesNotSupport: SYSTEM_LIMITATION,
+  },
+  {
+    sourceId: NHS_GCA_SAFETY_SOURCE_ID,
+    ruleIds: ['temporal-arteritis-urgent'],
+    supports: 'Tender temples or scalp, jaw pain on eating or talking, severe headaches and vision problems need an urgent GP appointment or 111.',
+    doesNotSupport: SYSTEM_LIMITATION,
+  },
+  {
+    sourceId: NHS_CELLULITIS_SAFETY_SOURCE_ID,
+    ruleIds: ['skin-painful-hot-swollen-urgent', 'skin-infection-emergency-features'],
+    supports: 'Painful, hot, swollen skin needs an urgent GP appointment or 111; with the listed systemic features it is a 999 emergency.',
+    doesNotSupport: SYSTEM_LIMITATION,
+  },
+  {
+    sourceId: NHS_VARICOSE_VEINS_SAFETY_SOURCE_ID,
+    ruleIds: ['varicose-vein-bleeding-urgent'],
+    supports: 'Bleeding varicose veins need an urgent GP appointment or 111.',
+    doesNotSupport: SYSTEM_LIMITATION,
+  },
+  {
+    sourceId: NHS_DENTAL_ABSCESS_SAFETY_SOURCE_ID,
+    ruleIds: ['dental-spreading-swelling'],
+    supports: 'With a tooth or gum problem, a swollen or painful eye, swelling in the neck, a lot of swelling in the mouth or finding it hard to open the mouth needs 999 or A&E; breathing, speaking or swallowing difficulty is screened by the airway check.',
     doesNotSupport: SYSTEM_LIMITATION,
   },
   {

@@ -101,12 +101,19 @@ export function drawSignalWaves(scene: Scene, scheduler: PulseScheduler, alpha: 
     trail.addColorStop(0, `rgba(${config.pulseRgb}, 0)`);
     trail.addColorStop(0.72, `rgba(${config.pulseRgb}, ${strength})`);
     trail.addColorStop(1, `rgba(${config.pulseRgb}, 0)`);
+    // The glow is a wide, faint stroke beneath the trail rather than a canvas
+    // shadow: shadowBlur re-blurs the path on every frame and was among the
+    // most expensive operations in the loop.
+    const glow = ctx.createLinearGradient(pulseX - config.pulseHalfLength, 0, pulseX + config.pulseHalfLength, 0);
+    glow.addColorStop(0, `rgba(${config.pulseGlowRgb}, 0)`);
+    glow.addColorStop(0.72, `rgba(${config.pulseGlowRgb}, ${config.pulseGlowAlpha * (0.5 + fade * 0.5)})`);
+    glow.addColorStop(1, `rgba(${config.pulseGlowRgb}, 0)`);
+    ctx.strokeStyle = glow;
+    ctx.lineWidth = config.pulseGlowWidth;
+    ctx.stroke();
     ctx.strokeStyle = trail;
-    ctx.shadowColor = config.pulseGlow;
-    ctx.shadowBlur = config.pulseGlowBlur;
     ctx.lineWidth = config.pulseWidth;
     ctx.stroke();
-    ctx.shadowBlur = 0;
     pulse = { active: true, x: pulseX, y: lineY(scene, activeLine, pulseX), fade };
   }
   ctx.restore();

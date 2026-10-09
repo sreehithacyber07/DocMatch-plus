@@ -32,6 +32,7 @@ function materializeComplaintInternal(
       id: definition.id,
       text: definition.text,
       options,
+      ...(definition.evidenceDimension ? { evidenceDimension: definition.evidenceDimension } : {}),
       appliesWhen: (_belief, askedQuestionIds) => {
         if (definition.applicability.kind === 'always') return true;
         return (

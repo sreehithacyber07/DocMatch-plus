@@ -28,6 +28,8 @@ export const PERSISTENCE_CONFIG = resolvePersistenceConfig({
   url: import.meta.env.VITE_SUPABASE_URL,
   publishableKey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
   deploymentMode: DEPLOYMENT_MODE,
+  buildTarget: import.meta.env.VITE_BUILD_TARGET,
+  demoMode: import.meta.env.VITE_DEMO_MODE,
 });
 
 /** True when this build sends assessment responses to the DocMatch+ backend. */

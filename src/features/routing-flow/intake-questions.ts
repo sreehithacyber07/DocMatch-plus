@@ -205,6 +205,24 @@ export const INTAKE_QUESTION_IDS = {
   injuryFunction: 'intake-injury-function',
   mskMechanical: 'intake-msk-mechanical',
   mskDuration: 'intake-msk-duration',
+  /* Questionnaire intelligence pass (PENDING CLINICAL REVIEW). */
+  toothFeatures: 'intake-face-tooth-features',
+  jointPattern: 'intake-joint-pattern',
+  injuryFeatures: 'intake-injury-features',
+  /* Questionnaire expansion phase 2 (PENDING CLINICAL REVIEW). */
+  mskSiteFeatures: 'intake-msk-site-features',
+  mskWorseWhen: 'intake-msk-worse-when',
+  mskHomeTreatment: 'intake-msk-home-treatment',
+  neuroDistribution: 'intake-neuro-distribution',
+  legVeinFeatures: 'intake-leg-vein-features',
+  herniaFeatures: 'intake-hernia-features',
+  breastFeatures: 'intake-breast-features',
+  templeFeatures: 'intake-temple-features',
+  urinaryFeatures: 'intake-urinary-features',
+  noseInjuryFeatures: 'intake-nose-injury-features',
+  neckInjuryFeatures: 'intake-neck-injury-features',
+  oralSwellingSite: 'intake-oral-swelling-site',
+  palpitationTriggers: 'intake-palpitation-triggers',
   /* Normalization pass: branch follow-ups and one split concept. */
   nosebleedAssociated: 'intake-face-nosebleed-associated',
   noseTreatment: 'intake-face-nose-treatment',
@@ -636,6 +654,24 @@ export const CANONICAL_INTAKE_QUESTIONS: readonly CanonicalIntakeQuestionDefinit
   branchDefinition(INTAKE_QUESTION_IDS.injuryFunction, 'How well the injured or painful part can be used or can bear weight.', 'injury-function', 'all-supported-regions', [COVERAGE_SOURCE_IDS.nhsJointPain, COVERAGE_SOURCE_IDS.nhsKneePain, COVERAGE_SOURCE_IDS.nhsSprains]),
   branchDefinition(INTAKE_QUESTION_IDS.mskMechanical, 'Mechanical joint features: locking, giving way, painful clicking or swelling that returns.', 'msk-mechanical', 'all-supported-regions', [COVERAGE_SOURCE_IDS.nhsKneePain, COVERAGE_SOURCE_IDS.nhsJointPain]),
   branchDefinition(INTAKE_QUESTION_IDS.mskDuration, 'How long a joint, muscle or injury problem has lasted, or whether it keeps coming back.', 'msk-duration', 'all-supported-regions', [COVERAGE_SOURCE_IDS.nhsJointPain, COVERAGE_SOURCE_IDS.nhsKneePain, COVERAGE_SOURCE_IDS.nhsSprains]),
+  /* --- Questionnaire intelligence pass (PENDING CLINICAL REVIEW) ------------ */
+  branchDefinition(INTAKE_QUESTION_IDS.toothFeatures, 'The tooth and gum features the dental guidance names for seeing a dentist: not settling with painkillers, pain on biting, hot or cold sensitivity, gum change, swelling, a bad taste, a loose tooth, a high temperature.', 'tooth-features', ['face'], [COVERAGE_SOURCE_IDS.nhsToothache, COVERAGE_SOURCE_IDS.nhsDentalAbscess, COVERAGE_SOURCE_IDS.nhsGumDisease]),
+  adultOnly(branchDefinition(INTAKE_QUESTION_IDS.jointPattern, 'Which joints are affected and how: more than one, the small joints of the hands or feet, both sides, long morning stiffness.', 'joint-pattern', 'all-supported-regions', [COVERAGE_SOURCE_IDS.niceRheumatoidArthritis, COVERAGE_SOURCE_IDS.nhsRheumatoidArthritis])),
+  branchDefinition(INTAKE_QUESTION_IDS.injuryFeatures, 'What was noticed at and since an injury: a pop, rapid swelling, bruising, an earlier injury to the same place.', 'injury-features', 'all-supported-regions', [COVERAGE_SOURCE_IDS.nhsKneePain, COVERAGE_SOURCE_IDS.nhsSprains]),
+  /* --- Questionnaire expansion phase 2 (PENDING CLINICAL REVIEW) ----------- */
+  branchDefinition(INTAKE_QUESTION_IDS.mskSiteFeatures, 'The features the NHS page for this part of the body lists in its own symptom table (shoulder, elbow and arm, wrist and hand, hip and thigh, knee, lower leg, ankle and foot, back).', 'msk-site-features', 'all-supported-regions', [COVERAGE_SOURCE_IDS.nhsShoulderPain, COVERAGE_SOURCE_IDS.nhsElbowArmPain, COVERAGE_SOURCE_IDS.nhsWristPain, COVERAGE_SOURCE_IDS.nhsHipPain, COVERAGE_SOURCE_IDS.nhsKneePain, COVERAGE_SOURCE_IDS.nhsHeelPain, COVERAGE_SOURCE_IDS.nhsAnklePain, COVERAGE_SOURCE_IDS.nhsBackPain, COVERAGE_SOURCE_IDS.nhsDvt]),
+  branchDefinition(INTAKE_QUESTION_IDS.mskWorseWhen, 'When a joint or muscle problem is worse: with use, with weight, at night or rest, or first thing in the morning.', 'msk-worse-when', 'all-supported-regions', [COVERAGE_SOURCE_IDS.nhsHipPain, COVERAGE_SOURCE_IDS.nhsShoulderPain, COVERAGE_SOURCE_IDS.nhsHeelPain, COVERAGE_SOURCE_IDS.nhsWristPain]),
+  branchDefinition(INTAKE_QUESTION_IDS.mskHomeTreatment, 'Whether home treatment (rest, ice or heat, painkillers) has been tried, for how long, and whether it has helped.', 'msk-home-treatment', 'all-supported-regions', [COVERAGE_SOURCE_IDS.nhsJointPain, COVERAGE_SOURCE_IDS.nhsHipPain, COVERAGE_SOURCE_IDS.nhsShoulderPain, COVERAGE_SOURCE_IDS.nhsWristPain, COVERAGE_SOURCE_IDS.nhsAnklePain, COVERAGE_SOURCE_IDS.nhsBackPain, COVERAGE_SOURCE_IDS.nhsNeckPain]),
+  branchDefinition(INTAKE_QUESTION_IDS.neuroDistribution, 'Where numbness or tingling is felt: thumb side of the hand, across the hand or arm, both feet or hands, down one leg, or one small patch.', 'neuro-distribution', 'all-supported-regions', [COVERAGE_SOURCE_IDS.nhsCarpalTunnel, COVERAGE_SOURCE_IDS.nhsPeripheralNeuropathy, COVERAGE_SOURCE_IDS.nhsSciatica, COVERAGE_SOURCE_IDS.nhsPinsAndNeedles]),
+  adultOnly(branchDefinition(INTAKE_QUESTION_IDS.legVeinFeatures, 'The leg vein features NHS Varicose veins, NICE CG168 and NHS DVT name: bulging veins, aching or heaviness, skin change, a sore not healing, a hard painful vein, a bleeding vein, pain and swelling in one leg.', 'leg-vein-features', 'all-supported-regions', [COVERAGE_SOURCE_IDS.nhsVaricoseVeins, COVERAGE_SOURCE_IDS.niceVaricoseVeins, COVERAGE_SOURCE_IDS.nhsDvt])),
+  branchDefinition(INTAKE_QUESTION_IDS.herniaFeatures, 'The features NHS Hernia names for a lump in the tummy or groin: bigger on coughing or straining, smaller lying down, tight skin, a dragging feeling, pain, sickness or bloating.', 'hernia-features', ['upper-abdomen', 'lower-abdomen', 'pelvis'], [COVERAGE_SOURCE_IDS.nhsHernia]),
+  adultOnly(branchDefinition(INTAKE_QUESTION_IDS.breastFeatures, 'The breast changes NHS Breast lumps and NICE NG12 name: a lump in the breast or armpit, a nipple turning in, dimpled skin, nipple discharge.', 'breast-features', ['chest'], [COVERAGE_SOURCE_IDS.nhsBreastLump, COVERAGE_SOURCE_IDS.niceSuspectedCancer])),
+  branchDefinition(INTAKE_QUESTION_IDS.noseInjuryFeatures, 'The broken-nose features NHS Broken nose lists: a crooked or changed shape, blocked breathing, a crunching sound, swelling not going down after 3 days.', 'nose-injury-features', ['face'], [COVERAGE_SOURCE_IDS.nhsBrokenNose]),
+  branchDefinition(INTAKE_QUESTION_IDS.neckInjuryFeatures, 'The whiplash features NHS Whiplash lists: stiffness, headaches, shoulder or arm pain and spasms, not improving after a week or with painkillers.', 'neck-injury-features', ['neck', 'face'], [COVERAGE_SOURCE_IDS.nhsWhiplash]),
+  branchDefinition(INTAKE_QUESTION_IDS.oralSwellingSite, 'Where a mouth or jaw swelling is: near a tooth or in the gum, under the jaw or in the neck, inside the cheek or on the lip.', 'oral-swelling-site', ['face'], [COVERAGE_SOURCE_IDS.nhsDentalAbscess, COVERAGE_SOURCE_IDS.nhsToothache, COVERAGE_SOURCE_IDS.nhsLumps]),
+  branchDefinition(INTAKE_QUESTION_IDS.urinaryFeatures, 'The urinary features NHS UTI and NHS Enlarged prostate list: burning, cloudy pee, getting up at night, a weak or stop-start flow, straining, not emptying, dribbling.', 'urinary-features', ['lower-abdomen', 'pelvis', 'upper-abdomen'], [COVERAGE_SOURCE_IDS.nhsUrinaryTractInfection, COVERAGE_SOURCE_IDS.nhsProstateEnlargement]),
+  branchDefinition(INTAKE_QUESTION_IDS.palpitationTriggers, 'The lifestyle triggers NHS Heart palpitations lists: strenuous exercise, lack of sleep, stress or anxiety, medicines, alcohol, caffeine, nicotine or recreational drugs.', 'palpitation-triggers', ['chest'], [COVERAGE_SOURCE_IDS.nhsPalpitations]),
+  adultOnly(branchDefinition(INTAKE_QUESTION_IDS.templeFeatures, 'The features NHS Giant cell arteritis names: tender temples or scalp, jaw pain when eating or talking, frequent severe headaches, vision problems.', 'temple-features', ['face'], [COVERAGE_SOURCE_IDS.nhsGiantCellArteritis])),
   /* --- Normalization pass branch follow-ups ------------------------------- */
   branchDefinition(INTAKE_QUESTION_IDS.noseTreatment, 'Whether pharmacy or GP treatment has been tried for a short nasal or sinus problem, and whether it has helped after 7 days.', 'nose-treatment', ['face'], [COVERAGE_SOURCE_IDS.nhsSinusitis]),
   branchDefinition(INTAKE_QUESTION_IDS.bowelBleedingDuration, 'How long blood has been noticed in the poo, in the 3-week band the rectal bleeding guidance uses.', 'bowel-bleeding-duration', ['lower-abdomen', 'pelvis', 'upper-abdomen'], [COVERAGE_SOURCE_IDS.nhsRectalBleeding]),
@@ -674,9 +710,9 @@ export const CANONICAL_INTAKE_QUESTIONS: readonly CanonicalIntakeQuestionDefinit
   adultOnly(branchDefinition(INTAKE_QUESTION_IDS.breathingAnkles, 'Whether the feet, ankles or legs have been swollen, with a breathing problem. Asked only when the approved R1 question has not recorded the same fact.', 'breathing-ankles', ['chest'], [COVERAGE_SOURCE_IDS.nhsHeartFailure])),
   adultOnly(branchDefinition(INTAKE_QUESTION_IDS.breathingLyingFlat, 'Whether breathing gets worse when lying down. Asked only when the approved R1 question has not recorded the same fact.', 'breathing-lying-flat', ['chest'], [COVERAGE_SOURCE_IDS.nhsHeartFailure])),
   adultOnly(branchDefinition(INTAKE_QUESTION_IDS.breathingActivity, 'Whether ordinary activity brings on or worsens the breathing problem. Asked only when the core breathing description has not already recorded the same fact.', 'breathing-activity', ['chest'], [COVERAGE_SOURCE_IDS.nhsHeartFailure])),
-  branchDefinition(INTAKE_QUESTION_IDS.abdomenInjuryTiming, 'When an injury to the upper tummy or lower ribs happened, in the bands the rib injury guidance uses.', 'abdomen-injury-timing', ['upper-abdomen'], [COVERAGE_SOURCE_IDS.nhsBrokenRibs]),
-  branchDefinition(INTAKE_QUESTION_IDS.abdomenInjuryMovement, 'Whether pain after an upper tummy or lower rib injury is worse on breathing in, coughing or moving.', 'abdomen-injury-movement', ['upper-abdomen'], [COVERAGE_SOURCE_IDS.nhsBrokenRibs]),
-  branchDefinition(INTAKE_QUESTION_IDS.abdomenInjuryFeatures, 'What has been noticed since an upper tummy or lower rib injury: bruising, swelling or tenderness, being sick, or feeling dizzy or faint.', 'abdomen-injury-features', ['upper-abdomen'], [COVERAGE_SOURCE_IDS.nhsBrokenRibs, COVERAGE_SOURCE_IDS.nhsStomachAche]),
+  branchDefinition(INTAKE_QUESTION_IDS.abdomenInjuryTiming, 'When an injury to the chest, ribs or upper tummy happened, in the bands the rib injury guidance uses.', 'abdomen-injury-timing', ['upper-abdomen', 'chest'], [COVERAGE_SOURCE_IDS.nhsBrokenRibs]),
+  branchDefinition(INTAKE_QUESTION_IDS.abdomenInjuryMovement, 'Whether pain after a chest, rib or upper tummy injury is worse on breathing in, coughing or moving.', 'abdomen-injury-movement', ['upper-abdomen', 'chest'], [COVERAGE_SOURCE_IDS.nhsBrokenRibs]),
+  branchDefinition(INTAKE_QUESTION_IDS.abdomenInjuryFeatures, 'What has been noticed since a chest, rib or upper tummy injury: bruising, swelling or tenderness, being sick, or feeling dizzy or faint.', 'abdomen-injury-features', ['upper-abdomen', 'chest'], [COVERAGE_SOURCE_IDS.nhsBrokenRibs, COVERAGE_SOURCE_IDS.nhsStomachAche]),
   branchDefinition(INTAKE_QUESTION_IDS.otherClarifier, 'For an upper tummy concern described as something else: which concern family it is closest to, so the matching branch is asked instead of a generic tail.', 'other-clarifier', ['upper-abdomen'], [COVERAGE_SOURCE_IDS.cmsHpi]),
 ];
 
@@ -887,6 +923,9 @@ function resolveStaticQuestion(question: IntakeQuestion, complaintId: string): I
  * only while a criterion can still be met (`extension`) is its own `stage`.
  */
 export const GATE_CRITERION_QUESTION_IDS: ReadonlySet<string> = new Set([
+  // Phase 3: a one-calf answer excludes the elective Orthopaedics and
+  // Rheumatology sets (a possible clot is not an elective referral).
+  INTAKE_QUESTION_IDS.mskSiteFeatures,
   INTAKE_QUESTION_IDS.earDetail,
   INTAKE_QUESTION_IDS.earAssociated,
   INTAKE_QUESTION_IDS.earPersistence,
@@ -922,6 +961,13 @@ export const GATE_CRITERION_QUESTION_IDS: ReadonlySet<string> = new Set([
   INTAKE_QUESTION_IDS.injuryFunction,
   INTAKE_QUESTION_IDS.mskMechanical,
   INTAKE_QUESTION_IDS.mskDuration,
+  INTAKE_QUESTION_IDS.toothFeatures,
+  INTAKE_QUESTION_IDS.mouthDuration,
+  INTAKE_QUESTION_IDS.mouthDetail,
+  INTAKE_QUESTION_IDS.legVeinFeatures,
+  INTAKE_QUESTION_IDS.herniaFeatures,
+  INTAKE_QUESTION_IDS.breastFeatures,
+  INTAKE_QUESTION_IDS.jointPattern,
   INTAKE_QUESTION_IDS.breathingDetail,
   INTAKE_QUESTION_IDS.breathingRecurrence,
   INTAKE_QUESTION_IDS.headFrequency,
@@ -962,6 +1008,9 @@ export const GATE_CRITERION_QUESTION_IDS: ReadonlySet<string> = new Set([
  */
 export const R1_ANSWERS_READ_BY_GATE: ReadonlySet<string> = new Set([
   'joint-musculoskeletal-pain-use-weight',
+  // Rheumatology (NICE NG100): a swollen joint, not after an injury.
+  'joint-musculoskeletal-pain-swelling-bruising',
+  'joint-musculoskeletal-pain-injury',
   'upper-abdominal-pain-burning',
   'upper-abdominal-pain-exertional',
   'shortness-of-breath-ankle-swelling',
@@ -1322,6 +1371,253 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
     informationGainRank: 15,
   });
 
+  /*
+    What was noticed at and since an injury (PENDING CLINICAL REVIEW). NHS
+    Knee pain lists an unstable joint with a pop at the time of injury with
+    ligament, tendon or cartilage damage, and NHS Sprains and strains turns on
+    swelling and bruising. Context for the clinician; it is not a referral
+    criterion, and deformity, numbness or being unable to bear weight at all
+    stay with the R3 injury check.
+  */
+  const injuryFeatures = () => push({
+    id: INTAKE_QUESTION_IDS.injuryFeatures,
+    category: 'context',
+    eyebrow: 'Since the injury',
+    prompt: say('Have you noticed any of these? Choose all that apply.', 'Have you noticed any of these in your child? Choose all that apply.'),
+    control: 'multi-select',
+    options: options(['pop', 'A pop or snap at the time'], ['swelled-fast', 'It swelled up within a few hours'], ['bruising', 'Bruising'], ['previous', 'The same place was injured before'], ['none', 'None of these']),
+    exclusiveOptionIds: ['none'],
+    sourceIds: [COVERAGE_SOURCE_IDS.nhsKneePain, COVERAGE_SOURCE_IDS.nhsSprains],
+    rationale: 'NHS Knee pain lists a pop at the time of injury with ligament or cartilage damage, and NHS Sprains and strains turns on swelling and bruising; an earlier injury to the same place is context for the clinician.',
+    progressionStage: 'characterize',
+    informationGainRank: 22,
+  });
+
+  /*
+    Tooth and gum features (PENDING CLINICAL REVIEW). Asked only once the
+    problem is placed in a tooth or the gum. Each option is a feature NHS
+    Toothache, Dental abscess or Gum disease names for seeing a dentist; a
+    swelling or a high temperature brings the dental emergency check forward,
+    which owns swelling around the eye or neck and a mouth that will not open.
+  */
+  const toothFeatures = (site: ShowCondition) => push({
+    id: INTAKE_QUESTION_IDS.toothFeatures,
+    category: 'context',
+    eyebrow: 'Tooth or gum',
+    prompt: say('Do any of these apply? Choose all that apply.', 'Do any of these apply to your child? Choose all that apply.'),
+    control: 'multi-select',
+    // How long it has lasted is read from the duration question the branch already asked.
+    options: options(
+      ['painkillers', 'Painkillers are not helping'],
+      ['bite', 'It hurts to bite or chew on it'],
+      ['hot-cold', 'It hurts with hot or cold food or drink'],
+      ['gums', 'Red, swollen, sore or bleeding gums'],
+      ['swelling', 'A swollen cheek or jaw'],
+      ['taste', 'A bad taste in the mouth'],
+      ['loose', 'A tooth feels loose'],
+      ['temperature', 'A high temperature'],
+      ['none', 'None of these'],
+    ),
+    exclusiveOptionIds: ['none'],
+    acuityOptionIds: ['swelling', 'temperature'],
+    showWhen: site,
+    sourceIds: [COVERAGE_SOURCE_IDS.nhsToothache, COVERAGE_SOURCE_IDS.nhsDentalAbscess, COVERAGE_SOURCE_IDS.nhsGumDisease],
+    rationale: 'Each option is a feature NHS Toothache, Dental abscess or Gum disease names for seeing a dentist. They can coexist, and together they separate a dental problem from a jaw joint or mouth lining one.',
+    progressionStage: 'discriminate',
+    informationGainRank: 30,
+  });
+
+  /*
+    Joint distribution (NICE NG100 1.1.1; NHS Rheumatoid arthritis, PENDING
+    CLINICAL REVIEW). An extension: asked only while the Rheumatology criteria
+    can still be met, which needs a swollen joint not caused by an injury.
+  */
+  const jointPatternQuestion = () => push({
+    id: INTAKE_QUESTION_IDS.jointPattern,
+    category: 'context',
+    eyebrow: 'Your joints',
+    prompt: 'Do any of these describe your joints? Choose all that apply.',
+    control: 'multi-select',
+    options: options(['several', 'More than one joint is affected'], ['small-joints', 'Small joints of the fingers, hands, toes or feet'], ['both-sides', 'The same joints on both sides of the body'], ['morning-stiffness', 'Stiff for more than 30 minutes after waking'], ['none', 'None of these']),
+    exclusiveOptionIds: ['none'],
+    sourceIds: [COVERAGE_SOURCE_IDS.niceRheumatoidArthritis, COVERAGE_SOURCE_IDS.nhsRheumatoidArthritis],
+    rationale: 'NICE NG100 refers persistent joint swelling of no clear cause, urgently when more than one joint or the small joints of the hands or feet are affected; NHS Rheumatoid arthritis adds both sides and morning stiffness lasting longer than 30 minutes.',
+    progressionStage: 'discriminate',
+    informationGainRank: 45,
+    stage: 'extension',
+  });
+
+  /*
+    QUESTIONNAIRE EXPANSION PHASE 2 (PENDING CLINICAL REVIEW)
+
+    Each builder asks what the NHS page for that part of the body lists in its
+    own symptom table, in the patient's words, never a diagnosis. Options that
+    a page sends for urgent help bring the matching R3 check forward; they
+    never fire a rule themselves.
+  */
+  const siteRegion = context.bodyRegionId;
+  const siteFeatures = (): { options: readonly IntakeOption[]; sources: readonly string[]; acuity: readonly string[]; rationale: string } | null => {
+    if (/shoulder/.test(siteRegion)) return {
+      options: options(['stiff-long', 'Pain and stiffness that has not gone away for months'], ['worse-using', 'Worse when using the arm or shoulder'], ['top', 'Pain on top of the shoulder, where the collarbone meets it'], ['clicks-unstable', 'It clicks, locks or feels unstable'], ['arm-tingling', 'Tingling, numbness or weakness in the arm'], ['none', 'None of these']),
+      sources: [COVERAGE_SOURCE_IDS.nhsShoulderPain], acuity: ['arm-tingling'],
+      rationale: 'The rows of the NHS Shoulder pain symptom table, in its own words. Pins and needles or numbness is one of its urgent features.',
+    };
+    if (/upper-arm|elbow|forearm/.test(siteRegion)) return {
+      options: options(['outside-elbow', 'Pain on the outside of the elbow, hard to straighten the arm fully'], ['joint-stiff-swollen', 'Stiffness or swelling around the joint'], ['from-shoulder', 'Pain and stiffness coming down from the shoulder'], ['exercise-rest', 'It hurts when you exercise and eases when you rest'], ['tingling', 'Tingling or numbness in the arm'], ['none', 'None of these']),
+      sources: [COVERAGE_SOURCE_IDS.nhsElbowArmPain], acuity: ['tingling'],
+      rationale: 'The rows of the NHS Elbow and arm pain symptom table. NHS sends an arm that hurts on exercise and eases with rest to 111, and a tingling or numb arm to A&E.',
+    };
+    if (/wrist|hand/.test(siteRegion)) return {
+      options: options(['night-tingling', 'Aching worse at night, with tingling or pins and needles in the fingers'], ['thumb-base', 'Pain, swelling or stiffness at the base of the thumb'], ['lump-top', 'A smooth lump on top of the wrist'], ['grip', 'Hard to move the wrist or grip things'], ['none', 'None of these']),
+      sources: [COVERAGE_SOURCE_IDS.nhsWristPain, COVERAGE_SOURCE_IDS.nhsCarpalTunnel], acuity: [],
+      rationale: 'The rows of the NHS Wrist pain symptom table; NHS Carpal tunnel syndrome adds that the tingling is usually worse at night.',
+    };
+    if (/hip|thigh/.test(siteRegion)) return {
+      options: options(['worse-walking', 'Worse when walking, and stiff after moving'], ['stiff-after-rest', 'Stiff after not moving, or for more than 30 minutes after waking'], ['spreads-thigh', 'Spreads down the thigh, worse lying on that side'], ['sleep', 'Stopping you sleeping or doing normal activities'], ['hot-swollen', 'Hot or swollen'], ['none', 'None of these']),
+      sources: [COVERAGE_SOURCE_IDS.nhsHipPain], acuity: ['hot-swollen'],
+      rationale: 'The rows and GP features of NHS Hip pain in adults. A hot, swollen hip is one of its urgent features.',
+    };
+    if (/knee/.test(siteRegion)) return {
+      options: options(['both-knees', 'Pain and stiffness in both knees'], ['kneel-bend', 'Kneeling or bending makes it worse, and it looks warm or red'], ['below-kneecap', 'Pain and swelling just below the kneecap'], ['run-jump', 'Pain between the kneecap and shin after running or jumping'], ['hot-attacks', 'Hot and red, with sudden attacks of very bad pain'], ['blood-thinner', 'Swelling or bruising while taking a blood-thinning medicine'], ['none', 'None of these']),
+      sources: [COVERAGE_SOURCE_IDS.nhsKneePain], acuity: ['hot-attacks'],
+      rationale: 'The rows of the NHS Knee pain symptom table, in its own words. Hot, red attacks of very bad pain bring the hot-joint check forward.',
+    };
+    if (/lower-leg/.test(siteRegion)) return {
+      options: options(['one-calf', 'Throbbing pain and swelling in one calf'], ['veins', 'Swollen, twisted or bulging veins'], ['heavy-aching', 'Aching or heaviness in the leg'], ['skin-colour', 'Red, dark or discoloured skin over the painful area'], ['none', 'None of these']),
+      sources: [COVERAGE_SOURCE_IDS.nhsDvt, COVERAGE_SOURCE_IDS.nhsVaricoseVeins], acuity: ['one-calf', 'skin-colour'],
+      rationale: 'NHS DVT describes throbbing pain and swelling in 1 leg with discoloured skin, which brings the leg clot check forward; NHS Varicose veins describes bulging veins with aching or heaviness.',
+    };
+    if (/ankle|foot/.test(siteRegion)) return {
+      options: options(['first-steps', 'Sharp pain between the arch and heel, worse when you start walking'], ['back-heel', 'Pain at the back of the heel, into the ankle or calf'], ['red-swollen', 'Redness and swelling with a dull ache'], ['tingling', 'Tingling or loss of feeling in the foot'], ['calf-ankle-swelling', 'Swelling and bruising in the calf and ankle'], ['none', 'None of these']),
+      sources: [COVERAGE_SOURCE_IDS.nhsHeelPain, COVERAGE_SOURCE_IDS.nhsAnklePain], acuity: [],
+      rationale: 'The rows and GP features of NHS Heel pain and Ankle pain, in their own words.',
+    };
+    if (/back/.test(siteRegion)) return {
+      options: options(['lump-shape', 'A lump or swelling in the back, or the back has changed shape'], ['day-to-day', 'Stopping you doing day-to-day activities'], ['sudden-worse', 'Severe pain that started suddenly, or is getting worse quickly'], ['unwell', 'Feeling hot, cold, shivery or generally unwell'], ['none', 'None of these']),
+      sources: [COVERAGE_SOURCE_IDS.nhsBackPain], acuity: ['sudden-worse', 'unwell'],
+      rationale: 'The GP and urgent features of NHS Back pain. Severe pain that started suddenly or is worsening quickly, or feeling hot, shivery or unwell, brings the urgent back check forward.',
+    };
+    return null;
+  };
+  const mskSiteFeaturesQuestion = (rank = 30) => {
+    const site = siteFeatures();
+    if (!site) return;
+    push({
+      id: INTAKE_QUESTION_IDS.mskSiteFeatures,
+      category: 'context',
+      eyebrow: 'What you notice',
+      prompt: say('Do any of these describe it? Choose all that apply.', 'Do any of these describe what your child has? Choose all that apply.'),
+      control: 'multi-select',
+      options: site.options,
+      exclusiveOptionIds: ['none'],
+      acuityOptionIds: site.acuity.length ? site.acuity : undefined,
+      sourceIds: site.sources,
+      rationale: site.rationale,
+      progressionStage: 'characterize',
+      informationGainRank: rank,
+    });
+  };
+  const mskWorseWhenQuestion = () => push({
+    id: INTAKE_QUESTION_IDS.mskWorseWhen,
+    category: 'pattern',
+    eyebrow: 'When it is worse',
+    prompt: say('When is it worse? Choose all that apply.', 'When is it worse for your child? Choose all that apply.'),
+    control: 'multi-select',
+    options: isLowerLimb
+      ? options(['using', 'When moving it'], ['weight', 'When putting weight on it or walking'], ['night-rest', 'At night, or when resting or lying on it'], ['morning', 'First thing in the morning, easing as you move'], ['no-pattern', 'No clear pattern'])
+      : options(['using', 'When moving or using it'], ['lifting', 'When lifting, reaching or gripping'], ['night-rest', 'At night, or when resting or lying on it'], ['morning', 'First thing in the morning, easing as you move'], ['no-pattern', 'No clear pattern']),
+    exclusiveOptionIds: ['no-pattern'],
+    sourceIds: [COVERAGE_SOURCE_IDS.nhsHipPain, COVERAGE_SOURCE_IDS.nhsShoulderPain, COVERAGE_SOURCE_IDS.nhsHeelPain, COVERAGE_SOURCE_IDS.nhsWristPain],
+    rationale: 'The NHS joint pages separate pain worse with use or walking from pain worse after rest or at night and stiffness after waking. Recorded for the clinician; not a referral criterion.',
+    progressionStage: 'characterize',
+    informationGainRank: 33,
+  });
+  const homeTreatmentQuestion = (showWhen: ShowCondition) => push({
+    id: INTAKE_QUESTION_IDS.mskHomeTreatment,
+    category: 'change',
+    eyebrow: 'Treatment so far',
+    prompt: say(
+      'Have you tried treating it at home, such as rest, ice or heat, and painkillers?',
+      'Have you tried treating it at home for your child, such as rest, ice or heat, and painkillers?',
+    ),
+    control: 'choice-grid',
+    options: options(['helping', 'Yes, and it is helping'], ['not-improved', 'Yes, for 2 weeks or more, and it has not improved'], ['under-two-weeks', 'Yes, for less than 2 weeks'], ['not-tried', 'Not yet'], ['unsure', 'Not sure']),
+    showWhen,
+    sourceIds: [COVERAGE_SOURCE_IDS.nhsJointPain, COVERAGE_SOURCE_IDS.nhsHipPain, COVERAGE_SOURCE_IDS.nhsShoulderPain, COVERAGE_SOURCE_IDS.nhsWristPain, COVERAGE_SOURCE_IDS.nhsAnklePain, COVERAGE_SOURCE_IDS.nhsBackPain, COVERAGE_SOURCE_IDS.nhsNeckPain],
+    rationale: 'The NHS joint, back and neck pages send pain that has not improved after about 2 weeks (a few weeks for the back and neck) of home treatment to a GP. Asked only once it has lasted long enough for that to matter.',
+    progressionStage: 'characterize',
+    informationGainRank: 38,
+  });
+  // NHS: "not improved after 2 weeks of home treatment" can only apply from 2 weeks on.
+  const LONGER_MSK = ['two-to-six-weeks', 'over-six-weeks', 'recurring', 'unsure'];
+  const neuroDistributionQuestion = () => push({
+    id: INTAKE_QUESTION_IDS.neuroDistribution,
+    category: 'context',
+    eyebrow: 'Where you feel it',
+    prompt: say('Where do you feel it most?', 'Where does your child feel it most?'),
+    control: 'choice-grid',
+    options: options(['thumb-fingers', 'In the thumb and first two or three fingers'], ['hand-arm', 'Across the hand, or up the arm'], ['both-feet-hands', 'In both feet or both hands'], ['down-leg', 'Down one leg'], ['one-patch', 'In one small patch of skin'], ['unsure', 'Not sure']),
+    sourceIds: [COVERAGE_SOURCE_IDS.nhsCarpalTunnel, COVERAGE_SOURCE_IDS.nhsPeripheralNeuropathy, COVERAGE_SOURCE_IDS.nhsSciatica, COVERAGE_SOURCE_IDS.nhsPinsAndNeedles],
+    rationale: 'NHS Carpal tunnel syndrome (fingers and hand, worse at night), Peripheral neuropathy (both feet or hands) and Sciatica (down one leg) are separated by where the feeling is.',
+    progressionStage: 'characterize',
+    informationGainRank: 12,
+  });
+  const legVeinQuestion = () => push({
+    id: INTAKE_QUESTION_IDS.legVeinFeatures,
+    category: 'context',
+    eyebrow: 'Your leg',
+    prompt: 'Do any of these apply to your leg? Choose all that apply.',
+    control: 'multi-select',
+    options: options(['bulging', 'Swollen, twisted or bulging veins'], ['aching-heavy', 'Aching, heaviness or itching in the leg'], ['skin-change', 'Colour change, or dry, scaly or itchy skin on the lower leg'], ['sore', 'A sore on the leg that has not healed after 2 weeks'], ['hard-vein', 'A hard, painful vein'], ['bleeding-vein', 'A vein that is bleeding'], ['one-leg', 'Throbbing pain and swelling in one leg'], ['none', 'None of these']),
+    exclusiveOptionIds: ['none'],
+    acuityOptionIds: ['bleeding-vein', 'one-leg'],
+    sourceIds: [COVERAGE_SOURCE_IDS.nhsVaricoseVeins, COVERAGE_SOURCE_IDS.niceVaricoseVeins, COVERAGE_SOURCE_IDS.nhsDvt],
+    rationale: 'The features NICE CG168 refers to a vascular service, and NHS DVT\'s one-leg pattern. A bleeding vein or pain and swelling in one leg brings the matching urgent check forward.',
+    progressionStage: 'discriminate',
+    informationGainRank: 35,
+  });
+  const herniaQuestion = () => push({
+    id: INTAKE_QUESTION_IDS.herniaFeatures,
+    category: 'context',
+    eyebrow: 'The lump',
+    prompt: say('Do any of these describe the lump? Choose all that apply.', 'Do any of these describe your child\'s lump? Choose all that apply.'),
+    control: 'multi-select',
+    options: options(['bigger-cough', 'Gets bigger when coughing, sneezing, crying or straining'], ['smaller-lying', 'Gets smaller or goes away when lying down'], ['tight-skin', 'The skin over it looks tight and stretched'], ['dragging', 'A heavy, dragging feeling'], ['pain', 'Pain in or around the lump'], ['sick-bloated', 'Feeling sick, being sick, or a bloated tummy'], ['none', 'None of these']),
+    exclusiveOptionIds: ['none'],
+    acuityOptionIds: ['pain', 'sick-bloated'],
+    sourceIds: [COVERAGE_SOURCE_IDS.nhsHernia],
+    rationale: 'The hernia features NHS Hernia lists, in its own words. Pain, sickness or a bloated tummy with the lump are its 111 features and bring the hernia check forward.',
+    progressionStage: 'discriminate',
+    informationGainRank: 30,
+  });
+  const breastQuestion = () => push({
+    id: INTAKE_QUESTION_IDS.breastFeatures,
+    category: 'context',
+    eyebrow: 'The lump or change',
+    prompt: 'Do any of these apply? Choose all that apply.',
+    control: 'multi-select',
+    options: options(['breast-lump', 'A lump in the breast'], ['armpit-lump', 'A lump in the armpit'], ['nipple-inward', 'A nipple that has turned inwards'], ['dimpled', 'Dimpled or puckered skin on the breast'], ['nipple-discharge', 'Discharge from one nipple, or bloodstained discharge'], ['none', 'None of these, it is elsewhere on the chest']),
+    exclusiveOptionIds: ['none'],
+    sourceIds: [COVERAGE_SOURCE_IDS.nhsBreastLump, COVERAGE_SOURCE_IDS.niceSuspectedCancer],
+    rationale: 'The changes NHS Breast lumps sends to a GP and on to a breast clinic, and that NICE NG12 1.4 refers. Asked of men and women.',
+    progressionStage: 'discriminate',
+    informationGainRank: 15,
+  });
+  const templeQuestion = () => push({
+    id: INTAKE_QUESTION_IDS.templeFeatures,
+    category: 'context',
+    eyebrow: 'Temple and scalp',
+    prompt: 'Do any of these apply? Choose all that apply.',
+    control: 'multi-select',
+    options: options(['scalp-tender', 'Tender temples or scalp, for example when brushing hair'], ['jaw-eating', 'Jaw pain when eating or talking'], ['frequent-severe', 'Frequent, severe headaches'], ['vision', 'Double vision or loss of vision'], ['none', 'None of these']),
+    exclusiveOptionIds: ['none'],
+    acuityOptionIds: ['scalp-tender', 'jaw-eating', 'vision'],
+    sourceIds: [COVERAGE_SOURCE_IDS.nhsGiantCellArteritis],
+    rationale: 'The main symptoms NHS Giant cell arteritis lists. Any of the first, second or fourth brings its urgent check forward, because it can cause stroke or blindness if not treated quickly.',
+    progressionStage: 'discriminate',
+    informationGainRank: 20,
+  });
+
   const injuryMechanism = () => push({
     id: INTAKE_QUESTION_IDS.injuryDetail,
     category: 'context',
@@ -1497,8 +1793,16 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
     });
     mskDurationQuestion(15);
     impact();
-    onsetQuestion();
+    /*
+      No generic onset question here (phase 3): its "after a specific event"
+      duplicates the approved R1 injury question, and a sudden, severe joint is
+      the R3 hot-joint check. Removing it shortens adult limb pain without
+      losing evidence.
+    */
+    mskSiteFeaturesQuestion();
+    homeTreatmentQuestion({ questionId: INTAKE_QUESTION_IDS.mskDuration, optionIds: LONGER_MSK });
     mskMechanicalQuestion('extension');
+    jointPatternQuestion();
     return {
       preScreen: questions.filter((question) => question.stage !== 'extension'),
       postScreen: questions.filter((question) => question.stage === 'extension'),
@@ -1639,6 +1943,20 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
       });
     } else if (concern === 'injury') {
       injuryMechanism();
+      // Phase 3 (PENDING CLINICAL REVIEW): what NHS Broken nose lists; the emergency signs are the R3 nose injury check.
+      push({
+        id: INTAKE_QUESTION_IDS.noseInjuryFeatures,
+        category: 'context',
+        eyebrow: 'Since the injury',
+        prompt: say('Have you noticed any of these? Choose all that apply.', 'Have you noticed any of these in your child? Choose all that apply.'),
+        control: 'multi-select',
+        options: options(['crooked', 'The nose looks crooked or has changed shape'], ['blocked', 'Hard to breathe through the nose, or it feels blocked'], ['crunching', 'A crunching or crackling sound when touched'], ['swelling-3-days', 'Swelling that has not started to go down after 3 days'], ['none', 'None of these']),
+        exclusiveOptionIds: ['none'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsBrokenNose],
+        rationale: 'The broken-nose features NHS Broken nose lists, in its own words; a crooked nose or swelling not settling after 3 days is its 111 advice. Context for the clinician.',
+        progressionStage: 'characterize',
+        informationGainRank: 15,
+      });
     } else {
       push({
         id: INTAKE_QUESTION_IDS.noseDetail,
@@ -1858,6 +2176,10 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
         progressionStage: 'characterize',
         informationGainRank: 25,
       });
+      toothFeatures({
+        questionId: INTAKE_QUESTION_IDS.mouthDetail,
+        optionIds: concern === 'bleeding-discharge' ? ['gums', 'tooth'] : ['tooth-gum'],
+      });
     } else if (concern === 'injury') {
       injuryMechanism();
     } else {
@@ -1875,6 +2197,7 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
         progressionStage: 'characterize',
         informationGainRank: 10,
       });
+      if (concern === 'pain') toothFeatures({ questionId: INTAKE_QUESTION_IDS.jawDetail, optionIds: ['tooth-gum'] });
     }
     push({
       id: INTAKE_QUESTION_IDS.jawAssociated,
@@ -2182,6 +2505,20 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
       progressionStage: 'discriminate',
       informationGainRank: 40,
     });
+    // Phase 2 (PENDING CLINICAL REVIEW): context for the clinician, not a referral criterion.
+    push({
+      id: INTAKE_QUESTION_IDS.palpitationTriggers,
+      category: 'context',
+      eyebrow: 'What brings it on',
+      prompt: say('Does anything seem to bring it on? Choose all that apply.', 'Does anything seem to bring it on for your child? Choose all that apply.'),
+      control: 'multi-select',
+      options: options(['exercise', 'Strenuous exercise'], ['sleep', 'Lack of sleep'], ['stress', 'Stress or anxiety'], ['medicine', 'A medicine'], ['substances', 'Alcohol, caffeine, nicotine or recreational drugs'], ['none', 'Nothing obvious']),
+      exclusiveOptionIds: ['none'],
+      sourceIds: [COVERAGE_SOURCE_IDS.nhsPalpitations],
+      rationale: 'The lifestyle triggers NHS Heart palpitations lists, in its own words. Recorded for the clinician; the emergency features stay with the R3 palpitations check.',
+      progressionStage: 'characterize',
+      informationGainRank: 30,
+    });
   /* ======================================================================
      BURNING OR SWALLOWING, FELT IN THE CHEST
      NHS Heartburn and acid reflux, NHS Indigestion and NHS Swallowing
@@ -2226,7 +2563,7 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
       prompt: 'How long has this been happening?',
       control: 'segmented',
       options: DURATION_OPTIONS,
-      showWhen: { questionId: INTAKE_QUESTION_IDS.facePainPattern, optionIds: ['shock-triggered', 'chewing', 'constant-ache', 'unsure'] },
+      showWhen: { questionId: INTAKE_QUESTION_IDS.facePainPattern, optionIds: ['shock-triggered', 'chewing', 'tooth', 'constant-ache', 'unsure'] },
       sourceIds,
       rationale: 'Establishes the timeline for facial pain that is not the sinus pattern.',
       progressionStage: 'characterize',
@@ -2238,7 +2575,7 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
       eyebrow: 'The facial pain',
       prompt: 'Which is closest to the pain?',
       control: 'choice-grid',
-      options: options(['shock-triggered', 'Sudden stabbing or electric-shock pain, set off by touch, eating, talking or brushing teeth'], ['pressure-nasal', 'Pressure or ache with a blocked or runny nose'], ['chewing', 'Worse when chewing or opening the mouth'], ['constant-ache', 'A constant ache'], ['unsure', 'Hard to describe']),
+      options: options(['shock-triggered', 'Sudden stabbing or electric-shock pain, set off by touch, eating, talking or brushing teeth'], ['pressure-nasal', 'Pressure or ache with a blocked or runny nose'], ['chewing', 'Worse when chewing or opening the mouth'], ['tooth', 'It seems to come from a tooth or the gum'], ['constant-ache', 'A constant ache'], ['unsure', 'Hard to describe']),
       sourceIds: [COVERAGE_SOURCE_IDS.niceNeurologicalReferral, COVERAGE_SOURCE_IDS.nhsTrigeminalNeuralgia, COVERAGE_SOURCE_IDS.nhsSinusitis, COVERAGE_SOURCE_IDS.nhsTmd],
       rationale: 'The trigger pattern, the nasal pattern and the chewing pattern are what separate the three sourced pathways for facial pain.',
       progressionStage: 'characterize',
@@ -2256,6 +2593,9 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
       progressionStage: 'characterize',
       informationGainRank: 15,
     });
+    if (facePart === 'forehead' || (facePart?.includes('temple') ?? false)) templeQuestion();
+    // Phase 3 (PENDING CLINICAL REVIEW): NHS Toothache names a swollen cheek; a facial pain from a tooth is asked the dental features.
+    toothFeatures({ questionId: INTAKE_QUESTION_IDS.facePainPattern, optionIds: ['tooth'] });
     push({
       id: INTAKE_QUESTION_IDS.facePainTreatment,
       category: 'change',
@@ -2343,7 +2683,7 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
      pain are R3 emergency features, so the R3 injury check owns them and
      they are not asked twice here.
      ====================================================================== */
-  } else if (isUpperAbdomen && concern === 'injury') {
+  } else if ((isUpperAbdomen || context.bodyRegionId === 'chest') && concern === 'injury') {
     asksDuration = false;
     asksOnset = false;
     push({
@@ -2406,7 +2746,14 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
      keeps only the impact and timeline questions and ends at the parent
      service with a named reason.
      ====================================================================== */
-  } else if (isUpperAbdomen && concern === 'other') {
+  } else if (concern === 'other' && otherClarifierFamilies(context).length > 0) {
+    /*
+      Phase 2 (PENDING CLINICAL REVIEW): every region whose "Something else"
+      used to end in a generic impact, timeline and onset tail now asks the
+      same clarifier the upper tummy introduced, offering only the concern
+      families that region has, and then asks that family's own branch.
+    */
+    const available = otherClarifierFamilies(context);
     asksImpact = false;
     asksDuration = false;
     asksOnset = false;
@@ -2416,7 +2763,7 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
       eyebrow: 'Closest match',
       prompt: say('Which of these is closest to what is happening?', 'Which of these is closest to what is happening to your child?'),
       control: 'choice-grid',
-      options: OTHER_CLARIFIER_OPTIONS,
+      options: OTHER_CLARIFIER_OPTIONS.filter((option) => option.id === 'unsure' || available.some(([optionId]) => optionId === option.id)),
       sourceIds,
       rationale: 'Maps a concern described as something else to the branch that fits it, so the questions that follow are specific instead of generic.',
       progressionStage: 'entry',
@@ -2425,13 +2772,34 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
     const generic = new Set<string>([INTAKE_QUESTION_IDS.complaintEntry, INTAKE_QUESTION_IDS.currentImpact, INTAKE_QUESTION_IDS.duration, INTAKE_QUESTION_IDS.onset, INTAKE_QUESTION_IDS.pediatricWellbeing]);
     const tail = new Map<string, string[]>([[INTAKE_QUESTION_IDS.currentImpact, ['unsure']], [INTAKE_QUESTION_IDS.duration, ['unsure']], [INTAKE_QUESTION_IDS.onset, []]]);
     // Bowel before pain: both branches ask how a bowel change has behaved, and the bowel branch asks it unconditionally.
-    for (const [optionId, family] of OTHER_CLARIFIER_ORDER) {
+    for (const [optionId, family] of available) {
       const premise: ShowCondition = { questionId: INTAKE_QUESTION_IDS.otherClarifier, optionIds: [optionId] };
       const branch = intakeQuestionsFor(context.complaintId, { ...context, concernId: family });
       for (const question of branch) {
         if (tail.has(question.id)) tail.get(question.id)!.push(optionId);
-        if (generic.has(question.id) || questions.some((existing) => existing.id === question.id)) continue;
+        if (generic.has(question.id)) continue;
         const own = question.showWhen ? (Array.isArray(question.showWhen) ? question.showWhen : [question.showWhen as ShowCondition]) : [];
+        /*
+          The same concept in two families (the function, duration and joint
+          questions belong to both injury and pain at a limb) is asked once,
+          opened by either clarifier answer. Only when its own conditions are
+          identical: a question gated differently in another family keeps the
+          first family's gating, as the upper tummy bowel follow-up does.
+        */
+        const existingIndex = questions.findIndex((existing) => existing.id === question.id);
+        if (existingIndex >= 0) {
+          const prior = questions[existingIndex];
+          const priorConditions = Array.isArray(prior.showWhen) ? prior.showWhen : prior.showWhen ? [prior.showWhen as ShowCondition] : [];
+          const [premiseCondition, ...priorOwn] = priorConditions;
+          if (
+            premiseCondition?.questionId === INTAKE_QUESTION_IDS.otherClarifier
+            && !premiseCondition.optionIds.includes(optionId)
+            && JSON.stringify(priorOwn) === JSON.stringify(own)
+          ) {
+            questions[existingIndex] = { ...prior, showWhen: [{ ...premiseCondition, optionIds: [...premiseCondition.optionIds, optionId] }, ...priorOwn] };
+          }
+          continue;
+        }
         questions.push({ ...question, showWhen: [premise, ...own] });
       }
     }
@@ -2598,6 +2966,19 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
       progressionStage: 'discriminate',
       informationGainRank: 45,
     });
+    if (!pediatric) push({
+      id: INTAKE_QUESTION_IDS.urinaryFeatures,
+      category: 'context',
+      eyebrow: 'When you pee',
+      prompt: 'Do any of these happen? Choose all that apply.',
+      control: 'multi-select',
+      options: options(['burning', 'Pain or burning when peeing'], ['cloudy', 'Pee that looks cloudy'], ['night', 'Getting up to pee during the night'], ['weak-flow', 'A weak flow, or stopping and starting'], ['strain', 'Having to push or strain to start'], ['not-empty', 'Feeling the bladder has not fully emptied'], ['dribbling', 'Dribbling after finishing'], ['none', 'None of these']),
+      exclusiveOptionIds: ['none'],
+      sourceIds: [COVERAGE_SOURCE_IDS.nhsUrinaryTractInfection, COVERAGE_SOURCE_IDS.nhsProstateEnlargement],
+      rationale: 'The symptoms NHS UTI and NHS Enlarged prostate list, in their own words (PENDING CLINICAL REVIEW). They separate an infection pattern from an emptying pattern for the clinician; not a referral criterion.',
+      progressionStage: 'characterize',
+      informationGainRank: 50,
+    });
   /* ======================================================================
      ADULT REPRODUCTIVE OR PELVIC CHANGE
      ====================================================================== */
@@ -2696,6 +3077,7 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
       progressionStage: 'discriminate',
       informationGainRank: 45,
     });
+    if (isLowerLimb && !/hip/.test(context.bodyRegionId) && !pediatric) legVeinQuestion();
   /* ======================================================================
      SWELLING OR LUMP
      ====================================================================== */
@@ -2726,6 +3108,25 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
       progressionStage: 'characterize',
       informationGainRank: 25,
     });
+    if (isAbdominal) herniaQuestion();
+    if (isOral) {
+      // Phase 3 (PENDING CLINICAL REVIEW): NHS Dental abscess names a swollen face or jaw for the dentist.
+      push({
+        id: INTAKE_QUESTION_IDS.oralSwellingSite,
+        category: 'context',
+        eyebrow: 'Where it is',
+        prompt: say('Where is the swelling or lump?', 'Where is your child\'s swelling or lump?'),
+        control: 'choice-grid',
+        options: options(['tooth-gum', 'Near a tooth or in the gum'], ['jaw-neck', 'Under the jaw or in the neck'], ['inside-cheek-lip', 'Inside the cheek or on the lip'], ['unsure', 'Not sure']),
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsDentalAbscess, COVERAGE_SOURCE_IDS.nhsToothache, COVERAGE_SOURCE_IDS.nhsLumps],
+        rationale: 'A swelling near a tooth is the dental pattern NHS Dental abscess and Toothache send to a dentist; one under the jaw or inside the cheek or lip is asked as a lump.',
+        progressionStage: 'characterize',
+        informationGainRank: 12,
+      });
+      toothFeatures({ questionId: INTAKE_QUESTION_IDS.oralSwellingSite, optionIds: ['tooth-gum'] });
+    }
+    if (context.bodyRegionId === 'chest' && !pediatric) breastQuestion();
+    if (isLowerLimb && !/hip/.test(context.bodyRegionId) && !pediatric) legVeinQuestion();
   /* ======================================================================
      WEAKNESS, DROOPING, NUMBNESS OR TINGLING
      ====================================================================== */
@@ -2743,6 +3144,7 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
       progressionStage: 'characterize',
       informationGainRank: 5,
     });
+    if (concern === 'numbness-tingling' && (isMusculoskeletal || context.bodyRegionId === 'neck')) neuroDistributionQuestion();
     push({
       id: INTAKE_QUESTION_IDS.neurologicDetail,
       category: 'context',
@@ -2838,6 +3240,7 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
     if (concern === 'injury') {
       asksOnset = false;
       injuryMechanism();
+      injuryFeatures();
     } else if (concern === 'movement-function') {
       /*
         A movement problem is asked what cannot be done, not what the pain
@@ -2891,6 +3294,11 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
     asksImpact = false;
     mskDurationQuestion();
     mskMechanicalQuestion('core');
+    if (concern !== 'injury') {
+      mskSiteFeaturesQuestion();
+      mskWorseWhenQuestion();
+    }
+    homeTreatmentQuestion({ questionId: INTAKE_QUESTION_IDS.mskDuration, optionIds: LONGER_MSK });
     if (concern === 'pain' && context.bodyRegionId === 'lower-back') lowerBackAssociated();
   } else if (concern === 'pain') {
     push({
@@ -2908,6 +3316,7 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
       informationGainRank: 10,
     });
     if (context.bodyRegionId === 'neck' || facePart === 'upper-neck') {
+      homeTreatmentQuestion({ questionId: INTAKE_QUESTION_IDS.duration, optionIds: ['several-days', 'longer'] });
       associatedLocation({
         rationale: 'NHS Neck pain names symptoms in the arm, such as pins and needles or a cold arm, as a reason to see a GP; where else the pain is felt is recorded for the clinician and asked before the arm features.',
         sourceIds: [COVERAGE_SOURCE_IDS.nhsNeckPain, COVERAGE_SOURCE_IDS.niceNeurologicalReferral],
@@ -2925,6 +3334,19 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
   } else if (concern === 'injury') {
     asksOnset = false;
     injuryMechanism();
+    if (context.bodyRegionId === 'neck' || facePart === 'upper-neck') push({
+      id: INTAKE_QUESTION_IDS.neckInjuryFeatures,
+      category: 'context',
+      eyebrow: 'Since the injury',
+      prompt: say('Have you noticed any of these? Choose all that apply.', 'Have you noticed any of these in your child? Choose all that apply.'),
+      control: 'multi-select',
+      options: options(['stiff', 'Neck stiffness, or difficulty moving the head'], ['headache', 'Headaches'], ['shoulder-arm', 'Pain or muscle spasms in the shoulders or arms'], ['not-improving', 'Not improved after a week, or painkillers are not working'], ['none', 'None of these']),
+      exclusiveOptionIds: ['none'],
+      sourceIds: [COVERAGE_SOURCE_IDS.nhsWhiplash],
+      rationale: 'The whiplash features NHS Whiplash lists (phase 3, PENDING CLINICAL REVIEW); its urgent signs are the R3 neck injury check.',
+      progressionStage: 'characterize',
+      informationGainRank: 15,
+    });
   }
 
   if (asksImpact) impact();
@@ -3154,6 +3576,9 @@ const OTHER_CLARIFIER_OPTIONS = options(
   ['skin', 'A change in the skin'],
   ['injury', 'An injury'],
   ['urinary', 'A change when peeing'],
+  ['numbness', 'Numbness or tingling'],
+  ['weakness', 'Weakness or drooping'],
+  ['movement', 'Difficulty moving or using it'],
   ['unsure', 'Something else, or not sure'],
 );
 
@@ -3165,7 +3590,29 @@ const OTHER_CLARIFIER_ORDER: readonly (readonly [string, RegionConcernId])[] = [
   ['urinary', 'urinary-change'],
   ['swelling', 'swelling-lump'],
   ['skin', 'skin-change'],
+  ['numbness', 'numbness-tingling'],
+  ['weakness', 'weakness-drooping'],
+  ['movement', 'movement-function'],
 ];
+
+/*
+  Where "Something else" is clarified (phase 2, PENDING CLINICAL REVIEW). The
+  eye, ear, nose, mouth and throat branches ask their own detail of an "other"
+  concern, and the lower tummy asks which system is involved, so they keep
+  that. Everywhere else the clarifier offers the families the region has.
+*/
+export function otherClarifierFamilies(context: RegionAssessmentContext): readonly (readonly [string, RegionConcernId])[] {
+  if (context.concernId !== 'other') return [];
+  const face = context.faceSubregionId ?? '';
+  if (/eye|ear/.test(face) || face === 'nose' || face === 'mouth' || face === 'chin' || face.includes('jaw')) return [];
+  if (context.bodyRegionId === 'lower-abdomen' || context.bodyRegionId === 'pelvis') return [];
+  if (context.complaintId === 'throat-concern') return [];
+  const offered = new Set<string>(concernOptionsFor(context.bodyRegionId, context.faceSubregionId, {
+    age: context.age,
+    sexForAssessment: context.sexForAssessment,
+  }).map((option) => option.id));
+  return OTHER_CLARIFIER_ORDER.filter(([, family]) => offered.has(family));
+}
 
 /**
  * The assessment as the clarifier has refined it. An upper tummy concern
@@ -3175,9 +3622,9 @@ const OTHER_CLARIFIER_ORDER: readonly (readonly [string, RegionConcernId])[] = [
  * handoff records.
  */
 export function clarifiedContext(context: RegionAssessmentContext, answers: readonly IntakeAnswer[]): RegionAssessmentContext {
-  if (context.bodyRegionId !== 'upper-abdomen' || context.concernId !== 'other') return context;
+  if (context.concernId !== 'other') return context;
   const chosen = answers.find((answer) => answer.questionId === INTAKE_QUESTION_IDS.otherClarifier)?.optionId;
-  const family = OTHER_CLARIFIER_ORDER.find(([optionId]) => optionId === chosen)?.[1];
+  const family = otherClarifierFamilies(context).find(([optionId]) => optionId === chosen)?.[1];
   return family ? { ...context, concernId: family } : context;
 }
 

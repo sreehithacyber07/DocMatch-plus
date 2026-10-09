@@ -25,4 +25,14 @@ export function validateEngineConfig(config: Readonly<EngineConfig>): void {
   if (!Number.isInteger(config.maxQuestions) || config.maxQuestions < 1) {
     throw new RangeError('maxQuestions must be a positive integer.');
   }
+  const rules = config.sufficiency;
+  if (rules) {
+    if (typeof rules.requireAllConditions !== 'boolean') throw new TypeError('sufficiency.requireAllConditions must be a boolean.');
+    for (const key of ['minimumSupportingFindings', 'minimumIndependentDimensions'] as const) {
+      if (!Number.isInteger(rules[key]) || rules[key] < 0) throw new RangeError(`sufficiency.${key} must be a non-negative integer.`);
+    }
+    if (rules.minimumIndependentDimensions > rules.minimumSupportingFindings) {
+      throw new RangeError('sufficiency.minimumIndependentDimensions cannot exceed minimumSupportingFindings.');
+    }
+  }
 }

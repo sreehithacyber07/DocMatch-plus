@@ -191,9 +191,10 @@ test('the patient client keeps Auth in memory only, with a unique storage key pe
   const clientSource = source('src/features/persistence/supabase-client.ts');
   assert.match(clientSource, /persistSession: false/);
   assert.doesNotMatch(clientSource, /\bstorage:\s/, 'no custom storage adapter is supplied');
-  // The runtime reads only the two browser-safe variables.
+  // The runtime reads only the two browser-safe variables, plus the non-secret
+  // build target that keeps a preview build away from the database (phase 3).
   const runtime = source('src/features/persistence/runtime.ts');
-  assert.deepEqual(runtime.match(/VITE_[A-Z_]+/g), ['VITE_SUPABASE_URL', 'VITE_SUPABASE_PUBLISHABLE_KEY']);
+  assert.deepEqual(runtime.match(/VITE_[A-Z_]+/g), ['VITE_SUPABASE_URL', 'VITE_SUPABASE_PUBLISHABLE_KEY', 'VITE_BUILD_TARGET', 'VITE_DEMO_MODE']);
 });
 
 class SpyStorage {
@@ -792,7 +793,9 @@ test('New Patient disposes the session: queue dropped, Auth closed, identity cle
   await second.dispose();
 
   const route = source('src/screens/route/RouteScreen.tsx');
-  assert.match(route, /usePatientPersistence\(assessmentStart, createRuntimePersistence\)/);
+  // The route screen may hand the session to page-memory retention, which
+  // disposes it at every reset (see intake-recovery.test.ts).
+  assert.match(route, /usePatientPersistence\(assessmentStart, createRuntimePersistence, persistenceRetention\)/);
   const hook = source('src/features/persistence/usePatientPersistence.ts');
   assert.match(hook, /return \(\) => \{[\s\S]*persistence\.dispose\(\)/);
   assert.match(hook, /queueMicrotask\(\(\) => persistence\.begin\(start\)\)/);
@@ -872,11 +875,16 @@ test('the Supabase client is loaded only when a persisting assessment begins', (
   assert.deepEqual(staticImporters, []);
 });
 
-test('the production CSP admits exactly the project origin for backend calls', () => {
+// The public snapshot omits the production project origin: the published demonstration
+// makes no backend calls. A configured deployment adds exactly its own project origin.
+test('the CSP admits self and at most one exact Supabase project origin for backend calls', () => {
   const vercel = JSON.parse(source('vercel.json')) as { headers: Array<{ headers: Array<{ key: string; value: string }> }> };
   const policy = vercel.headers[0].headers.find((header) => header.key === 'Content-Security-Policy')!.value;
   const connect = policy.split(';').map((part) => part.trim()).find((part) => part.startsWith('connect-src'))!;
-  assert.deepEqual(connect.split(/\s+/).slice(1), ["'self'", 'https://iclhzaumzplvyxolnthz.supabase.co']);
+  const [self, ...origins] = connect.split(/\s+/).slice(1);
+  assert.equal(self, "'self'");
+  assert.ok(origins.length <= 1, connect);
+  for (const origin of origins) assert.match(origin, /^https:\/\/[a-z0-9]{20}\.supabase\.co$/);
   assert.doesNotMatch(policy, /\*|wss:|http:/);
 });
 

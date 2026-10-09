@@ -103,7 +103,11 @@ test('the intake registry has unique canonical meanings and complete source meta
   // (chest pain, palpitations, upper digestive, neurological course, facial
   // pain, movement, eye injury, back-into-leg, and the associated location),
   // plus the 12 final-blocker concepts for headache, breathing and upper tummy.
-  assert.equal(CANONICAL_INTAKE_QUESTIONS.length, 101);
+  // 104: tooth features, joint pattern and injury features (questionnaire intelligence pass, PENDING CLINICAL REVIEW).
+  // 112: site features, worse-when, home treatment, numbness distribution, leg veins, hernia, breast and temple features (questionnaire expansion phase 2, PENDING CLINICAL REVIEW).
+  // 114: urinary features and palpitation triggers (phase 2).
+  // 117: nose injury, neck injury and mouth or jaw swelling site (phase 3).
+  assert.equal(CANONICAL_INTAKE_QUESTIONS.length, 117);
   assert.equal(new Set(CANONICAL_INTAKE_QUESTIONS.map((question) => question.id)).size, CANONICAL_INTAKE_QUESTIONS.length);
   assert.equal(new Set(CANONICAL_INTAKE_QUESTIONS.map((question) => question.canonicalMeaning)).size, CANONICAL_INTAKE_QUESTIONS.length);
   assert.equal(new Set(CANONICAL_INTAKE_QUESTIONS.map((question) => question.duplicateEquivalenceGroup)).size, CANONICAL_INTAKE_QUESTIONS.length);
@@ -116,8 +120,10 @@ test('all generated context applications resolve to canonical intake ids', () =>
   const adult = allContexts([34]);
   const pediatric = allContexts([4, 8, 15]);
   // The neck, upper neck and mouth gained a separate sore-throat concern.
-  assert.equal(adult.length, 369);
-  assert.equal(pediatric.length, 1107);
+  // The chest gained a lump, swelling or breast change concern (questionnaire expansion phase 2, PENDING CLINICAL REVIEW).
+  assert.equal(adult.length, 370);
+  // +3: the chest lump concern for each child age (questionnaire expansion phase 2).
+  assert.equal(pediatric.length, 1110);
 
   const adultInstances = adult.flatMap((context) => intakeQuestionsFor(context.complaintId, context));
   const pediatricInstances = pediatric.flatMap((context) => intakeQuestionsFor(context.complaintId, context));
@@ -198,12 +204,17 @@ test('intersex or variation remains a neutral explicit-context path', () => {
   assert.ok(!intakeQuestionsFor(context.complaintId, context).some((question) => question.id === INTAKE_QUESTION_IDS.pregnancyContext));
 });
 
-test('enabled endpoints are four scored routes, six rule-gated routes and two population fallbacks', () => {
+test('enabled endpoints are four scored routes, ten rule-gated routes and two population fallbacks', () => {
   const endpoints = routableSpecialties();
   assert.deepEqual(endpoints.map((endpoint) => endpoint.id).toSorted(), [
     'cardiology',
+    // Rheumatology (NICE NG100) and Dentistry (NHS) joined (questionnaire intelligence pass, PENDING CLINICAL REVIEW).
+    'clinical-immunology-rheumatology',
+    'dentistry',
     'dermatology',
     'general-medicine',
+    // General Surgery (NHS Hernia, NHS Breast lumps) and Vascular Surgery (NICE CG168) joined (questionnaire expansion phase 2, PENDING CLINICAL REVIEW).
+    'general-surgery',
     'medical-gastroenterology',
     'neurology',
     'obstetrics-gynaecology',
@@ -213,11 +224,12 @@ test('enabled endpoints are four scored routes, six rule-gated routes and two po
     'paediatrics',
     'respiratory-medicine',
     'urology',
+    'vascular-surgery',
   ]);
   assert.equal(endpoints.filter((endpoint) => endpoint.evidenceStatus === 'active-demonstration').length, 4);
   assert.equal(endpoints.filter((endpoint) => endpoint.evidenceStatus === 'fallback-endpoint').length, 2);
   // Neurology joined through NICE NG127 criteria in the routing reconciliation.
-  assert.equal(endpoints.filter((endpoint) => endpoint.evidenceStatus === 'rule-gated-referral-criteria').length, 6);
+  assert.equal(endpoints.filter((endpoint) => endpoint.evidenceStatus === 'rule-gated-referral-criteria').length, 10);
 
   // The two bases stay distinguishable: a rule-gated route can never be
   // selected by the belief vector. Dermatology keeps its frozen R1 key only so
@@ -356,9 +368,16 @@ test('normal synthetic question budgets remain bounded without increasing routin
     assert.ok(Math.max(...safety) <= 8, `${label}: ${Math.max(...safety)} safety checks`);
     assert.ok(run.every((walk) => walk.steps.length <= 16), `${label}: an interview exceeded 16 interactions`);
   }
-  // Unchanged. The routing budget and both evidence thresholds are frozen; the
-  // discrimination extension is a separate, separately counted allowance.
-  assert.equal(DEMONSTRATION_ENGINE_CONFIG.maxQuestions, 5);
+  // The thresholds are unchanged. The question limit is now the whole approved
+  // six-question set, and a numerical lead must also be sufficiently supported
+  // before it ends the interview (docs/clinical-expansion, PENDING CLINICAL
+  // REVIEW). Any further change here needs the same review.
+  assert.equal(DEMONSTRATION_ENGINE_CONFIG.maxQuestions, 6);
+  assert.deepEqual(DEMONSTRATION_ENGINE_CONFIG.sufficiency, {
+    requireAllConditions: true,
+    minimumSupportingFindings: 3,
+    minimumIndependentDimensions: 2,
+  });
   assert.equal(DEMONSTRATION_ENGINE_CONFIG.topProbabilityThreshold, 0.72);
   assert.equal(DEMONSTRATION_ENGINE_CONFIG.marginThreshold, 0.35);
 });

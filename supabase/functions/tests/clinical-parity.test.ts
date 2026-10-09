@@ -29,6 +29,7 @@ import {
 } from '../../../src/features/routing-flow/clinical-replay.ts';
 import { INTAKE_QUESTION_IDS, intakeQuestionsFor } from '../../../src/features/routing-flow/intake-questions.ts';
 import { SPECIALTY_REGISTRY } from '../../../src/features/routing-flow/specialty-registry.ts';
+import { routingRationaleLines } from '../../../src/features/routing-flow/soap-handoff.ts';
 import { contextFor, walkAssessment, type ContextSpec, type Script, type WalkResult } from '../../../src/features/tests/clinical-walk.ts';
 import { BASE_EXPECTED, EDGE_FIXTURES, TRACES } from '../../../src/features/tests/parity-fixtures.ts';
 import {
@@ -271,6 +272,10 @@ test('parity: the 32 shared fixtures resolve identically in the browser and on t
       assert.ok(plan.lines.some((line) => line.value.includes(shown.label)), `${trace.id}: SOAP P names another direction`);
       const assessment = handoff.sections.find((section) => section.key === 'A')!;
       assert.ok(!assessment.lines.some((line) => /diagnos(is|ed) (is|of)|probability|\d\s*%/i.test(line.value)), `${trace.id}: SOAP claims a diagnosis or probability`);
+      // Phase 3: the server writes the same routing rationale and uncertainty as the screen.
+      const rationale = assessment.lines.filter((line) => ['Routing basis', 'Uncertainty', 'Not referred', 'Partly met'].includes(line.label));
+      assert.deepEqual(rationale, routingRationaleLines(shown), trace.id);
+      assert.ok(rationale.length > 0, `${trace.id}: SOAP gives no routing rationale`);
       assert.equal(finalized.outcome, 'route', trace.id);
     } else {
       // A hard stop is persisted as a safety event, never as a route, and has no ordinary handoff.
@@ -331,10 +336,16 @@ test('parity: sampled answer paths across every region, face area and population
 /* --- 3. Calibration and evidence metadata --------------------------------- */
 
 test('calibration: weighted routes and calibration gaps say so; gate routes say source-backed prototype', async () => {
+  // A weighted complaint whose engine lead is not sufficiently supported keeps
+  // its calibration flag and goes to the guarded parent service, which is
+  // labelled for what it is. Under the evidence-sufficiency rule (PENDING
+  // CLINICAL REVIEW) the uncalibrated demonstration likelihoods no longer
+  // produce a weighted route on their own.
   const stomach = await parity(TRACES.find((trace) => trace.id === '13-adult-stomach')!);
   assert.equal(stomach.frontend.calibration, 'SPECIALTY_EVIDENCE_CALIBRATION_REQUIRED');
-  assert.equal(stomach.frontend.evidenceBasis, 'demonstration-only');
-  assert.equal(stomach.store.routes[0].evidenceBasis, 'demonstration-only');
+  assert.equal(stomach.frontend.routeType, 'parent-fallback');
+  assert.equal(stomach.frontend.evidenceBasis, 'source-backed-prototype-pending-clinical-review');
+  assert.equal(stomach.store.routes[0].evidenceBasis, stomach.frontend.evidenceBasis);
   const ear = await parity(TRACES.find((trace) => trace.id === '10-adult-ear')!);
   assert.equal(ear.frontend.evidenceBasis, 'source-backed-prototype-pending-clinical-review');
   assert.equal(ear.frontend.calibration, 'not-applicable');
@@ -609,7 +620,7 @@ test('the trusted outcome carries identifiers only: no belief values, no wording
     'specialtyId', 'supportingRecords', 'urgentRuleIds',
   ]);
   const outcome: CanonicalClinicalOutcome = finalized.trusted;
-  assert.equal(outcome.evidenceBasis, 'demonstration-only');
+  assert.equal(outcome.evidenceBasis, 'source-backed-prototype-pending-clinical-review');
 });
 
 /* --- 7. Known gaps, pinned so they stay visible ------------------------------ */
@@ -649,5 +660,6 @@ test('legacy R9G-A derivation cannot read current evidence; deployed entrypoint 
     safetyRows: rowsFor(evidence.safety).map((row) => ({ ...row, safety_version: SERVER_VERSIONS.safetyVersion })) as SafetyAnswerRow[],
     routingRows: rowsFor(evidence.routing).map((row) => ({ ...row, knowledge_version: SERVER_VERSIONS.knowledgeVersion })) as RoutingAnswerRow[],
   })), 'INVALID_EVIDENCE');
-  assert.equal(deriveTrustedClinicalOutcome(evidence).outcome.specialtyId, 'medical-gastroenterology');
+  // A first episode: the shared resolver keeps it with the parent service (see parity-fixtures).
+  assert.equal(deriveTrustedClinicalOutcome(evidence).outcome.specialtyId, 'general-medicine');
 });

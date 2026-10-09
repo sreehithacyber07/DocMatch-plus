@@ -202,7 +202,9 @@ test('Paediatrics and General Medicine are named conclusions: the guard holds an
   assert.equal(child.route?.registryId, 'paediatrics');
   assert.ok(child.route?.fallbackReason);
   assert.equal(child.route?.guardMessage, null);
-  const adult = reach({ region: 'chest', concern: 'other', age: 45, sex: 'male' }, {});
+  // "Something else, or not sure" keeps the stated concern and ends at the parent service with a reason.
+  // (Phase 2: any other clarifier answer opens that family's branch.)
+  const adult = reach({ region: 'chest', concern: 'other', age: 45, sex: 'male' }, { [Q.otherClarifier]: 'unsure' });
   assert.equal(adult.route?.registryId, 'general-medicine');
   assert.ok(adult.route?.fallbackReason);
   assert.equal(adult.route?.guardMessage, null);
@@ -218,6 +220,7 @@ test('a weighted run is asked the discrimination extension only after R1 fails, 
   const met = reach({ region: 'left-knee', concern: 'pain', age: 34, sex: 'male' }, {
     [Q.mskDuration]: 'over-six-weeks',
     'joint-musculoskeletal-pain-use-weight': 'yes',
+    [Q.jointPattern]: 'none',
   });
   assert.ok(!met.steps.some((step) => step.questionId === Q.mskMechanical));
   assert.equal(met.route?.registryId, 'orthopaedics');
@@ -230,6 +233,7 @@ test('a weighted run is asked the discrimination extension only after R1 fails, 
     [Q.mskDuration]: 'under-one-week',
     'joint-musculoskeletal-pain-use-weight': 'yes',
     [Q.mskMechanical]: 'locks',
+    [Q.jointPattern]: 'none',
   });
   const ids = open.steps.map((step) => step.questionId);
   const lastRouting = Math.max(...open.steps.map((step, index) => (step.owner === 'routing' ? index : -1)));
@@ -271,7 +275,8 @@ test('the associated location is asked only in the branches its sources name', (
       askedIn.add(`${context.bodyRegionId}${context.faceSubregionId === 'upper-neck' ? '/upper-neck' : ''}:${context.concernId}`);
     }
   }
-  assert.deepEqual([...askedIn].sort(), ['chest:pain', 'face/upper-neck:pain', 'lower-abdomen:pain', 'lower-back:pain', 'neck:pain', 'pelvis:pain']);
+  // A clarified "Something else" reaches the same pain branches, behind the clarifier (phase 2).
+  assert.deepEqual([...askedIn].sort(), ['chest:other', 'chest:pain', 'face/upper-neck:other', 'face/upper-neck:pain', 'lower-abdomen:pain', 'lower-back:other', 'lower-back:pain', 'neck:other', 'neck:pain', 'pelvis:pain']);
   // Never for a knee, an eye, a skin change or an adult headache.
   for (const spec of [
     { region: 'left-knee', concern: 'pain', age: 35 }, { region: 'face', face: 'patient-left-eye', concern: 'pain', age: 35 },

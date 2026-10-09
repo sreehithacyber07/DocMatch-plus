@@ -412,7 +412,8 @@ test('throat: difficulty breathing, drooling or being unable to swallow stops th
 /* --- Stomach and irrelevant specialties -------------------------------------------- */
 
 test('an abdominal assessment can only ever present an abdominal or parent service', () => {
-  const allowed = new Set(['medical-gastroenterology', 'urology', 'obstetrics-gynaecology', 'general-medicine', 'paediatrics', 'dermatology']);
+  // General Surgery joined for an adult hernia (NHS Hernia, questionnaire expansion phase 2, PENDING CLINICAL REVIEW).
+  const allowed = new Set(['medical-gastroenterology', 'urology', 'obstetrics-gynaecology', 'general-medicine', 'paediatrics', 'dermatology', 'general-surgery']);
   for (const { context } of everyContext([PEDIATRIC_BANDS[2], ADULT])) {
     if (!['upper-abdomen', 'lower-abdomen', 'pelvis'].includes(context.bodyRegionId)) continue;
     const eligibility = eligibleRouteDirections(context);
@@ -569,8 +570,12 @@ const PROVABLE_PATHS: readonly { target: string; spec: ContextSpec; script: Scri
       'shortness-of-breath-lying-flat': 'yes',
       'shortness-of-breath-wheeze': 'no',
       'shortness-of-breath-palpitations': 'yes',
+      // Respiratory Medicine is asked before Cardiology is concluded (differentiation).
+      'intake-breathing-infections': 'no',
+      'intake-breathing-phlegm': 'no',
     },
-    basis: 'bayesian-convergence',
+    // Reached by convergence or by the published criteria, whichever the
+    // sufficiency rule allows first; both are sourced routes to Cardiology.
   },
   {
     target: 'medical-gastroenterology',
@@ -585,8 +590,12 @@ const PROVABLE_PATHS: readonly { target: string; spec: ContextSpec; script: Scri
       'upper-abdominal-pain-meal-relation': 'yes',
       'upper-abdominal-pain-burning': 'yes',
       'upper-abdominal-pain-nausea-vomiting': 'yes',
+      // NHS Heartburn and Indigestion: frequent symptoms that pharmacy
+      // treatment is not helping. Required by the Gastroenterology criteria.
+      'intake-upper-gi-frequency': 'most-days',
+      'intake-upper-gi-treatment': 'not-helping',
     },
-    basis: 'bayesian-convergence',
+    basis: 'source-backed-criteria',
   },
   {
     target: 'orthopaedics',
@@ -598,8 +607,49 @@ const PROVABLE_PATHS: readonly { target: string; spec: ContextSpec; script: Scri
       'intake-history-onset': 'gradual',
       'joint-musculoskeletal-pain-swelling-bruising': 'yes',
       'joint-musculoskeletal-pain-use-weight': 'yes',
+      // A single joint: more than one joint excludes Orthopaedics (NICE NG100).
+      'intake-joint-pattern': 'none',
     },
-    basis: 'bayesian-convergence',
+    // The published orthopaedic criteria, now that an engine lead alone no longer routes.
+    basis: 'source-backed-criteria',
+  },
+  {
+    // NICE NG100 1.1.1 (questionnaire intelligence pass, PENDING CLINICAL REVIEW): a swollen joint, no injury, small joints on both sides.
+    target: 'clinical-immunology-rheumatology',
+    spec: { region: 'right-hand', concern: 'pain', age: 45, sex: 'female' },
+    script: {
+      'intake-msk-duration': 'over-six-weeks',
+      'joint-musculoskeletal-pain-injury': 'no',
+      'joint-musculoskeletal-pain-swelling-bruising': 'yes',
+      'intake-msk-mechanical': 'none',
+      'intake-joint-pattern': 'small-joints+both-sides',
+    },
+    basis: 'source-backed-criteria',
+  },
+  {
+    // NHS Hernia (questionnaire expansion phase 2, PENDING CLINICAL REVIEW): a groin lump bigger on coughing and smaller lying down.
+    target: 'general-surgery',
+    spec: { region: 'pelvis', concern: 'swelling-lump', age: 55, sex: 'male' },
+    script: { 'intake-hernia-features': 'bigger-cough+smaller-lying', 'intake-lower-associated-system': 'none' },
+    basis: 'source-backed-criteria',
+  },
+  {
+    // NICE CG168 1.2.2 (questionnaire expansion phase 2, PENDING CLINICAL REVIEW): bulging veins with aching or heaviness.
+    target: 'vascular-surgery',
+    spec: { region: 'left-lower-leg', concern: 'swelling-lump', age: 60, sex: 'female' },
+    script: { 'intake-leg-vein-features': 'bulging+aching-heavy' },
+    basis: 'source-backed-criteria',
+  },
+  {
+    // NHS Toothache (questionnaire intelligence pass, PENDING CLINICAL REVIEW): tooth pain for more than 2 days, worse on biting.
+    target: 'dentistry',
+    spec: { region: 'face', face: 'mouth', concern: 'pain', age: 35, sex: 'female' },
+    script: {
+      'intake-face-jaw-detail': 'tooth-gum',
+      'intake-history-duration': 'several-days',
+      'intake-face-tooth-features': 'bite',
+    },
+    basis: 'source-backed-criteria',
   },
 ];
 
@@ -653,7 +703,11 @@ test('no parent-service fallback is returned while a narrower route is still rea
       const where = `${band.label} ${context.bodyRegionId}/${context.faceSubregionId ?? '-'}/${context.concernId} (${pick})`;
       if (result.route!.guardMessage) failures.push(`${where}: guard ${result.route!.guardMessage}`);
       if (gate.openDiscriminatorQuestionIds.length) failures.push(`${where}: open ${gate.openDiscriminatorQuestionIds.join(',')}`);
-      if (gate.assessments.some((assessment) => assessment.supported && !assessment.parentService)) failures.push(`${where}: a narrower gate was met`);
+      // Two DIFFERENT narrower services both met is genuine ambiguity, which
+      // falls back by design (TRUE_MULTISYSTEM_AMBIGUITY); one met is a bug.
+      const metNarrower = new Set(gate.assessments.filter((assessment) => assessment.supported && !assessment.parentService).map((assessment) => assessment.directionId));
+      if (metNarrower.size === 1) failures.push(`${where}: a narrower gate was met`);
+      if (metNarrower.size > 1 && result.route!.fallbackReason !== 'TRUE_MULTISYSTEM_AMBIGUITY') failures.push(`${where}: ambiguity without its reason`);
       if (!result.route!.fallbackReason) failures.push(`${where}: fallback without a named reason`);
     }
   }

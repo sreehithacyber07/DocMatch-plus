@@ -57,6 +57,7 @@ import { eligibleRouteDirections } from './route-eligibility.ts';
 import { DEPLOYMENT_MODE, DEPLOYMENT_PROFILE } from '../trust/runtime-config.ts';
 import type { AssessmentPersistence } from '../persistence/assessment-persistence.ts';
 import { usePersistenceSnapshot } from '../persistence/usePatientPersistence.ts';
+import { referralPriorityNotes } from './referral-priority.ts';
 import './routing-flow.css';
 
 /**
@@ -94,6 +95,9 @@ const SAFETY_INDICATOR_LABEL: Readonly<Record<string, string>> = {
   'infant-serious-illness-sign': 'A baby who is feeding poorly, floppy, or very hot or cold',
   'pediatric-chest-indrawing-or-stridor': 'Chest pulling in or a harsh noise when breathing in',
   'throat-airway-danger': 'Difficulty breathing or swallowing, drooling or noisy breathing',
+  'dental-spreading-swelling': 'Swelling around the eye or in the neck, a lot of swelling in the mouth, or a mouth that will not open',
+  'dvt-breathless-or-chest-pain': 'Pain and swelling in one leg, with shortness of breath or chest pain',
+  'skin-infection-emergency-features': 'Hot, swollen skin with a high temperature, fast heartbeat or breathing, purple patches, faintness or confusion',
   'pediatric-headache-sudden-or-recent-injury': 'A sudden, extremely painful headache or a recent head injury',
   'pediatric-fever-stiff-neck-or-rash': 'A high temperature with a stiff neck, light sensitivity or a rash that does not fade',
   'pediatric-injury-emergency': 'Very bad pain, a change in shape, or loss of feeling or use after an injury',
@@ -116,6 +120,21 @@ const SAFETY_INDICATOR_LABEL: Readonly<Record<string, string>> = {
   'back-cauda-equina-pattern': 'Back pain with both legs affected, numbness around the genitals or bottom, or bladder or bowel change',
   'upper-abdomen-injury-emergency': 'Worsening breathing or chest pain, coughing blood, shoulder pain, or a serious accident after the injury',
   'face-rash-eye-nose-urgent': 'A facial rash near the eye or nose, or a change in vision',
+  // Phase 2 urgent findings (PENDING CLINICAL REVIEW).
+  'dvt-suspected-urgent': 'Throbbing pain and swelling in one leg',
+  'joint-dvt-suspected-urgent': 'Throbbing pain and swelling in one leg',
+  'head-injury-emergency-signs': 'After a head injury: knocked out, a fit, very sleepy, new vision, hearing, walking, speech, numbness or behaviour change',
+  'head-injury-emergency-mechanism': 'A head injury from a high fall or high speed, or with fluid or blood from the ears or nose, a dent, or bruising behind the ears',
+  'head-injury-urgent': 'Being sick, dizzy, on a blood thinner, or alcohol or drugs at the time of a head injury',
+  'nose-injury-emergency': 'A purple swelling inside the nose, or a severe headache with blurred or double vision, after a nose injury',
+  'neck-injury-urgent': 'Severe pain, tingling, weakness, an electric-shock feeling or problems walking after a neck injury',
+  'joint-dvt-breathless-or-chest-pain': 'Pain and swelling in one leg, with shortness of breath or chest pain',
+  'joint-back-urgent-features': 'Back pain with feeling hot, shivery or unwell, or severe pain that is sudden or worsening quickly',
+  'hernia-complication-urgent': 'A lump with pain, a bloated tummy, sickness, constipation or a high temperature',
+  'temporal-arteritis-urgent': 'Tender temples or scalp, or jaw pain on eating, with headaches or a vision change',
+  'back-urgent-features': 'Back pain with feeling hot, shivery or unwell, or severe pain that is sudden or worsening quickly',
+  'skin-painful-hot-swollen-urgent': 'Painful, hot and swollen skin',
+  'varicose-vein-bleeding-urgent': 'A bleeding vein on the leg',
 };
 
 /** What is shown when a question belongs to R3. Wording only. */
@@ -160,9 +179,26 @@ export interface RoutingFlowProps {
    * set its intensity. It reads the flow's state and never changes it.
    */
   onSurfaceChange?: (surface: RoutingSurface) => void;
+  /**
+   * The same patient's answers for this complaint, when the flow is remounted
+   * (the route screen keeps them in page memory, never browser storage). The
+   * flow is rebuilt from the answers alone, so R3 re-evaluates them exactly as
+   * before: a priority interruption that was reached is reached again and can
+   * never be skipped by leaving and returning.
+   */
+  snapshot?: RoutingSnapshot;
+  /** Receives the answers whenever they change. */
+  onSnapshot?: (snapshot: RoutingSnapshot) => void;
 }
 
 export type RoutingSurface = 'interview' | 'priority' | 'result';
+
+export interface RoutingSnapshot {
+  complaintId: string;
+  session: RoutingSession;
+  safetyAnswers: readonly SafetyAnswer[];
+  intakeAnswers: readonly IntakeAnswer[];
+}
 
 export function RoutingFlow({
   complaintId,
@@ -177,7 +213,10 @@ export function RoutingFlow({
   clinicalContext = null,
   bodyVariant = null,
   onSurfaceChange,
+  snapshot,
+  onSnapshot,
 }: RoutingFlowProps) {
+  const restored = snapshot?.complaintId === complaintId ? snapshot : undefined;
   const reduceMotion = Boolean(useReducedMotion());
   // Locked once, before the first question; see intake/question-voice.ts.
   const voice: QuestionVoice = clinicalContext?.questionVoice ?? 'self';
@@ -188,10 +227,11 @@ export function RoutingFlow({
     [complaintId],
   );
   const [session, setSession] = useState<RoutingSession>(() =>
-    createRoutingSession(complaintId, complaintPrior(complaintId), new Date().toISOString()),
+    restored?.session ?? createRoutingSession(complaintId, complaintPrior(complaintId), new Date().toISOString()),
   );
-  const [safetyAnswers, setSafetyAnswers] = useState<readonly SafetyAnswer[]>([]);
+  const [safetyAnswers, setSafetyAnswers] = useState<readonly SafetyAnswer[]>(() => restored?.safetyAnswers ?? []);
   const [intakeAnswers, setIntakeAnswers] = useState<readonly IntakeAnswer[]>(() => {
+    if (restored) return restored.intakeAnswers;
     if (!clinicalContext) return [];
     const entry = intakeQuestionsFor(complaintId, clinicalContext)[0];
     return entry
@@ -400,6 +440,10 @@ export function RoutingFlow({
     routing or safety state. Each stream is written to its own table.
   */
   useEffect(() => {
+    onSnapshot?.({ complaintId, session, safetyAnswers, intakeAnswers });
+  }, [onSnapshot, complaintId, session, safetyAnswers, intakeAnswers]);
+
+  useEffect(() => {
     persistence?.observeAnswers('intake', persistableIntakeAnswers);
   }, [persistence, persistableIntakeAnswers]);
   useEffect(() => {
@@ -550,6 +594,7 @@ export function RoutingFlow({
           onChangeLocation={trustedResultIsImmutable ? undefined : onChangeLocation}
           lockedForTrustedHandoff={trustedResultIsImmutable}
           patientContext={patientContext}
+          referralNotes={referralPriorityNotes(clinicalContext, intakeAnswers)}
           routeOutcome={resolveRouteOutcome({
             clinicalContext,
             complaintId,
@@ -702,7 +747,8 @@ function AssessmentShell({
   return (
     <div className="assessment-shell" data-register={critical ? 'critical' : 'standard'}>
       <header className="assessment-header">
-        <img className="assessment-header__logo" src="/logo.png" alt="DocMatch" />
+        {/* The header mark renders at most 112 px wide; the 512 px file covers 3x displays (the full file is 2048 px). */}
+        <img className="assessment-header__logo" src="/logo.png" srcSet="/logo-512.png 512w, /logo.png 2048w" sizes="112px" alt="DocMatch" />
         <span className="assessment-header__rule" aria-hidden="true" />
         <strong className="assessment-header__stage type-control">{stageLabel}</strong>
         <div className="assessment-header__actions">

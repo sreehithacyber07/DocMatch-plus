@@ -1,16 +1,19 @@
 import type { CountryCode } from 'libphonenumber-js/min';
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
-import { countries, searchCallingCodes } from './phone-country.ts';
+import { countries, searchCallingCodes, type PhoneValue } from './phone-country.ts';
 
 const flagPath = (iso: string) => `/flags/${iso.toLowerCase()}.svg`;
 
-/** Optional contact stays in this field's memory and never leaves the component. */
-export function OptionalPhoneField() {
+/**
+ * Optional contact. The value is held by the intake in page memory, so it is
+ * still there when the patient goes back to About you. It is never part of the
+ * patient context, never persisted and never written to browser storage.
+ */
+export function OptionalPhoneField({ value, onChange }: { value: PhoneValue; onChange: (value: PhoneValue) => void }) {
+  const { country, number } = value;
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
-  const [country, setCountry] = useState<CountryCode>('IN');
-  const [number, setNumber] = useState('');
   const [active, setActive] = useState(0);
   const searchRef = useRef<HTMLInputElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -51,7 +54,7 @@ export function OptionalPhoneField() {
   }, [open]);
 
   const choose = (iso: CountryCode) => {
-    setCountry(iso);
+    onChange({ ...value, country: iso });
     setQuery('');
     setOpen(false);
     triggerRef.current?.focus();
@@ -85,7 +88,7 @@ export function OptionalPhoneField() {
           aria-label="Contact number, optional"
           placeholder="Mobile number (optional)"
           value={number}
-          onChange={(event) => setNumber(event.target.value.replace(/[^\d\s()-]/g, '').slice(0, 25))}
+          onChange={(event) => onChange({ ...value, number: event.target.value.replace(/[^\d\s()-]/g, '').slice(0, 25) })}
         />
       </div>
       {open ? createPortal(

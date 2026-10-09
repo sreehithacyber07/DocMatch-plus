@@ -12,11 +12,14 @@ export { expectedEntropyAfter, informationGain, selectNextQuestion } from './que
 export { changeRecordedAnswer, removeRecordedAnswer, replayBelief } from './replay.ts';
 export { answerSessionQuestion, createRoutingSession, removeSessionAnswer, replaySession } from './session.ts';
 export { SPECIALTY_COUNT, SPECIALTY_IDS, type SpecialtyId } from './specialties.ts';
-export { shouldStop } from './stopping.ts';
+export { shouldStop, type StoppingEvidence } from './stopping.ts';
+export { evidenceSupport } from './sufficiency.ts';
 export type {
   AnswerExplanation,
   AnswerOption,
   Belief,
+  ConvergenceSufficiency,
+  EvidenceSupport,
   BeliefHistoryEntry,
   EngineConfig,
   ExplanationTrace,

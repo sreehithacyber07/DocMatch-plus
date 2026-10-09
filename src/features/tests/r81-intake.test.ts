@@ -464,8 +464,18 @@ test('the calendar never preselects today and never allows a future day', () => 
   const future = /<button[^>]*data-date="2026-9-20"[^>]*>/.exec(html)?.[0] ?? '';
   assert.match(future, /disabled=""/);
   assert.match(future, /not available/);
-  assert.match(html, /<option value="1900">1900<\/option>/);
-  assert.match(html, /<option value="10" disabled="">October<\/option>/);
+  // The month and year choosers are DocMatch+ listboxes, never native selects
+  // (whose OS-drawn menus cannot be themed): the years reach the earliest
+  // birth year, and months after today are unavailable.
+  assert.doesNotMatch(html, /<select|<option/);
+  const years = renderToStaticMarkup(createElement(Calendar, { selected: null, onSelect: () => {}, min: earliest, max: today, today, initialPanel: 'years' }));
+  assert.match(years, /role="listbox"[^>]*aria-label="Choose a year"/);
+  assert.match(years, /role="option"[^>]*aria-selected="true"[^>]*>2026</);
+  assert.match(years, /role="option"[^>]*>1900</);
+  assert.doesNotMatch(years, />2027</);
+  const months = renderToStaticMarkup(createElement(Calendar, { selected: null, onSelect: () => {}, min: earliest, max: today, today, initialPanel: 'months' }));
+  assert.match(months, /aria-disabled="true" aria-label="October, not available"/);
+  assert.match(months, /aria-selected="true"[^>]*aria-label="September"/);
   const selected = renderToStaticMarkup(createElement(Calendar, {
     selected: { year: 2007, month: 11, day: 20 },
     onSelect: () => {},

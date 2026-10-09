@@ -53,8 +53,15 @@ export function createDnaRenderer() {
     const offset = travel % (step * config.wrapSteps);
     const forceX = cursor.x * width;
     const forceY = cursor.y * height;
+    // Only the samples on screen (plus a margin) are computed and stroked. The
+    // index range spans several screen heights so the strand can travel and
+    // wrap, but everything outside the viewport was invisible work.
+    const margin = step * 2 + 40;
+    const first = Math.max(0, Math.floor((offset - margin) / step) - config.firstIndex);
+    const last = Math.min(count - 1, Math.ceil((height + margin + offset) / step) - config.firstIndex);
+    if (last <= first) return;
 
-    for (let i = 0; i < count; i += 1) {
+    for (let i = first; i <= last; i += 1) {
       const y = (config.firstIndex + i) * step - offset;
       const phase = y * config.pathFrequency + time * config.pathSpeed + scroll * config.pathScroll;
       const broadS =
@@ -87,9 +94,9 @@ export function createDnaRenderer() {
     for (let strand = 0; strand < 2; strand += 1) {
       const sign = strand === 0 ? 1 : -1;
       ctx.beginPath();
-      for (let i = 0; i < count; i += 1) {
+      for (let i = first; i <= last; i += 1) {
         const x = centres[i] + swings[i] * sign;
-        if (i === 0) ctx.moveTo(x, ys[i]);
+        if (i === first) ctx.moveTo(x, ys[i]);
         else ctx.lineTo(x, ys[i]);
       }
       ctx.strokeStyle = strandGradients[strand];
@@ -103,7 +110,7 @@ export function createDnaRenderer() {
       const sign = strand === 0 ? 1 : -1;
       ctx.beginPath();
       let drawing = false;
-      for (let i = 0; i < count; i += 1) {
+      for (let i = first; i <= last; i += 1) {
         const front = depths[i] * sign > 0.35 && ys[i] > -20 && ys[i] < height + 20;
         const x = centres[i] + swings[i] * sign;
         if (front && !drawing) ctx.moveTo(x, ys[i]);
@@ -118,7 +125,9 @@ export function createDnaRenderer() {
     // Rungs follow the local orientation of the pair.
     ctx.lineWidth = config.rungWidth;
     // Manus draws rungs from index -144, every fifth sample.
-    for (let i = config.firstRung - config.firstIndex; i < count; i += config.rungEvery) {
+    const firstRung = config.firstRung - config.firstIndex;
+    const rungStart = first <= firstRung ? firstRung : firstRung + Math.ceil((first - firstRung) / config.rungEvery) * config.rungEvery;
+    for (let i = rungStart; i <= last; i += config.rungEvery) {
       const y = ys[i];
       if (y < -40 || y > height + 40) continue;
       ctx.beginPath();
@@ -131,7 +140,7 @@ export function createDnaRenderer() {
     // A pulse passing close to the strand lights a short stretch of its edge.
     if (pulse.active) {
       const index = Math.round((pulse.y + offset) / step) - config.firstIndex;
-      if (index >= 0 && index < count) {
+      if (index >= first && index <= last) {
         const gap = Math.abs(centres[index] - pulse.x);
         if (gap < config.pulseTouchRadius) {
           const strength = config.pulseTouchAlpha * pulse.fade * (1 - gap / config.pulseTouchRadius);
@@ -139,9 +148,9 @@ export function createDnaRenderer() {
           for (let strand = 0; strand < 2; strand += 1) {
             const sign = strand === 0 ? 1 : -1;
             ctx.beginPath();
-            for (let i = Math.max(0, index - span); i <= Math.min(count - 1, index + span); i += 1) {
+            for (let i = Math.max(first, index - span); i <= Math.min(last, index + span); i += 1) {
               const x = centres[i] + swings[i] * sign;
-              if (i === Math.max(0, index - span)) ctx.moveTo(x, ys[i]);
+              if (i === Math.max(first, index - span)) ctx.moveTo(x, ys[i]);
               else ctx.lineTo(x, ys[i]);
             }
             ctx.strokeStyle = `rgba(141, 230, 220, ${strength})`;

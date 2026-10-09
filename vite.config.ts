@@ -6,6 +6,17 @@ import path from 'path'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  /*
+    The Vercel environment the bundle was built for ('production', 'preview',
+    or empty for a local build). A preview build never persists to the
+    database, whatever its environment variables say (persistence/config.ts).
+  */
+  define: {
+    'import.meta.env.VITE_BUILD_TARGET': JSON.stringify(process.env.VERCEL_ENV ?? ''),
+    // Research-prototype demonstration unless a build sets VITE_DEMO_MODE=off.
+    // In demo mode nothing persists and the clinical workspace is closed.
+    'import.meta.env.VITE_DEMO_MODE': JSON.stringify(process.env.VITE_DEMO_MODE ?? 'research-prototype'),
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
