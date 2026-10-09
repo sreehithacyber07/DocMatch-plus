@@ -107,7 +107,8 @@ test('the intake registry has unique canonical meanings and complete source meta
   // 112: site features, worse-when, home treatment, numbness distribution, leg veins, hernia, breast and temple features (questionnaire expansion phase 2, PENDING CLINICAL REVIEW).
   // 114: urinary features and palpitation triggers (phase 2).
   // 117: nose injury, neck injury and mouth or jaw swelling site (phase 3).
-  assert.equal(CANONICAL_INTAKE_QUESTIONS.length, 117);
+  // 124: neurological duration, face injury features, falls count, getting up, nosebleed frequency, nasal polyp and TMD features (phase 4).
+  assert.equal(CANONICAL_INTAKE_QUESTIONS.length, 124);
   assert.equal(new Set(CANONICAL_INTAKE_QUESTIONS.map((question) => question.id)).size, CANONICAL_INTAKE_QUESTIONS.length);
   assert.equal(new Set(CANONICAL_INTAKE_QUESTIONS.map((question) => question.canonicalMeaning)).size, CANONICAL_INTAKE_QUESTIONS.length);
   assert.equal(new Set(CANONICAL_INTAKE_QUESTIONS.map((question) => question.duplicateEquivalenceGroup)).size, CANONICAL_INTAKE_QUESTIONS.length);
@@ -204,7 +205,7 @@ test('intersex or variation remains a neutral explicit-context path', () => {
   assert.ok(!intakeQuestionsFor(context.complaintId, context).some((question) => question.id === INTAKE_QUESTION_IDS.pregnancyContext));
 });
 
-test('enabled endpoints are four scored routes, ten rule-gated routes and two population fallbacks', () => {
+test('enabled endpoints are four scored routes, eleven rule-gated routes and two population fallbacks', () => {
   const endpoints = routableSpecialties();
   assert.deepEqual(endpoints.map((endpoint) => endpoint.id).toSorted(), [
     'cardiology',
@@ -215,6 +216,8 @@ test('enabled endpoints are four scored routes, ten rule-gated routes and two po
     'general-medicine',
     // General Surgery (NHS Hernia, NHS Breast lumps) and Vascular Surgery (NICE CG168) joined (questionnaire expansion phase 2, PENDING CLINICAL REVIEW).
     'general-surgery',
+    // Geriatric Medicine (NICE NG249 falls criteria, 65 and over) joined in phase 4, PENDING CLINICAL REVIEW.
+    'geriatric-medicine',
     'medical-gastroenterology',
     'neurology',
     'obstetrics-gynaecology',
@@ -229,7 +232,7 @@ test('enabled endpoints are four scored routes, ten rule-gated routes and two po
   assert.equal(endpoints.filter((endpoint) => endpoint.evidenceStatus === 'active-demonstration').length, 4);
   assert.equal(endpoints.filter((endpoint) => endpoint.evidenceStatus === 'fallback-endpoint').length, 2);
   // Neurology joined through NICE NG127 criteria in the routing reconciliation.
-  assert.equal(endpoints.filter((endpoint) => endpoint.evidenceStatus === 'rule-gated-referral-criteria').length, 10);
+  assert.equal(endpoints.filter((endpoint) => endpoint.evidenceStatus === 'rule-gated-referral-criteria').length, 11);
 
   // The two bases stay distinguishable: a rule-gated route can never be
   // selected by the belief vector. Dermatology keeps its frozen R1 key only so

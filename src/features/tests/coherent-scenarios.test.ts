@@ -45,6 +45,9 @@ const SCENARIOS: readonly Scenario[] = [
   { name: 'breast lump with a nipple change', spec: { region: 'chest', concern: 'swelling-lump', ...ADULT }, script: { [Q.breastFeatures]: 'breast-lump+nipple-inward' }, expect: { route: 'general-surgery' } },
   { name: 'a lone breast lump goes through the GP, as NHS describes', spec: { region: 'chest', concern: 'swelling-lump', ...ADULT }, script: { [Q.breastFeatures]: 'breast-lump' }, expect: { route: 'general-medicine' } },
   { name: 'aching bulging leg veins', spec: { region: 'left-lower-leg', concern: 'swelling-lump', age: 60, sex: 'female' }, script: { [Q.legVeinFeatures]: 'bulging+aching-heavy' }, expect: { route: 'vascular-surgery' } },
+  // Phase 4 (PENDING CLINICAL REVIEW): NICE NG249 falls criteria and NHS Broken tooth.
+  { name: 'older adult, second fall this year', spec: { region: 'face', face: 'patient-left-cheek', concern: 'injury', age: 74, sex: 'female' }, script: { [Q.injuryDetail]: 'fall', [Q.fallsCount]: 'two-plus', [Q.fallGetUp]: 'yes', [Q.faceInjuryFeatures]: 'none' }, expect: { route: 'geriatric-medicine' } },
+  { name: 'broken tooth after a knock, painful to bite', spec: { region: 'face', face: 'mouth', concern: 'injury', ...ADULT }, script: { [Q.injuryDetail]: 'impact', [Q.faceInjuryFeatures]: 'tooth', [Q.toothFeatures]: 'bite' }, expect: { route: 'dentistry' } },
   { name: 'leg sore not healing', spec: { region: 'right-lower-leg', concern: 'skin-change', age: 70, sex: 'male' }, script: { [Q.skinDetail]: 'other', [Q.legVeinFeatures]: 'sore+aching-heavy' }, expect: { route: 'vascular-surgery' } },
 
   /* --- Insufficient evidence and genuine ambiguity ---------------------- */

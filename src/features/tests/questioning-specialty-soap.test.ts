@@ -294,6 +294,7 @@ test('only modelled specialties are routable, and every R1 candidate renders thr
     'dermatology',
     'general-medicine',
     'general-surgery',
+    'geriatric-medicine',
     'medical-gastroenterology',
     'neurology',
     'obstetrics-gynaecology',

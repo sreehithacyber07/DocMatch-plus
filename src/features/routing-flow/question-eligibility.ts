@@ -176,7 +176,8 @@ export const CONCEPT_SCOPE: Readonly<Record<string, ConceptScope>> = {
   [Q.mskDuration]: scope(['limb'], ['pain', 'injury', 'movement-function']),
   // Questionnaire intelligence pass (PENDING CLINICAL REVIEW).
   // Phase 3: also a cheek or facial pain from a tooth, and a mouth or jaw lump near a tooth.
-  [Q.toothFeatures]: scope(['face-oral', 'face-general'], ['mouth-change', 'bleeding-discharge', 'pain', 'swelling-lump']),
+  // Phase 4: also a damaged tooth after a face, mouth or jaw injury.
+  [Q.toothFeatures]: scope(['face-oral', 'face-general'], ['mouth-change', 'bleeding-discharge', 'pain', 'swelling-lump', 'injury']),
   [Q.jointPattern]: scope(['limb'], ['pain'], 'adult'),
   [Q.injuryFeatures]: scope(['limb'], ['injury']),
   // Questionnaire expansion phase 2 (PENDING CLINICAL REVIEW).
@@ -196,6 +197,14 @@ export const CONCEPT_SCOPE: Readonly<Record<string, ConceptScope>> = {
   [Q.movementDetail]: scope(['limb'], ['movement-function', 'weakness-drooping']),
   [Q.backLegSymptoms]: scope(['lower-back'], ['pain']),
   [Q.associatedLocation]: scope(['chest', 'neck', 'lower-back', 'lower-abdomen'], ['pain']),
+  // Phase 4 (PENDING CLINICAL REVIEW).
+  [Q.neurologicDuration]: scope(['any'], ['numbness-tingling', 'weakness-drooping']),
+  [Q.faceInjuryFeatures]: scope(['face-general', 'face-oral'], ['injury']),
+  [Q.fallsCount]: scope(['any'], ['injury'], 'adult'),
+  [Q.fallGetUp]: scope(['any'], ['injury'], 'adult'),
+  [Q.nosebleedFrequency]: scope(['face-nose'], ['bleeding-discharge']),
+  [Q.nosePolypFeatures]: scope(['face-nose'], ['swelling-lump']),
+  [Q.faceTmdFeatures]: scope(['face-general'], ['pain'], 'adult'),
 };
 
 /**

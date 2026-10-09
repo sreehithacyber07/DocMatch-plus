@@ -78,6 +78,11 @@ export interface SoapInput {
    * RouteOutcome and the server the replayed one, so both write the same lines.
    */
   route?: SoapRoute;
+  /**
+   * Background lines built in the browser only (soap-background.ts). The
+   * trusted server never passes them: medical background is never sent to it.
+   */
+  background?: readonly SoapLine[];
 }
 
 export type SoapRoute = Pick<RouteOutcome, 'basis' | 'supportingSignals' | 'fallbackExplanation' | 'gate'>;
@@ -139,6 +144,7 @@ export function buildSoapHandoff(input: SoapInput): readonly SoapSection[] {
   const denied = interview.filter((entry) => entry.label.toLowerCase() === 'no').map((entry) => entry.text);
   if (reported.length > 0) subjective.push({ label: 'Answered yes', value: reported.join(' ') });
   if (denied.length > 0) subjective.push({ label: 'Answered no', value: denied.join(' ') });
+  for (const line of input.background ?? []) subjective.push(line);
 
   /* --- O ------------------------------------------------------------------ */
   const objective: SoapLine[] = [];

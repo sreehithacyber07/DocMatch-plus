@@ -267,6 +267,14 @@ export const INTAKE_QUESTION_IDS = {
   abdomenInjuryMovement: 'intake-abdomen-injury-movement',
   abdomenInjuryFeatures: 'intake-abdomen-injury-features',
   otherClarifier: 'intake-other-clarifier',
+  /* Phase 4 (PENDING CLINICAL REVIEW). */
+  neurologicDuration: 'intake-neurologic-duration',
+  faceInjuryFeatures: 'intake-face-injury-features',
+  fallsCount: 'intake-falls-count',
+  fallGetUp: 'intake-fall-get-up',
+  nosebleedFrequency: 'intake-nosebleed-frequency',
+  nosePolypFeatures: 'intake-nose-polyp-features',
+  faceTmdFeatures: 'intake-face-tmd-features',
 } as const;
 
 export type CanonicalIntakeQuestionId = typeof INTAKE_QUESTION_IDS[keyof typeof INTAKE_QUESTION_IDS];
@@ -495,7 +503,7 @@ export const CANONICAL_INTAKE_QUESTIONS: readonly CanonicalIntakeQuestionDefinit
       burden on the other, which made one evidence id mean two different
       things. Bleeding burden is its own concept now.
     */
-    ...commonDefinition(INTAKE_QUESTION_IDS.nosebleedAssociated, 'Bleeding-burden features after a nosebleed or nasal injury: swallowed blood, weakness or dizziness, breathing difficulty, a blow to the head, blood-thinning medicine.', 'face-nosebleed-associated', ['shared']),
+    ...commonDefinition(INTAKE_QUESTION_IDS.nosebleedAssociated, 'Bleeding-burden features after a nosebleed or nasal injury: swallowed blood, weakness or dizziness, breathing difficulty, a blow to the head, blood-thinning medicine, a clotting condition, symptoms of anaemia.', 'face-nosebleed-associated', ['shared']),
     bodyRegionApplicability: ['face'],
     sourceIds: [COVERAGE_SOURCE_IDS.nhsNosebleed],
     sourceMetadataLevel: 'direct',
@@ -666,7 +674,7 @@ export const CANONICAL_INTAKE_QUESTIONS: readonly CanonicalIntakeQuestionDefinit
   adultOnly(branchDefinition(INTAKE_QUESTION_IDS.legVeinFeatures, 'The leg vein features NHS Varicose veins, NICE CG168 and NHS DVT name: bulging veins, aching or heaviness, skin change, a sore not healing, a hard painful vein, a bleeding vein, pain and swelling in one leg.', 'leg-vein-features', 'all-supported-regions', [COVERAGE_SOURCE_IDS.nhsVaricoseVeins, COVERAGE_SOURCE_IDS.niceVaricoseVeins, COVERAGE_SOURCE_IDS.nhsDvt])),
   branchDefinition(INTAKE_QUESTION_IDS.herniaFeatures, 'The features NHS Hernia names for a lump in the tummy or groin: bigger on coughing or straining, smaller lying down, tight skin, a dragging feeling, pain, sickness or bloating.', 'hernia-features', ['upper-abdomen', 'lower-abdomen', 'pelvis'], [COVERAGE_SOURCE_IDS.nhsHernia]),
   adultOnly(branchDefinition(INTAKE_QUESTION_IDS.breastFeatures, 'The breast changes NHS Breast lumps and NICE NG12 name: a lump in the breast or armpit, a nipple turning in, dimpled skin, nipple discharge.', 'breast-features', ['chest'], [COVERAGE_SOURCE_IDS.nhsBreastLump, COVERAGE_SOURCE_IDS.niceSuspectedCancer])),
-  branchDefinition(INTAKE_QUESTION_IDS.noseInjuryFeatures, 'The broken-nose features NHS Broken nose lists: a crooked or changed shape, blocked breathing, a crunching sound, swelling not going down after 3 days.', 'nose-injury-features', ['face'], [COVERAGE_SOURCE_IDS.nhsBrokenNose]),
+  branchDefinition(INTAKE_QUESTION_IDS.noseInjuryFeatures, 'The broken-nose symptoms NHS Broken nose lists: pain, swelling or bruising, blocked breathing, a crunching sound.', 'nose-injury-features', ['face'], [COVERAGE_SOURCE_IDS.nhsBrokenNose]),
   branchDefinition(INTAKE_QUESTION_IDS.neckInjuryFeatures, 'The whiplash features NHS Whiplash lists: stiffness, headaches, shoulder or arm pain and spasms, not improving after a week or with painkillers.', 'neck-injury-features', ['neck', 'face'], [COVERAGE_SOURCE_IDS.nhsWhiplash]),
   branchDefinition(INTAKE_QUESTION_IDS.oralSwellingSite, 'Where a mouth or jaw swelling is: near a tooth or in the gum, under the jaw or in the neck, inside the cheek or on the lip.', 'oral-swelling-site', ['face'], [COVERAGE_SOURCE_IDS.nhsDentalAbscess, COVERAGE_SOURCE_IDS.nhsToothache, COVERAGE_SOURCE_IDS.nhsLumps]),
   branchDefinition(INTAKE_QUESTION_IDS.urinaryFeatures, 'The urinary features NHS UTI and NHS Enlarged prostate list: burning, cloudy pee, getting up at night, a weak or stop-start flow, straining, not emptying, dribbling.', 'urinary-features', ['lower-abdomen', 'pelvis', 'upper-abdomen'], [COVERAGE_SOURCE_IDS.nhsUrinaryTractInfection, COVERAGE_SOURCE_IDS.nhsProstateEnlargement]),
@@ -714,6 +722,14 @@ export const CANONICAL_INTAKE_QUESTIONS: readonly CanonicalIntakeQuestionDefinit
   branchDefinition(INTAKE_QUESTION_IDS.abdomenInjuryMovement, 'Whether pain after a chest, rib or upper tummy injury is worse on breathing in, coughing or moving.', 'abdomen-injury-movement', ['upper-abdomen', 'chest'], [COVERAGE_SOURCE_IDS.nhsBrokenRibs]),
   branchDefinition(INTAKE_QUESTION_IDS.abdomenInjuryFeatures, 'What has been noticed since a chest, rib or upper tummy injury: bruising, swelling or tenderness, being sick, or feeling dizzy or faint.', 'abdomen-injury-features', ['upper-abdomen', 'chest'], [COVERAGE_SOURCE_IDS.nhsBrokenRibs, COVERAGE_SOURCE_IDS.nhsStomachAche]),
   branchDefinition(INTAKE_QUESTION_IDS.otherClarifier, 'For an upper tummy concern described as something else: which concern family it is closest to, so the matching branch is asked instead of a generic tail.', 'other-clarifier', ['upper-abdomen'], [COVERAGE_SOURCE_IDS.cmsHpi]),
+  /* --- Phase 4 (PENDING CLINICAL REVIEW) ---------------------------------- */
+  branchDefinition(INTAKE_QUESTION_IDS.neurologicDuration, 'How long ago numbness, tingling or weakness started: today, days, weeks, months or longer.', 'neurologic-duration', 'all-supported-regions', [COVERAGE_SOURCE_IDS.niceNeurologicalReferral, COVERAGE_SOURCE_IDS.nhsBellsPalsy, COVERAGE_SOURCE_IDS.nhsPinsAndNeedles]),
+  branchDefinition(INTAKE_QUESTION_IDS.faceInjuryFeatures, 'What was noticed after a face, mouth or jaw injury: a black eye, a cut or open wound, a chipped, cracked or broken tooth.', 'face-injury-features', ['face'], [COVERAGE_SOURCE_IDS.nhsBlackEye, COVERAGE_SOURCE_IDS.nhsBrokenNose, COVERAGE_SOURCE_IDS.nhsBrokenTooth]),
+  adultOnly(branchDefinition(INTAKE_QUESTION_IDS.fallsCount, 'For a person aged 65 or over injured in a fall: how many falls in the last 12 months, including this one.', 'falls-count', 'all-supported-regions', [COVERAGE_SOURCE_IDS.niceFalls, COVERAGE_SOURCE_IDS.nhsFalls])),
+  adultOnly(branchDefinition(INTAKE_QUESTION_IDS.fallGetUp, 'For a person aged 65 or over injured in a fall: whether they could get up on their own afterwards.', 'fall-get-up', 'all-supported-regions', [COVERAGE_SOURCE_IDS.niceFalls, COVERAGE_SOURCE_IDS.nhsFalls])),
+  branchDefinition(INTAKE_QUESTION_IDS.nosebleedFrequency, 'How often nosebleeds happen: the first one, now and then, or regularly.', 'nosebleed-frequency', ['face'], [COVERAGE_SOURCE_IDS.nhsNosebleed]),
+  branchDefinition(INTAKE_QUESTION_IDS.nosePolypFeatures, 'Nose symptoms NHS Nasal polyps lists with a swelling in the nose: blocked, runny, postnasal drip, reduced smell or taste, snoring.', 'nose-polyp-features', ['face'], [COVERAGE_SOURCE_IDS.nhsNasalPolyps]),
+  adultOnly(branchDefinition(INTAKE_QUESTION_IDS.faceTmdFeatures, 'Jaw joint features NHS TMD lists with facial pain worse on chewing: clicking, popping or grinding, difficulty opening fully, locking, pain around the ear or temple.', 'face-tmd-features', ['face'], [COVERAGE_SOURCE_IDS.nhsTmd])),
 ];
 
 /** A concept whose sources are written for adults: never planned for an under-18 run. */
@@ -923,6 +939,11 @@ function resolveStaticQuestion(question: IntakeQuestion, complaintId: string): I
  * only while a criterion can still be met (`extension`) is its own `stage`.
  */
 export const GATE_CRITERION_QUESTION_IDS: ReadonlySet<string> = new Set([
+  // Phase 4: the dental injury and the falls (Geriatric Medicine) criteria read these.
+  INTAKE_QUESTION_IDS.faceInjuryFeatures,
+  INTAKE_QUESTION_IDS.fallsCount,
+  INTAKE_QUESTION_IDS.fallGetUp,
+  INTAKE_QUESTION_IDS.injuryDetail,
   // Phase 3: a one-calf answer excludes the elective Orthopaedics and
   // Rheumatology sets (a possible clot is not an elective referral).
   INTAKE_QUESTION_IDS.mskSiteFeatures,
@@ -1618,18 +1639,85 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
     informationGainRank: 20,
   });
 
-  const injuryMechanism = () => push({
-    id: INTAKE_QUESTION_IDS.injuryDetail,
-    category: 'context',
-    eyebrow: 'Injury',
-    prompt: say('What happened?', 'What happened to your child?'),
-    control: 'choice-grid',
-    options: options(['fall', 'Fall'], ['impact', 'Direct blow or knock'], ['twist', 'Twist or sudden movement'], ['cut-burn', 'Cut or burn'], ['overuse', 'Repeated use or strain'], ['other', 'Something else']),
-    sourceIds: [...sourceIds, COVERAGE_SOURCE_IDS.nhsSprains],
-    rationale: 'A patient who named an injury is asked what happened, not asked again whether there was one.',
-    progressionStage: 'characterize',
-    informationGainRank: 10,
-  });
+  /*
+    Falls in people aged 65 and over (phase 4, PENDING CLINICAL REVIEW).
+    NICE NG249 1.1.3 offers a comprehensive falls assessment to someone who
+    has fallen in the last year and has had 2 or more falls, or could not get
+    up independently afterwards (among other criteria); NHS Falls says a GP
+    may refer to a specialist falls service. Asked only after a fall is named.
+    A loss of consciousness is the R3 head injury check, not asked here.
+  */
+  const fallsHistory = () => {
+    if (context.age < 65) return;
+    push({
+      id: INTAKE_QUESTION_IDS.fallsCount,
+      category: 'pattern',
+      eyebrow: 'Falls',
+      prompt: 'In the last 12 months, how many times have you fallen, including this time?',
+      control: 'choice-grid',
+      options: options(['once', 'Only this time'], ['two-plus', '2 or more times'], ['unsure', 'Not sure']),
+      showWhen: { questionId: INTAKE_QUESTION_IDS.injuryDetail, optionIds: ['fall'] },
+      sourceIds: [COVERAGE_SOURCE_IDS.niceFalls, COVERAGE_SOURCE_IDS.nhsFalls],
+      rationale: 'NICE NG249 1.1.3 names 2 or more falls in the last year as a reason for a comprehensive falls assessment.',
+      progressionStage: 'discriminate',
+      informationGainRank: 12,
+    });
+    push({
+      id: INTAKE_QUESTION_IDS.fallGetUp,
+      category: 'context',
+      eyebrow: 'After the fall',
+      prompt: 'After the fall, could you get up on your own?',
+      control: 'choice-grid',
+      options: options(['yes', 'Yes, on my own'], ['needed-help', 'No, I needed help'], ['unsure', 'Not sure']),
+      showWhen: { questionId: INTAKE_QUESTION_IDS.injuryDetail, optionIds: ['fall'] },
+      sourceIds: [COVERAGE_SOURCE_IDS.niceFalls, COVERAGE_SOURCE_IDS.nhsFalls],
+      rationale: 'NICE NG249 1.1.3 names being unable to get up independently after a fall as a reason for a comprehensive falls assessment.',
+      progressionStage: 'discriminate',
+      informationGainRank: 13,
+    });
+  };
+  /*
+    What was noticed after a face, mouth or jaw injury (phase 4, PENDING
+    CLINICAL REVIEW). A black eye opens the NHS Black eye lists, a cut or
+    wound the NHS Broken nose face-wound item, and a damaged tooth the NHS
+    Broken tooth advice and the tooth questions. The head injury checks are
+    asked of every face injury regardless.
+  */
+  const faceInjuryFeatures = (withTooth: boolean) => {
+    push({
+      id: INTAKE_QUESTION_IDS.faceInjuryFeatures,
+      category: 'context',
+      eyebrow: 'Since the injury',
+      prompt: say('Have you noticed any of these? Choose all that apply.', 'Have you noticed any of these in your child? Choose all that apply.'),
+      control: 'multi-select',
+      options: withTooth
+        ? options(['black-eye', 'Bruising or swelling around the eye (a black eye)'], ['wound', 'A cut or open wound'], ['tooth', 'A chipped, cracked or broken tooth'], ['none', 'None of these'])
+        : options(['black-eye', 'Bruising or swelling around the eye (a black eye)'], ['wound', 'A cut or open wound'], ['none', 'None of these']),
+      exclusiveOptionIds: ['none'],
+      acuityOptionIds: ['black-eye', 'wound'],
+      sourceIds: [COVERAGE_SOURCE_IDS.nhsBlackEye, COVERAGE_SOURCE_IDS.nhsBrokenNose, COVERAGE_SOURCE_IDS.nhsBrokenTooth],
+      rationale: 'NHS Black eye, Broken nose and Broken or knocked-out tooth each turn on one of these. A black eye or a wound brings its own check forward; a damaged tooth opens the tooth questions.',
+      progressionStage: 'characterize',
+      informationGainRank: 12,
+    });
+    if (withTooth) toothFeatures({ questionId: INTAKE_QUESTION_IDS.faceInjuryFeatures, optionIds: ['tooth'] });
+  };
+
+  const injuryMechanism = () => {
+    push({
+      id: INTAKE_QUESTION_IDS.injuryDetail,
+      category: 'context',
+      eyebrow: 'Injury',
+      prompt: say('What happened?', 'What happened to your child?'),
+      control: 'choice-grid',
+      options: options(['fall', 'Fall'], ['impact', 'Direct blow or knock'], ['twist', 'Twist or sudden movement'], ['cut-burn', 'Cut or burn'], ['overuse', 'Repeated use or strain'], ['other', 'Something else']),
+      sourceIds: [...sourceIds, COVERAGE_SOURCE_IDS.nhsSprains],
+      rationale: 'A patient who named an injury is asked what happened, not asked again whether there was one.',
+      progressionStage: 'characterize',
+      informationGainRank: 10,
+    });
+    fallsHistory();
+  };
 
   /*
     ASSOCIATED LOCATION
@@ -1950,10 +2038,11 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
         eyebrow: 'Since the injury',
         prompt: say('Have you noticed any of these? Choose all that apply.', 'Have you noticed any of these in your child? Choose all that apply.'),
         control: 'multi-select',
-        options: options(['crooked', 'The nose looks crooked or has changed shape'], ['blocked', 'Hard to breathe through the nose, or it feels blocked'], ['crunching', 'A crunching or crackling sound when touched'], ['swelling-3-days', 'Swelling that has not started to go down after 3 days'], ['none', 'None of these']),
+        // Phase 4: a crooked nose and swelling not settling are NHS 111 items, now the R3 nose injury urgent check.
+        options: options(['pain-bruising', 'Pain, swelling or bruising'], ['blocked', 'Hard to breathe through the nose, or it feels blocked'], ['crunching', 'A crunching or crackling sound when touched'], ['none', 'None of these']),
         exclusiveOptionIds: ['none'],
         sourceIds: [COVERAGE_SOURCE_IDS.nhsBrokenNose],
-        rationale: 'The broken-nose features NHS Broken nose lists, in its own words; a crooked nose or swelling not settling after 3 days is its 111 advice. Context for the clinician.',
+        rationale: 'The broken-nose symptoms NHS Broken nose lists, in its own words. Context for the clinician; its 111 and 999 lists are the R3 nose injury checks.',
         progressionStage: 'characterize',
         informationGainRank: 15,
       });
@@ -1980,6 +2069,19 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
       });
     }
     const bleedingBranch = concern === 'bleeding-discharge' || concern === 'injury';
+    // Phase 4 (PENDING CLINICAL REVIEW): NHS Nosebleed sends regular nosebleeds to a GP.
+    if (concern === 'bleeding-discharge') push({
+      id: INTAKE_QUESTION_IDS.nosebleedFrequency,
+      category: 'pattern',
+      eyebrow: 'How often',
+      prompt: say('How often do you get nosebleeds?', 'How often does your child get nosebleeds?'),
+      control: 'choice-grid',
+      options: options(['first', 'This is the first one'], ['now-and-then', 'Now and then'], ['regular', 'Regularly'], ['unsure', 'Not sure']),
+      sourceIds: [COVERAGE_SOURCE_IDS.nhsNosebleed],
+      rationale: 'NHS Nosebleed names regular nosebleeds as a reason to see a GP.',
+      progressionStage: 'characterize',
+      informationGainRank: 20,
+    });
     const SHORT_NASAL = ['one-to-three-weeks', 'unsure'];
     if (bleedingBranch) {
       asksOnset = false;
@@ -2051,11 +2153,12 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
         eyebrow: 'Other changes',
         prompt: say('Is anything else happening with it? Choose all that apply.', 'Have you noticed anything else? Choose all that apply.'),
         control: 'multi-select',
-        options: options(['swallowed', 'Swallowed blood or vomited'], ['weak-dizzy', 'Weak or dizzy'], ['breathing', 'Difficulty breathing'], ['head-injury', 'Started after a blow to the head'], ['blood-thinner', 'Taking a blood-thinning medicine'], ['none', 'None of these']),
+        // Phase 4: the last two are NHS Nosebleed's own see-a-GP items.
+        options: options(['swallowed', 'Swallowed blood or vomited'], ['weak-dizzy', 'Weak or dizzy'], ['breathing', 'Difficulty breathing'], ['head-injury', 'Started after a blow to the head'], ['blood-thinner', 'Taking a blood-thinning medicine'], ['clotting', 'A condition that stops blood clotting properly, such as haemophilia'], ['anaemia', 'A fast heartbeat, shortness of breath, or paler skin than usual'], ['none', 'None of these']),
         exclusiveOptionIds: ['none'],
         acuityOptionIds: ['swallowed', 'weak-dizzy', 'breathing', 'head-injury'],
         sourceIds: [COVERAGE_SOURCE_IDS.nhsNosebleed],
-        rationale: 'The bleeding-burden features NHS Nosebleed names for immediate assessment. They can coexist, so all are collected, and any of the first four brings the nosebleed check forward.',
+        rationale: 'The bleeding-burden features NHS Nosebleed names for immediate assessment, then its see-a-GP items (a clotting condition, symptoms of anaemia). They can coexist, so all are collected, and any of the first four brings the nosebleed check forward.',
         progressionStage: 'discriminate',
         informationGainRank: 40,
       });
@@ -2181,7 +2284,10 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
         optionIds: concern === 'bleeding-discharge' ? ['gums', 'tooth'] : ['tooth-gum'],
       });
     } else if (concern === 'injury') {
+      // What happened answers how it began, so onset is not asked twice.
+      asksOnset = false;
       injuryMechanism();
+      faceInjuryFeatures(true);
     } else {
       push({
         id: INTAKE_QUESTION_IDS.jawDetail,
@@ -2594,6 +2700,21 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
       informationGainRank: 15,
     });
     if (facePart === 'forehead' || (facePart?.includes('temple') ?? false)) templeQuestion();
+    // Phase 4 (PENDING CLINICAL REVIEW): pain worse on chewing is asked the NHS TMD features.
+    push({
+      id: INTAKE_QUESTION_IDS.faceTmdFeatures,
+      category: 'context',
+      eyebrow: 'The jaw',
+      prompt: 'Do any of these happen? Choose all that apply.',
+      control: 'multi-select',
+      options: options(['noises', 'Clicking, popping or grinding when the jaw moves'], ['opening', 'Difficulty opening the mouth fully'], ['locking', 'The jaw locks when opening the mouth'], ['ear-temple', 'Pain around the ear or temple'], ['none', 'None of these']),
+      exclusiveOptionIds: ['none'],
+      showWhen: { questionId: INTAKE_QUESTION_IDS.facePainPattern, optionIds: ['chewing'] },
+      sourceIds: [COVERAGE_SOURCE_IDS.nhsTmd],
+      rationale: 'The jaw joint symptoms NHS TMD lists. Context for the clinician; it separates a jaw joint pattern from a tooth or sinus one.',
+      progressionStage: 'characterize',
+      informationGainRank: 28,
+    });
     // Phase 3 (PENDING CLINICAL REVIEW): NHS Toothache names a swollen cheek; a facial pain from a tooth is asked the dental features.
     toothFeatures({ questionId: INTAKE_QUESTION_IDS.facePainPattern, optionIds: ['tooth'] });
     push({
@@ -2698,6 +2819,7 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
       progressionStage: 'characterize',
       informationGainRank: 10,
     });
+    fallsHistory();
     push({
       id: INTAKE_QUESTION_IDS.abdomenInjuryTiming,
       category: 'duration',
@@ -3109,6 +3231,20 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
       informationGainRank: 25,
     });
     if (isAbdominal) herniaQuestion();
+    // Phase 4 (PENDING CLINICAL REVIEW): a swelling in the nose is asked the NHS Nasal polyps symptoms.
+    if (isNose) push({
+      id: INTAKE_QUESTION_IDS.nosePolypFeatures,
+      category: 'context',
+      eyebrow: 'Nose symptoms',
+      prompt: say('Do you have any of these? Choose all that apply.', 'Does your child have any of these? Choose all that apply.'),
+      control: 'multi-select',
+      options: options(['blocked', 'A blocked nose'], ['runny', 'A runny nose'], ['postnasal', 'Mucus dripping down the back of the throat'], ['smell-taste', 'A reduced sense of smell or taste'], ['snoring', 'Snoring'], ['none', 'None of these']),
+      exclusiveOptionIds: ['none'],
+      sourceIds: [COVERAGE_SOURCE_IDS.nhsNasalPolyps],
+      rationale: 'The symptoms NHS Nasal polyps lists; it sends someone who thinks they have polyps, or whose sense of smell changes, to a GP. Context for the clinician.',
+      progressionStage: 'characterize',
+      informationGainRank: 30,
+    });
     if (isOral) {
       // Phase 3 (PENDING CLINICAL REVIEW): NHS Dental abscess names a swollen face or jaw for the dentist.
       push({
@@ -3185,6 +3321,19 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
       rationale: 'NICE NG127 refers slowly progressive weakness, refers rapidly progressive weakness or numbness immediately, and treats sudden onset as a possible stroke; NHS Pins and needles names numbness that keeps coming back.',
       progressionStage: 'characterize',
       informationGainRank: 20,
+    });
+    // Phase 4 (PENDING CLINICAL REVIEW): the course says how it has changed, not when it began.
+    push({
+      id: INTAKE_QUESTION_IDS.neurologicDuration,
+      category: 'duration',
+      eyebrow: 'When it started',
+      prompt: say('When did it start?', 'When did it start for your child?'),
+      control: 'segmented',
+      options: options(['today', 'Today'], ['days', 'In the last few days'], ['weeks', '1 to 4 weeks ago'], ['months', '1 to 3 months ago'], ['longer', 'More than 3 months ago'], ['unsure', 'Not sure']),
+      sourceIds: [COVERAGE_SOURCE_IDS.niceNeurologicalReferral, COVERAGE_SOURCE_IDS.nhsBellsPalsy, COVERAGE_SOURCE_IDS.nhsPinsAndNeedles],
+      rationale: 'NICE NG127 separates weakness progressing over weeks or months, and NHS Bell\'s palsy facial weakness developing over a few days; how long ago it started is the timeline the course answer does not give.',
+      progressionStage: 'characterize',
+      informationGainRank: 22,
     });
     if (concern === 'numbness-tingling') {
       push({
@@ -3334,6 +3483,7 @@ function coveragePlan(context: RegionAssessmentContext): ComplaintIntakePlan {
   } else if (concern === 'injury') {
     asksOnset = false;
     injuryMechanism();
+    if (context.bodyRegionId === 'face' && facePart !== 'upper-neck') faceInjuryFeatures(facePart === 'face-general' || (facePart?.includes('cheek') ?? false));
     if (context.bodyRegionId === 'neck' || facePart === 'upper-neck') push({
       id: INTAKE_QUESTION_IDS.neckInjuryFeatures,
       category: 'context',

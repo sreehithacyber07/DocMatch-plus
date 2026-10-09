@@ -43,8 +43,8 @@ Screenshots are from the live demonstration with synthetic answers.
 
 - **Interactive body and face selection** with semantic regions, front/back views, keyboard-accessible controls and patient-relative laterality.
 - **Adaptive questionnaire.** Concern- and region-specific questions; follow-ups open only when an earlier answer makes them relevant; earlier answers can be corrected from the response trail.
-- **Specialty direction** across 14 specialist services (Cardiology, Respiratory Medicine, Neurology, Gastroenterology, Orthopaedics, Rheumatology, Dermatology, ENT, Eye care, Obstetrics and Gynaecology, Urology, Dental care, General Surgery, Vascular Surgery) plus the General Medicine and Paediatrics parent services.
-- **Parallel safety screening**: 66 explicit rules and 69 safety questions, each tied to a published source and scoped to where it applies (for example head-injury signs after a face injury, clot signs with one swollen leg).
+- **Specialty direction** across 15 specialist services (Cardiology, Respiratory Medicine, Neurology, Gastroenterology, Orthopaedics, Rheumatology, Dermatology, ENT, Eye care, Obstetrics and Gynaecology, Urology, Dental care, General Surgery, Vascular Surgery, and Geriatric Medicine for falls at 65 and over) plus the General Medicine and Paediatrics parent services.
+- **Parallel safety screening**: 73 explicit rules and 72 safety questions, each tied to a published source and scoped to where it applies (for example head-injury and black-eye signs after a face injury, clot signs with one swollen leg, swallowing problems).
 - **Emergency interruption** that pauses routing at once and names the exact sign reported.
 - **Structured SOAP handoff** that states which criteria were met, or what stayed uncertain, without naming a condition or a probability.
 - **Age-aware intake** with caregiver wording for children and an adult-present acknowledgement under 18.
@@ -55,12 +55,12 @@ Screenshots are from the live demonstration with synthetic answers.
 
 **No LLM or ML model makes routing or safety decisions.** Routing combines explicit, source-backed criteria with a demonstration probabilistic component.
 
-- **Concern-specific questioning.** 117 intake concepts, each declaring the history dimension it covers (character, severity, duration, onset, triggers, associated features, function). A typical routine journey is 6 to 10 questions; emergency paths are kept short on purpose.
+- **Concern-specific questioning.** 124 intake concepts, each declaring the history dimension it covers (character, severity, duration, onset, triggers, associated features, function). Across 1,844 location, concern and age combinations, about three quarters of routine journeys ask 6 to 10 questions; emergency paths are kept short on purpose. Every remaining short pathway is documented with its reason.
 - **Evidence sufficiency.** A specialist direction needs at least two distinct supporting criteria from its published criteria set, so one answer is never a referral. Exclusions (for example, swelling after an injury for Rheumatology, or pain in one calf for an elective musculoskeletal service) block a direction, and an exclusion that can still be asked is asked first.
 - **Competing specialties.** When two different specialist sets are both met, the result is General Medicine with the ambiguity stated, never a forced choice. Adult-only services never route a child.
 - **Information-gain question selection.** For the four complaints with a weighted model (headache, breathlessness, upper abdominal pain, joint or muscle pain), Bayesian belief updating orders questions by expected information gain.
 - **Bayesian limitations.** The model's priors and likelihoods are demonstration values and are **not clinically calibrated**. It never routes on its own: its answers feed the same published criteria, and it records uncertainty rather than claiming confidence.
-- **Guarded fallback.** A parent service always carries a named reason (insufficient evidence, no validated narrower route, an exclusion, genuine ambiguity, or a children's service).
+- **Guarded fallback.** A parent service always carries a named reason (insufficient evidence, no validated narrower route, an exclusion, genuine ambiguity, or a children's service). A test over every location, concern and age confirms no assessment reaches a parent service while a question that could change the outcome is still unasked.
 
 ## Architecture
 
@@ -97,11 +97,11 @@ On the published source (the same code as the live demonstration):
 
 | Check | Result |
 | --- | --- |
-| Frontend tests | 649 passed |
+| Frontend tests | 682 passed |
 | Backend tests (trusted operations, clinical parity, rate limiting) | 79 passed |
 | TypeScript, production build | Pass |
 | `npm audit` | 0 vulnerabilities |
-| Browser QA on the live demonstration | Normal, urgent and emergency journeys; 6 viewports from 320×568 to 1440×900; 200% zoom; reduced and full motion; answer correction; zero backend requests |
+| Browser QA on the live demonstration | Normal, urgent and emergency journeys, a child journey and an older adult's falls journey; 6 viewports from 320×568 to 1440×900; 200% zoom; reduced and full motion; answer correction; zero backend requests |
 | Security | Secret scan, no credentials in the bundle, strict CSP and security headers |
 
 The tests include a per-specialty direction matrix (positive, negative, exclusion, competing-service, child and safety cases) and parity tests showing the browser and server reach identical results.
@@ -114,6 +114,7 @@ These are engineering checks, **not clinical accuracy measurements**. They show 
 
 - No qualified clinical validation has been completed. The questionnaire, routing criteria and warning-sign rules are drawn from public NHS and NICE guidance and are **pending clinical review**.
 - A direction is a suggested first service, not a diagnosis, triage category or referral.
+- Of the 33 services in the registry, 17 are routable. The others stay inactive because their referral criteria rest on tests, imaging or examination, or because they are not kiosk destinations.
 - The safety screen covers specific listed signs only. Anyone who feels unwell should contact a doctor; in an emergency, call 112.
 - Before any real-patient use the project would need independent clinical governance and sign-off, an approved data retention policy, tested backup and recovery, and production monitoring with operational ownership.
 

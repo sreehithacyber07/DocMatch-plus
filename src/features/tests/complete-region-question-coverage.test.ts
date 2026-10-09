@@ -187,7 +187,7 @@ test('canonical intake ids describe one clinical concept across context and word
   // neurological course, facial pain, movement, eye injury, back-into-leg and
   // the associated location), plus the 12 final-blocker concepts for headache,
   // breathing and upper tummy.
-  assert.equal(canonicalIds.length, 117);
+  assert.equal(canonicalIds.length, 124);
 
   const left = BODY_DOMAIN.regions.find((region) => region.id === 'left-forearm')!;
   const right = BODY_DOMAIN.regions.find((region) => region.id === 'right-forearm')!;

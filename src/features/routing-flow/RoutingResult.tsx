@@ -11,6 +11,7 @@ import { fadeLift } from '../../styles/motion-variants.ts';
 import { SessionTimeline, type TimelineEntry } from './SessionTimeline.tsx';
 import { intakeOptionLabel, type IntakeAnswer, type IntakeQuestion } from './intake-questions.ts';
 import type { RouteOutcome } from './route-outcome.ts';
+import { soapBackground } from './soap-background.ts';
 import { buildSoapHandoff, HANDOFF_STATUS, type BodyCapture } from './soap-handoff.ts';
 import { buildClinicalRoutingExplanation } from './routing-presentation.ts';
 import { RouteConvergence } from './RouteConvergence.tsx';
@@ -131,6 +132,7 @@ export function RoutingResult({
     urgentReview: Boolean(urgentReview),
     referralPriority: referralNotes.map((note) => note.clinicianText),
     route: routeOutcome,
+    background: patientContext ? soapBackground(patientContext) : undefined,
   });
 
   /* The collapsed handoff has to be useful closed: the concern and the first

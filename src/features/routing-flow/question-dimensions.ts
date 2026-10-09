@@ -150,6 +150,14 @@ export const INTAKE_DIMENSIONS: Readonly<Record<string, readonly HistoryDimensio
   [Q.abdomenInjuryTiming]: ['injury', 'duration'],
   [Q.abdomenInjuryMovement]: ['aggravating'],
   [Q.abdomenInjuryFeatures]: ['associated'],
+  // Phase 4 (PENDING CLINICAL REVIEW).
+  [Q.neurologicDuration]: ['duration', 'onset'],
+  [Q.faceInjuryFeatures]: ['injury', 'associated'],
+  [Q.fallsCount]: ['history', 'frequency', 'age-specific'],
+  [Q.fallGetUp]: ['function', 'age-specific'],
+  [Q.nosebleedFrequency]: ['frequency'],
+  [Q.nosePolypFeatures]: ['associated'],
+  [Q.faceTmdFeatures]: ['aggravating', 'distinguishing'],
 };
 
 /** The approved R1 questions' evidence dimension, in the same vocabulary. */

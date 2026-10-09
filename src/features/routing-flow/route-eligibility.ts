@@ -102,7 +102,11 @@ export function eligibleRouteDirections(
       && ['reproductive-pelvic-change', 'pain', 'swelling-lump', 'other', 'bleeding-discharge'].includes(concern)) {
       ids.push('obstetrics-gynaecology');
     }
+    // Phase 4 (PENDING CLINICAL REVIEW): NICE NG249 falls criteria, 65 and over, any injury from a fall.
+    if (context.age >= 65 && concern === 'injury') ids.push('geriatric-medicine');
   }
+  // Phase 4: a damaged tooth after a face, mouth or jaw injury (NHS Broken tooth).
+  if ((ORAL.includes(face) || context.complaintId === 'face-general-concern') && concern === 'injury') ids.push('dentistry');
 
   return { parentServiceId, narrowerServiceIds: routable(ids) };
 }

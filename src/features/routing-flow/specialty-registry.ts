@@ -455,6 +455,25 @@ export const SPECIALTY_REGISTRY: readonly SpecialtyRecord[] = [
     evidenceStatus: 'rule-gated-referral-criteria',
     source: SUPER,
   },
+  {
+    /*
+      Phase 4, PENDING CLINICAL REVIEW. Previously registry-only. Reachable
+      only through the NICE NG249 1.1.3 falls criteria, for people aged 65 and
+      over injured in a fall: the fall plus 2 or more falls in the last year,
+      or being unable to get up independently afterwards. NHS Falls says a GP
+      may refer to a specialist falls service. Adults 65 and over only.
+    */
+    id: 'geriatric-medicine',
+    registryStates: ['ROUTABLE_SOURCE_BACKED', 'NEEDS_CLINICAL_EVIDENCE', 'FACILITY_DEPENDENT'],
+    canonicalName: 'Geriatric Medicine',
+    patientFacingName: 'Geriatric Medicine',
+    category: 'broad',
+    routingEnabled: true,
+    directionGated: true,
+    supportedComplaints: ['musculoskeletal-concern', 'general-region-concern', 'face-general-concern', 'face-oral-jaw-concern', 'face-nose-concern', 'head-concern'],
+    evidenceStatus: 'rule-gated-referral-criteria',
+    source: BROAD,
+  },
 
   /* --- Registered, not routable ------------------------------------------- */
   disabled('family-medicine', 'Family Medicine', 'Family Medicine', 'broad', 'not-modelled',
@@ -463,8 +482,6 @@ export const SPECIALTY_REGISTRY: readonly SpecialtyRecord[] = [
     'Emergencies are handled by the R3 safety escalation, never by ordinary specialty routing.', ['DISABLED']),
   disabled('psychiatry', 'Psychiatry', 'Psychiatry', 'broad'),
   disabled('physical-medicine-rehabilitation', 'Physical Medicine and Rehabilitation', 'Physical Medicine and Rehabilitation', 'broad'),
-  disabled('geriatric-medicine', 'Geriatric Medicine', 'Geriatric Medicine', 'broad', 'not-modelled',
-    'Age-defined service; no symptom-led criteria are modelled.', ['REGISTRY_ONLY', 'FACILITY_DEPENDENT']),
   disabled('nephrology', 'Nephrology', 'Nephrology', 'super', 'proposed-needs-review',
     'No symptom-led kiosk criterion separates a renal referral; upper urinary features stay with the parent service.', ['NEEDS_CLINICAL_EVIDENCE']),
   disabled('critical-care-medicine', 'Critical Care Medicine', 'Critical Care Medicine', 'super', 'not-modelled',

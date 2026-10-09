@@ -58,6 +58,7 @@ export type DirectionId =
   | 'clinical-immunology-rheumatology'
   | 'general-surgery'
   | 'vascular-surgery'
+  | 'geriatric-medicine'
   | 'paediatrics';
 
 /**
@@ -1162,6 +1163,103 @@ export const DIRECTION_CRITERIA_SETS: readonly DirectionCriteriaSet[] = [
         optionIds: ['nipple-discharge'],
         sourceIds: [COVERAGE_SOURCE_IDS.nhsBreastLump, COVERAGE_SOURCE_IDS.niceSuspectedCancer],
         sourceCriterion: 'NHS Breast lumps: bloodstained nipple discharge; NICE NG12 1.4.1 (discharge in 1 nipple only).',
+      },
+    ],
+    excluding: [],
+  },
+
+  /* --- Dental care after an injury (phase 4, PENDING CLINICAL REVIEW) ------- */
+  {
+    directionId: 'dentistry',
+    appliesWhen: (context, answers) =>
+      context.concernId === 'injury'
+      && (isOral(context) || context.complaintId === 'face-general-concern')
+      && answerIncludes(answers, INTAKE_QUESTION_IDS.faceInjuryFeatures, ['tooth']),
+    pediatricPolicy: 'shared-service',
+    minimumSupporting: 2,
+    requiredQuestionIds: [INTAKE_QUESTION_IDS.toothFeatures],
+    rationale: 'NHS Broken or knocked-out tooth: see a dentist if you or your child has chipped, cracked or broken a tooth. One answer is never a referral here, so the damaged tooth and one tooth symptom NHS Toothache names are both needed; a damaged tooth alone stays with the parent service and is a clinical review item. PENDING CLINICAL REVIEW.',
+    supporting: [
+      {
+        id: 'dental-injury-broken-tooth',
+        label: 'A chipped, cracked or broken tooth after the injury',
+        questionId: INTAKE_QUESTION_IDS.faceInjuryFeatures,
+        optionIds: ['tooth'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsBrokenTooth],
+        sourceCriterion: 'NHS Broken or knocked-out tooth: see a dentist if you or your child has chipped, cracked or broken a tooth.',
+      },
+      {
+        id: 'dental-injury-bite',
+        label: 'Pain on biting or chewing',
+        questionId: INTAKE_QUESTION_IDS.toothFeatures,
+        optionIds: ['bite'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsToothache],
+        sourceCriterion: 'NHS Toothache: see a dentist if you have pain when you bite.',
+      },
+      {
+        id: 'dental-injury-hot-cold',
+        label: 'Sensitive to hot or cold',
+        questionId: INTAKE_QUESTION_IDS.toothFeatures,
+        optionIds: ['hot-cold'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsDentalAbscess],
+        sourceCriterion: 'NHS Dental abscess lists sensitivity to hot or cold food and drink.',
+      },
+      {
+        id: 'dental-injury-loose',
+        label: 'A loose tooth',
+        questionId: INTAKE_QUESTION_IDS.toothFeatures,
+        optionIds: ['loose'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsDentalAbscess],
+        sourceCriterion: 'NHS Dental abscess lists a loose tooth; see a dentist.',
+      },
+      {
+        id: 'dental-injury-painkillers',
+        label: 'Painkillers are not helping',
+        questionId: INTAKE_QUESTION_IDS.toothFeatures,
+        optionIds: ['painkillers'],
+        sourceIds: [COVERAGE_SOURCE_IDS.nhsToothache],
+        sourceCriterion: 'NHS Toothache: see a dentist if it does not go away when you take painkillers.',
+      },
+    ],
+    excluding: [],
+  },
+
+  /* --- Geriatric Medicine: falls (phase 4, PENDING CLINICAL REVIEW) ---------- */
+  {
+    directionId: 'geriatric-medicine',
+    appliesWhen: (context, answers) =>
+      context.age >= 65
+      && context.concernId === 'injury'
+      && answerIncludes(answers, INTAKE_QUESTION_IDS.injuryDetail, ['fall']),
+    pediatricPolicy: 'adult-only',
+    minimumSupporting: 2,
+    // The fall itself must be one of the two; either NG249 criterion completes the pair.
+    requiredQuestionIds: [INTAKE_QUESTION_IDS.injuryDetail],
+    rationale: 'NICE NG249 1.1.3 (people aged 65 and over): offer a comprehensive falls assessment to people who have fallen in the last year and have had 2 or more falls in the last year, or were unable to get up independently after a fall (or meet its other criteria: frailty, an injury needing medical treatment, a loss of consciousness). NHS Falls: a GP may refer you to a specialist falls service, which in this registry is Geriatric Medicine. The fall that brought the person here and one further NG249 criterion are both needed. A loss of consciousness is the R3 head injury check, and an injury that needs orthopaedic care is the Orthopaedics criteria, so both being met is reported as ambiguity, never a forced choice. PENDING CLINICAL REVIEW.',
+    supporting: [
+      {
+        id: 'falls-this-fall',
+        label: 'A fall in the last year (this injury)',
+        questionId: INTAKE_QUESTION_IDS.injuryDetail,
+        optionIds: ['fall'],
+        sourceIds: [COVERAGE_SOURCE_IDS.niceFalls, COVERAGE_SOURCE_IDS.nhsFalls],
+        sourceCriterion: 'NICE NG249 1.1.3: people who have fallen in the last year.',
+      },
+      {
+        id: 'falls-recurrent',
+        label: '2 or more falls in the last 12 months',
+        questionId: INTAKE_QUESTION_IDS.fallsCount,
+        optionIds: ['two-plus'],
+        sourceIds: [COVERAGE_SOURCE_IDS.niceFalls],
+        sourceCriterion: 'NICE NG249 1.1.3: have had 2 or more falls in the last year.',
+      },
+      {
+        id: 'falls-could-not-get-up',
+        label: 'Could not get up without help after the fall',
+        questionId: INTAKE_QUESTION_IDS.fallGetUp,
+        optionIds: ['needed-help'],
+        sourceIds: [COVERAGE_SOURCE_IDS.niceFalls],
+        sourceCriterion: 'NICE NG249 1.1.3: have been unable to get up independently after a fall.',
       },
     ],
     excluding: [],

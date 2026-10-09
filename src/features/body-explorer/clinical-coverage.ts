@@ -149,6 +149,13 @@ export const COVERAGE_SOURCE_IDS = {
   nhsHeadInjury: 'coverage-nhs-head-injury',
   nhsBrokenNose: 'coverage-nhs-broken-nose',
   nhsWhiplash: 'coverage-nhs-whiplash',
+  /* Phase 4, accessed 2026-10-09, each page read directly. PENDING CLINICAL REVIEW. */
+  nhsFalls: 'coverage-nhs-falls',
+  niceFalls: 'coverage-nice-ng249-falls',
+  nhsBlackEye: 'coverage-nhs-black-eye',
+  nhsBrokenTooth: 'coverage-nhs-broken-or-knocked-out-tooth',
+  nhsNasalPolyps: 'coverage-nhs-nasal-polyps',
+  nhsBellsPalsy: 'coverage-nhs-bells-palsy',
 } as const;
 
 const REBUILD_ACCESSED = '2026-09-23' as const;
@@ -157,6 +164,7 @@ const RECONCILIATION_ACCESSED = '2026-09-25' as const;
 const BLOCKER_PASS_ACCESSED = '2026-09-26' as const;
 const INTELLIGENCE_PASS_ACCESSED = '2026-10-08' as const;
 const PHASE3_ACCESSED = '2026-10-09' as const;
+const PHASE4_ACCESSED = '2026-10-09' as const;
 const PENDING = 'source-backed-prototype-pending-clinical-review' as const;
 
 export const CLINICAL_COVERAGE_SOURCES: readonly CoverageSource[] = [
@@ -682,7 +690,7 @@ export const CLINICAL_COVERAGE_SOURCES: readonly CoverageSource[] = [
     organization: 'National Health Service',
     title: 'Broken nose',
     url: 'https://www.nhs.uk/conditions/broken-nose/',
-    scope: 'Symptoms: pain, swelling and bruising, a crunching or crackling sound when touched, difficulty breathing through the nose, the nose changing shape. 111 if the nose is crooked after the injury or the swelling has not started to go down after 3 days. A&E for a nosebleed that will not stop, clear watery fluid from the nose, a severe headache with blurred or double vision, or a purple swelling inside the nose.',
+    scope: 'Symptoms: pain, swelling and bruising, a crunching or crackling sound when touched, difficulty breathing through the nose, the nose changing shape. Get help from 111 if the nose is crooked after the injury, the swelling has not started to go down after 3 days, painkillers are not helping, it is still hard to breathe through the nose after the swelling has gone, there are regular nosebleeds, or a very high temperature or feeling hot, cold or shivery. Call 999 or go to A&E for a nosebleed that will not stop, a large cut or open wound on the nose or face or something in the wound, clear watery fluid from the nose, a severe headache with blurred or double vision, eye pain and double vision, neck pain or a stiff neck with numbness or tingling in the arms, a purple swelling inside the nose, or other signs of a severe head injury.',
     accessedAt: PHASE3_ACCESSED,
     clinicalReviewStatus: PENDING,
   },
@@ -693,6 +701,60 @@ export const CLINICAL_COVERAGE_SOURCES: readonly CoverageSource[] = [
     url: 'https://www.nhs.uk/conditions/whiplash/',
     scope: 'Symptoms: neck pain, stiffness and difficulty moving the head, headaches, pain and spasms in the shoulders and arms. GP if not improved after 1 week or painkillers have not worked. Urgent GP or 111 for severe pain despite painkillers, tingling or pins and needles on one or both sides of the body, problems walking or sitting upright, a sudden electric-shock feeling in the neck and back, or weak hands, arms or legs.',
     accessedAt: PHASE3_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsFalls,
+    organization: 'National Health Service',
+    title: 'Falls',
+    url: 'https://www.nhs.uk/conditions/falls/',
+    scope: 'See a GP if you have had a fall or are worried about your balance or mobility; a GP may refer you to a specialist falls service. Get help from 111 if someone has fallen and may be in pain, injured or unwell. Call 999 if someone has fallen and may have injured the head, back, neck or hip, or cannot get up.',
+    accessedAt: PHASE4_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.niceFalls,
+    organization: 'National Institute for Health and Care Excellence',
+    title: 'Falls: assessment and prevention in older people and in people 50 and over at higher risk (NG249)',
+    url: 'https://www.nice.org.uk/guidance/ng249',
+    scope: 'Covers people aged 65 and over (and 50 to 64 at higher risk). Recommendation 1.1.3: offer a comprehensive falls assessment to people who have fallen in the last year and are living with frailty, were injured in a fall and needed medical treatment, lost consciousness in a fall, were unable to get up independently after a fall, or have had 2 or more falls in the last year. The recommendations page itself could not be opened directly; the 1.1.3 wording was taken from secondary reproductions and the archived guideline page, and must be checked against NICE before clinical use.',
+    accessedAt: PHASE4_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsBlackEye,
+    organization: 'National Health Service',
+    title: 'Black eye',
+    url: 'https://www.nhs.uk/conditions/black-eye/',
+    scope: 'See a GP if a black eye does not go away within 3 weeks. Urgent GP or 111 for a headache that does not go away or blurry vision, warmth or pus around the eye, a very high temperature or feeling hot, cold or shivery, blood-thinning medicine, or a bleeding disorder. Go to A&E for blood in the eye, an irregularly shaped pupil, bruising around both eyes after a blow to the head, losing consciousness or being sick after a blow to the head, vision problems (double vision, loss of vision, flashing lights, halos or shadows, pain looking at bright light), or an eye that cannot move.',
+    accessedAt: PHASE4_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsBrokenTooth,
+    organization: 'National Health Service',
+    title: 'Broken or knocked-out tooth',
+    url: 'https://www.nhs.uk/conditions/broken-or-knocked-out-tooth/',
+    scope: 'See a dentist if you or your child has chipped, cracked or broken a tooth; for urgent dental treatment call a dentist, or 111 if you cannot get an emergency appointment.',
+    accessedAt: PHASE4_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsNasalPolyps,
+    organization: 'National Health Service',
+    title: 'Nasal polyps',
+    url: 'https://www.nhs.uk/conditions/nasal-polyps/',
+    scope: 'Symptoms: a blocked nose, a runny nose, postnasal drip, a reduced sense of smell or taste, snoring. See a GP if you think you may have nasal polyps, have difficulty breathing, symptoms are getting worse or you notice changes to your sense of smell.',
+    accessedAt: PHASE4_ACCESSED,
+    clinicalReviewStatus: PENDING,
+  },
+  {
+    id: COVERAGE_SOURCE_IDS.nhsBellsPalsy,
+    organization: 'National Health Service',
+    title: "Bell's palsy",
+    url: 'https://www.nhs.uk/conditions/bells-palsy/',
+    scope: "Symptoms: weakness on 1 side of the face, usually over a few days; a drooping eyelid or corner of the mouth; drooling; a dry mouth; loss of taste; a dry or watering eye. Call 999 if a face droops on 1 side, a person cannot lift both arms, or has difficulty speaking (possible stroke). Urgent GP or 111 if you have symptoms of Bell's palsy.",
+    accessedAt: PHASE4_ACCESSED,
     clinicalReviewStatus: PENDING,
   },
   {
@@ -1452,6 +1514,9 @@ export const COVERAGE_SAFETY_SAME_PUBLICATION: Readonly<Record<string, string>> 
   [COVERAGE_SOURCE_IDS.nhsHeadInjury]: 'r3-nhs-head-injury',
   [COVERAGE_SOURCE_IDS.nhsBrokenNose]: 'r3-nhs-broken-nose',
   [COVERAGE_SOURCE_IDS.nhsWhiplash]: 'r3-nhs-whiplash',
+  [COVERAGE_SOURCE_IDS.nhsBlackEye]: 'r3-nhs-black-eye',
+  [COVERAGE_SOURCE_IDS.nhsBellsPalsy]: 'r3-nhs-bells-palsy',
+  [COVERAGE_SOURCE_IDS.nhsDysphagia]: 'r3-nhs-swallowing-problems',
   [COVERAGE_SOURCE_IDS.nhsPelvicPain]: 'r3-nhs-pelvic-pain-2026',
   [COVERAGE_SOURCE_IDS.nhsEyePain]: 'r3-nhs-eye-pain-2025',
   [COVERAGE_SOURCE_IDS.nhsEarInfections]: 'r3-nhs-ear-infections',

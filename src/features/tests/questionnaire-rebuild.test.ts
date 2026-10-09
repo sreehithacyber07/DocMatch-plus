@@ -641,6 +641,13 @@ const PROVABLE_PATHS: readonly { target: string; spec: ContextSpec; script: Scri
     basis: 'source-backed-criteria',
   },
   {
+    // NICE NG249 1.1.3 (phase 4, PENDING CLINICAL REVIEW): a fall at 65 or over, with 2 or more falls this year.
+    target: 'geriatric-medicine',
+    spec: { region: 'left-knee', concern: 'injury', age: 72, sex: 'male' },
+    script: { 'intake-injury-associated-detail': 'fall', 'intake-falls-count': 'two-plus', 'intake-fall-get-up': 'yes', 'intake-injury-function': 'normal' },
+    basis: 'source-backed-criteria',
+  },
+  {
     // NHS Toothache (questionnaire intelligence pass, PENDING CLINICAL REVIEW): tooth pain for more than 2 days, worse on biting.
     target: 'dentistry',
     spec: { region: 'face', face: 'mouth', concern: 'pain', age: 35, sex: 'female' },

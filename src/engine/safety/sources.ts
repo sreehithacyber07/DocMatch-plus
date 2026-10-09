@@ -48,6 +48,11 @@ export const NHS_VARICOSE_VEINS_SAFETY_SOURCE_ID = 'r3-nhs-varicose-veins';
 export const NHS_HEAD_INJURY_SAFETY_SOURCE_ID = 'r3-nhs-head-injury';
 export const NHS_BROKEN_NOSE_SAFETY_SOURCE_ID = 'r3-nhs-broken-nose';
 export const NHS_WHIPLASH_SAFETY_SOURCE_ID = 'r3-nhs-whiplash';
+/* Phase 4, accessed 2026-10-09, each page read directly (PENDING CLINICAL REVIEW). */
+export const NHS_BLACK_EYE_SAFETY_SOURCE_ID = 'r3-nhs-black-eye';
+export const NHS_BELLS_PALSY_SAFETY_SOURCE_ID = 'r3-nhs-bells-palsy';
+export const NHS_SWALLOWING_SAFETY_SOURCE_ID = 'r3-nhs-swallowing-problems';
+export const NHS_BLOOD_IN_URINE_SAFETY_SOURCE_ID = 'r3-nhs-blood-in-urine';
 
 const ACCESSED_AT = '2026-09-10';
 /** The research pass that added the paediatric, throat and injury checks. */
@@ -60,6 +65,8 @@ const RECONCILIATION_PASS_ACCESSED_AT = '2026-09-25';
 const BLOCKER_PASS_ACCESSED_AT = '2026-09-26';
 /** Phase 3: head, nose and neck injury checks. */
 const PHASE3_ACCESSED_AT = '2026-10-09';
+/** Phase 4: face injury, facial weakness, swallowing and lower tummy injury checks. */
+const PHASE4_ACCESSED_AT = '2026-10-09';
 /** The questionnaire intelligence pass that added the dental spreading-swelling check. */
 const INTELLIGENCE_PASS_ACCESSED_AT = '2026-10-08';
 const PENDING_REVIEW_NOTE =
@@ -67,6 +74,68 @@ const PENDING_REVIEW_NOTE =
 
 export const R3_SAFETY_SOURCES: readonly ProvenanceSource[] = [
   {
+    id: NHS_BLACK_EYE_SAFETY_SOURCE_ID,
+    organization: 'National Health Service',
+    title: 'Black eye',
+    sourceType: 'government_guidance',
+    reference: 'NHS black eye guidance',
+    url: 'https://www.nhs.uk/conditions/black-eye/',
+    accessedAt: PHASE4_ACCESSED_AT,
+    locator: 'Immediate action required: Go to A&E if; Urgent advice: Ask for an urgent GP appointment or get help from NHS 111 if',
+    scope:
+      'Go to A&E for blood in the eye, an irregularly shaped pupil, bruising around both eyes after a blow to the head, losing consciousness or being sick after a blow to the head, vision problems (double vision, loss of vision, flashing lights, halos or shadows, pain looking at bright light), or an eye that cannot move; the page adds: do not drive to A&E, ask someone to drive you or call 999. Urgent GP or 111 for a headache that does not go away or blurry vision, warmth or pus around the eye, a very high temperature or feeling hot, cold or shivery, blood-thinning medicine, or a bleeding disorder.',
+    notes: PENDING_REVIEW_NOTE,
+    reviewStatus: 'reviewed',
+    evidenceStatus: 'qualitative_supported',
+    version: 'accessed-2026-10-09',
+  },
+  {
+    id: NHS_BELLS_PALSY_SAFETY_SOURCE_ID,
+    organization: 'National Health Service',
+    title: "Bell's palsy",
+    sourceType: 'government_guidance',
+    reference: "NHS Bell's palsy guidance",
+    url: 'https://www.nhs.uk/conditions/bells-palsy/',
+    accessedAt: PHASE4_ACCESSED_AT,
+    locator: "Urgent advice: Ask for an urgent GP appointment or get help from NHS 111 if; Immediate action required: Call 999 if",
+    scope:
+      "Urgent GP or 111 for symptoms of Bell's palsy: weakness on 1 side of the face, usually over a few days, a drooping eyelid or corner of the mouth, drooling, a dry mouth, loss of taste, or a dry or watering eye. Call 999 if a face droops on 1 side, a person cannot lift both arms or has difficulty speaking (possible stroke); that sudden pattern is the existing R3 stroke check.",
+    notes: PENDING_REVIEW_NOTE,
+    reviewStatus: 'reviewed',
+    evidenceStatus: 'qualitative_supported',
+    version: 'accessed-2026-10-09',
+  },
+  {
+    id: NHS_SWALLOWING_SAFETY_SOURCE_ID,
+    organization: 'National Health Service',
+    title: 'Swallowing problems (dysphagia)',
+    sourceType: 'government_guidance',
+    reference: 'NHS swallowing problems guidance',
+    url: 'https://www.nhs.uk/conditions/swallowing-problems-dysphagia/',
+    accessedAt: PHASE4_ACCESSED_AT,
+    locator: 'Urgent advice: Ask for an urgent GP appointment or get help from NHS 111 if',
+    scope:
+      'Urgent GP or 111 if you, your child or someone you care for has difficulty swallowing, coughs or chokes while eating or drinking, feels something is stuck in the throat after eating, keeps bringing food or milk back up, cries a lot or arches their back when feeding, has a wet, gurgly voice after eating or drinking, is short of breath after eating or drinking, or gets lots of chest infections.',
+    notes: PENDING_REVIEW_NOTE,
+    reviewStatus: 'reviewed',
+    evidenceStatus: 'qualitative_supported',
+    version: 'accessed-2026-10-09',
+  },
+  {
+    id: NHS_BLOOD_IN_URINE_SAFETY_SOURCE_ID,
+    organization: 'National Health Service',
+    title: 'Blood in urine',
+    sourceType: 'government_guidance',
+    reference: 'NHS blood in urine guidance',
+    url: 'https://www.nhs.uk/conditions/blood-in-urine/',
+    accessedAt: PHASE4_ACCESSED_AT,
+    locator: 'Urgent advice: Ask for an urgent GP appointment or get help from NHS 111 if',
+    scope: 'Urgent GP or 111 if you have blood in your pee or think you may have blood in your pee.',
+    notes: PENDING_REVIEW_NOTE,
+    reviewStatus: 'reviewed',
+    evidenceStatus: 'qualitative_supported',
+    version: 'accessed-2026-10-09',
+  },  {
     id: NHS_HEAD_INJURY_SAFETY_SOURCE_ID,
     organization: 'National Health Service',
     title: 'Head injury and concussion',
@@ -90,9 +159,10 @@ export const R3_SAFETY_SOURCES: readonly ProvenanceSource[] = [
     reference: 'NHS broken nose guidance',
     url: 'https://www.nhs.uk/conditions/broken-nose/',
     accessedAt: PHASE3_ACCESSED_AT,
-    locator: 'Go to A&E',
+    // Phase 4 correction: the page's heading is 'Call 999 or go to A&E', not 'Go to A&E'.
+    locator: 'Immediate action required: Call 999 or go to A&E if; Urgent advice: Get help from NHS 111 if',
     scope:
-      'After a nose injury, A&E for a nosebleed that will not stop, clear watery fluid from the nose, a severe headache with blurred or double vision, or a purple swelling inside the nose.',
+      'After a nose injury, call 999 or go to A&E for a nosebleed that will not stop, a large cut or open wound on the nose or face or something in the wound, clear watery fluid from the nose, a severe headache with blurred or double vision, eye pain and double vision, neck pain or a stiff neck with numbness or tingling in the arms, a purple swelling inside the nose, or other signs of a severe head injury. Get help from 111 if the nose is crooked, the swelling has not started to go down after 3 days, painkillers are not helping, it is still hard to breathe through the nose after the swelling has gone, there are regular nosebleeds, or a very high temperature or feeling hot, cold or shivery.',
     notes: PENDING_REVIEW_NOTE,
     reviewStatus: 'reviewed',
     evidenceStatus: 'qualitative_supported',
@@ -1050,11 +1120,34 @@ export const R3_SAFETY_EVIDENCE_REGISTER: readonly SafetyEvidenceRegisterEntry[]
   },
   {
     sourceId: NHS_BROKEN_NOSE_SAFETY_SOURCE_ID,
-    ruleIds: ['nose-injury-emergency'],
-    supports: 'After a nose injury, a purple swelling inside the nose or a severe headache with blurred or double vision needs A&E.',
+    ruleIds: ['nose-injury-emergency', 'nose-injury-urgent', 'face-wound-emergency'],
+    supports: 'After a nose or face injury, the NHS Broken nose "Call 999 or go to A&E" list (including a large cut or open wound on the nose or face, or something in the wound) and its "Get help from 111" list.',
     doesNotSupport: SYSTEM_LIMITATION,
   },
   {
+    sourceId: NHS_BLACK_EYE_SAFETY_SOURCE_ID,
+    ruleIds: ['black-eye-emergency', 'black-eye-urgent'],
+    supports: 'With a black eye after a face injury, the NHS Black eye A&E list and its urgent GP or 111 list.',
+    doesNotSupport: SYSTEM_LIMITATION,
+  },
+  {
+    sourceId: NHS_BELLS_PALSY_SAFETY_SOURCE_ID,
+    ruleIds: ['face-weakness-urgent'],
+    supports: "Facial weakness with the features NHS Bell's palsy lists needs an urgent GP appointment or 111; a sudden droop is the separate R3 stroke check.",
+    doesNotSupport: SYSTEM_LIMITATION,
+  },
+  {
+    sourceId: NHS_SWALLOWING_SAFETY_SOURCE_ID,
+    ruleIds: ['swallowing-urgent'],
+    supports: 'Difficulty swallowing and the features NHS Swallowing problems lists need an urgent GP appointment or 111.',
+    doesNotSupport: SYSTEM_LIMITATION,
+  },
+  {
+    sourceId: NHS_BLOOD_IN_URINE_SAFETY_SOURCE_ID,
+    ruleIds: ['lower-injury-blood-in-urine-urgent'],
+    supports: 'Blood in the pee needs an urgent GP appointment or 111; asked after a lower tummy or pelvic injury.',
+    doesNotSupport: SYSTEM_LIMITATION,
+  },  {
     sourceId: NHS_WHIPLASH_SAFETY_SOURCE_ID,
     ruleIds: ['neck-injury-urgent'],
     supports: 'After a neck injury, severe pain despite painkillers, tingling on one or both sides, problems walking or sitting, an electric-shock feeling or weak limbs need an urgent GP appointment or 111.',

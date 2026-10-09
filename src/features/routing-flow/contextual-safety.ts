@@ -114,8 +114,22 @@ function expansionSafety(context: RegionAssessmentContext, answers: readonly Int
     if (context.patientMode === 'adult') ids.push('safety-head-injury-signs');
     ids.push('safety-head-injury-mechanism', 'safety-head-injury-urgent');
   }
-  if (concern === 'injury' && context.faceSubregionId === 'nose') ids.push('safety-nose-injury-emergency');
+  if (concern === 'injury' && context.faceSubregionId === 'nose') ids.push('safety-nose-injury-emergency', 'safety-nose-injury-urgent');
   if (concern === 'injury' && neckArea) ids.push('safety-neck-injury-urgent');
+  /*
+    Phase 4 (PENDING CLINICAL REVIEW). What was noticed after a face injury
+    opens the matching NHS lists: a black eye the NHS Black eye A&E and urgent
+    lists, a cut or wound the NHS Broken nose face-wound item. Facial weakness
+    is asked the NHS Bell's palsy urgent features (a sudden droop stays with
+    the stroke check), a voice or swallowing concern the NHS Swallowing
+    problems urgent list, and a lower tummy or pelvic injury the NHS Blood in
+    urine urgent check.
+  */
+  if (answered(answers, INTAKE_QUESTION_IDS.faceInjuryFeatures, 'black-eye')) ids.push('safety-black-eye-emergency', 'safety-black-eye-urgent');
+  if (answered(answers, INTAKE_QUESTION_IDS.faceInjuryFeatures, 'wound')) ids.push('safety-face-wound-emergency');
+  if (concern === 'weakness-drooping' && region === 'face') ids.push('safety-face-weakness-urgent');
+  if (concern === 'voice-swallow') ids.push('safety-swallowing-urgent');
+  if (concern === 'injury' && (region === 'lower-abdomen' || region === 'pelvis')) ids.push('safety-lower-injury-blood-in-urine');
   return ids;
 }
 
@@ -198,7 +212,7 @@ function pediatricSafety(context: RegionAssessmentContext, intakeAnswers: readon
   if (['weakness-drooping', 'numbness-tingling', 'vision-change'].includes(concern)) {
     ids.add('safety-pediatric-sudden-neurological-change');
   }
-  if (abdominal && ['pain', 'bowel-change', 'other', 'swelling-lump'].includes(concern)) {
+  if (abdominal && ['pain', 'bowel-change', 'other', 'swelling-lump', 'injury'].includes(concern)) {
     ids.add('safety-pediatric-abdominal-emergency');
   }
   if (upperAbdomenInjury) ids.add('safety-upper-abdomen-injury-emergency');
@@ -327,7 +341,10 @@ export function safetyQuestionIdsForClinicalContext(
     ids.add('safety-ear-swelling-behind-ear');
   }
   if (context.bodyRegionId === 'lower-abdomen' || context.bodyRegionId === 'pelvis') {
-    if (concern === 'pain' || concern === 'reproductive-pelvic-change') {
+    // Phase 4: severe or worsening pain, or feeling faint, is the same emergency after an injury,
+    // and for a concern described as something else once it is worse with movement or touch or comes with feeling unwell.
+    if (concern === 'pain' || concern === 'reproductive-pelvic-change' || concern === 'injury'
+      || answered(intakeAnswers, INTAKE_QUESTION_IDS.lowerAssociatedSystem, 'movement', 'systemic')) {
       ids.add('safety-lower-abdominal-severe-or-faint');
     }
     if (context.sexForAssessment === 'female' && concern === 'reproductive-pelvic-change') {

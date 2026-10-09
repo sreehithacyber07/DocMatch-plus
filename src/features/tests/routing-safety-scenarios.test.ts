@@ -318,7 +318,8 @@ test('nose B: an isolated injury asks mechanism, not a second "was there an inju
   // concussion; NHS Broken nose), so those checks come first.
   assert.deepEqual(
     safetyQuestionIdsForClinicalContext(context, []),
-    ['safety-head-injury-signs', 'safety-head-injury-mechanism', 'safety-head-injury-urgent', 'safety-nose-injury-emergency', 'safety-nosebleed-prolonged-or-excessive'],
+    // Phase 4: plus the NHS Broken nose 111 list as its own urgent check.
+    ['safety-head-injury-signs', 'safety-head-injury-mechanism', 'safety-head-injury-urgent', 'safety-nose-injury-emergency', 'safety-nose-injury-urgent', 'safety-nosebleed-prolonged-or-excessive'],
   );
 });
 

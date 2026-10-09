@@ -104,8 +104,9 @@ test('rule, safety-question, payload, and source ids are unique', () => {
   // vein checks (questionnaire expansion phase 2, PENDING CLINICAL REVIEW).
   // Phase 3 (PENDING CLINICAL REVIEW): +3 joint-specific clot and back checks,
   // +5 head, face, nose and neck injury checks.
-  assert.equal(R3_RED_FLAG_RULES.length, 58 + 3 + 5);
-  assert.equal(R3_SAFETY_QUESTIONS.length, 61 + 3 + 5);
+  // Phase 4: + face wound, black eye (2), nose injury urgent, facial weakness, swallowing, lower injury blood in urine.
+  assert.equal(R3_RED_FLAG_RULES.length, 58 + 3 + 5 + 7);
+  assert.equal(R3_SAFETY_QUESTIONS.length, 61 + 3 + 5 + 7);
 });
 
 test('all enabled rules, questions, and payloads resolve authoritative provenance', () => {
@@ -136,7 +137,7 @@ test('routing safety references resolve without duplicating R2 question content'
 
 test('all safety-owned questions use explicit deterministic Yes and No options', () => {
   const owned = R3_SAFETY_QUESTIONS.filter((question) => question.kind === 'safety_owned');
-  assert.equal(owned.length, 65);
+  assert.equal(owned.length, 72);
   for (const question of owned) assert.deepEqual(question.options.map((option) => option.id), ['yes', 'no']);
 });
 
